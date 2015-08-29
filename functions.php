@@ -580,8 +580,9 @@ define('UPLOAD_EXTRA_ERR_INVALID_REQUEST', 5);
 define('UPLOAD_EXTRA_ERR_GENERIC_ERROR', 7);
 define('UPLOAD_EXTRA_ERR_UNALLOWED_EXT', 9);
 define('UPLOAD_EXTRA_ERR_UNALLOWED_MIMETYPE', 11);
-define('UPLOAD_EXTRA_ERR_FILENAME_TOO_SHORT', 13);
-define('UPLOAD_EXTRA_ERR_CANT_SAVE_FILE', 15);
+define('UPLOAD_EXTRA_ERR_OVERSIZE', 13);
+define('UPLOAD_EXTRA_ERR_FILENAME_TOO_SHORT', 15);
+define('UPLOAD_EXTRA_ERR_CANT_SAVE_FILE', 17);
 
 /**
  * Upload files.
@@ -642,13 +643,13 @@ function upload_file_to($file_entry, $pathname, & $status, $args = array()) {
 	// Get ext and check
 	$ext = is_file_extension_allowed( $_FILES[ $file_entry ]['name'], $args['allowed-ext'] );
 	if( ! $ext ) {
-		$status = UPLOAD_EXTRA_ERR_UNALLOWEED_EXTENSION;
+		$status = UPLOAD_EXTRA_ERR_UNALLOWED_EXTENSION;
 		return false;
 	}
 
 	// Check mimetype
-	if( is_mimetype_allowed( $_FILES[ $file_entry ]['tmp_name'], $args['allowed-mimetypes'] ) ) {
-		$status = UPLOAD_EXTRA_ERR_UNALLOWEED_MIMETYPE;
+	if( ! is_mimetype_allowed( $_FILES[ $file_entry ]['tmp_name'], $args['allowed-mimetypes'] ) ) {
+		$status = UPLOAD_EXTRA_ERR_UNALLOWED_MIMETYPE;
 		return false;
 	}
 
@@ -698,5 +699,5 @@ function upload_file_to($file_entry, $pathname, & $status, $args = array()) {
 		return false;
 	}
 
-	return $filename;
+	return "$filename.$ext";
 }
