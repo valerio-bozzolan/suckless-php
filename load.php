@@ -17,23 +17,13 @@
  */
 
 /*
- * Start the CMS loading DB stuff
+ * Start the CMS
  */
 
 if(!defined('ABSPATH')) {
-	die("No ABSPATH specified");
+	die("ABSPATH is not specified");
 }
 
-// Fill default costants
-if(!defined('INCLUDES')) {
-	define('INCLUDES', 'includes');
-}
-if(!defined('CONTENT')) {
-	define('CONTENT', 'content');
-}
-if(!defined('LOAD_THEME')) {
-	define('LOAD_THEME', true);
-}
 if(!defined('DEBUG')) {
 	define('DEBUG', false);
 }
@@ -46,23 +36,33 @@ if(!defined('UMASK_WRITABLE_DIRECTORY')) {
 if(!defined('UMASK_WRITABLE_FILE')) {
 	define('UMASK_WRITABLE_FILE', 0640);
 }
-if(!isset($ALLOWED_UPLOAD_EXTENSIONS)) {
-	$ALLOWED_UPLOAD_EXTENSIONS = array(
+
+// Default "constants"
+if(!isset($GLOBALS['ALLOWED_UPLOAD_EXTENSIONS'])) {
+	$GLOBALS['ALLOWED_UPLOAD_EXTENSIONS'] = array(
 		'doc', 'docx', 'gif', 'jpg', 'jpeg', 'mp3', 'mp4', 'odp', 'ods', 'odt', 'ogg', 'pdf', 'png', 'ppt', 'pptx', 'svg', 'xls', 'xlsx'
 	);
 }
-// Dependents from above ↑
-define('THEMES', CONTENT . _ . 'themes');
-define('MEDIA', INCLUDES . _ . 'media');
+if(!isset($GLOBALS['UPLOAD_ALLOWED_MIME_TYPES'])) {
+	$GLOBALS['ALLOWED_UPLOAD_MIME_TYPES'] = array(
+		'jpg' => 'image/jpeg',
+		'png' => 'image/png',
+		'gif' => 'image/gif'
+	);
+
+	// @see is_allowed_mimetype() @ functions.php
+}
+
+define('HERE', dirname(__FILE__) );
 
 // Sbabababam!
-require ABSPATH . _ . INCLUDES . '/functions.php';
-require ABSPATH . _ . INCLUDES . '/class-db.php';
-require ABSPATH . _ . INCLUDES . '/class-permissions.php';
-require ABSPATH . _ . INCLUDES . '/class-register-js-css.php';
-require ABSPATH . _ . INCLUDES . '/class-register-module.php';
-require ABSPATH . _ . INCLUDES . '/class-session.php';
-require ABSPATH . _ . INCLUDES . '/class-html.php';
+require HERE . '/functions.php';
+require HERE . '/class-db.php';
+require HERE . '/class-permissions.php';
+require HERE . '/class-register-js-css.php';
+require HERE . '/class-register-module.php';
+require HERE . '/class-session.php';
+require HERE . '/class-html.php';
 
 // Dependents from functions above ↑
 if(!defined('PROTOCOL')) {
@@ -78,7 +78,7 @@ if(!defined('ROOT')) { // Request installation pathname (after the domain name) 
 // Start stopwatch
 get_page_load();
 
-// Test the database connection (or die)
+// Test the database connection (or die!)
 $db = new DB(@$username, @$password, @$location, @$database, @$prefix);
 unset($username, $password, $location, $database, $prefix);
 
@@ -86,12 +86,7 @@ unset($username, $password, $location, $database, $prefix);
 define_default(
 	'URL',
 	'url',
-	get_site_root() // @ includes/functions.php see "ROOT"
-);
-define_default(
-	'THEME_NAME',
-	'theme',
-	'materialize'
+	get_site_root() // @ functions.php see "ROOT"
 );
 define_default(
 	'SITE_NAME',
@@ -109,39 +104,14 @@ define_default(
 	'UTF-8'
 );
 
-// The theme-name can't be a subpath (e.g. '../malware')
-if(strpos(THEME_NAME, DIRECTORY_SEPARATOR) !== false) {
-	error_die( sprintf(
-		_('Il nome del tema attivo <em>%s</em> contiene caratteri non previsti.'),
-		esc_html(THEME_NAME)
-	));
-}
-
 // Related to DB options
-define('THEME', THEMES . DIRECTORY_SEPARATOR . THEME_NAME);
 define('URL_', append_dir_to_URL(URL)); // Same as 'URL' but forced to have a slash ('/')
-define('INCLUDES_URL', URL_ . INCLUDES);
-define('MEDIA_URL', URL_ . MEDIA);
-define('THEME_URL', URL_ . THEME);
 
 // Important global vars
 $GLOBALS['javascript'] = new RegisterJavascriptLibs();
 $GLOBALS['css'] = new RegisterCSSLibs();
 $GLOBALS['module'] = new RegisterModule();
 $GLOBALS['permissions'] = new Permissions();
-
-require ABSPATH . '/load-post.php';
-
-// Default "constants"
-if( ! isset($UPLOAD_ALLOWED_MIME_TYPES) ) {
-	$GLOBALS['ALLOWED_UPLOAD_MIME_TYPES'] = array(
-		'jpg' => 'image/jpeg',
-		'png' => 'image/png',
-		'gif' => 'image/gif'
-	);
-
-	// @see is_allowed_mimetype() in includes/functions.php
-}
 
 register_module('theme-header');
 register_module('theme-footer');
@@ -155,12 +125,5 @@ inject_in_module('theme-footer', function() {
 	$GLOBALS['javascript']->enqueue_all( JavascriptLib::FOOTER );
 });
 
-// Load theme
-if(!file_exists(ABSPATH . _ . THEME . '/index.php')) {
-	error_die( sprintf(
-		_('Error with current active theme <em>%s</em> in path <em>%s</em>.'),
-		esc_html(THEME_NAME),
-		esc_html(THEME)
-	));
-}
-require ABSPATH . _ . THEME . '/index.php';
+// Callback
+require ABSPATH . '/load-post.php';

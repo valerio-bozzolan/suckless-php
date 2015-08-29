@@ -423,6 +423,9 @@ function remove_accents($s) {
 	return iconv('utf8', 'ascii//TRANSLIT', $s);
 }
 
+/**
+ * Get a secured version of a string
+ */
 function generate_slug($s, $max_length = -1, & $truncated = false) {
 	$s = strtolower( remove_accents($s) );
 	$s = str_replace('_', ' ', $s);
@@ -484,7 +487,7 @@ function _e($s) {
 	echo _($s);
 }
 
-function HTTP_json_header() {
+function http_json_header() {
 	header('Content-Type: application/json');
 }
 
@@ -570,4 +573,130 @@ function is_mimetype_allowed($file_name, $mime_types = null) {
  */
 function create_path($path, $umask = UMASK_WRITABLE_DIRECTORY) {
 	file_exists($path) || mkdir($path, $umask, true);
+}
+
+define('UPLOAD_EXTRA_ERR_UNDEFINED', 3);
+define('UPLOAD_EXTRA_ERR_INVALID_REQUEST', 5);
+define('UPLOAD_EXTRA_ERR_GENERIC_ERROR', 7);
+define('UPLOAD_EXTRA_ERR_UNALLOWED_EXT', 9);
+define('UPLOAD_EXTRA_ERR_UNALLOWED_MIMETYPE', 11);
+define('UPLOAD_EXTRA_ERR_FILENAME_TOO_SHORT', 13);
+define('UPLOAD_EXTRA_ERR_CANT_SAVE_FILE', 15);
+
+/**
+ * Upload files.
+ *
+ * @param $file_entry string See it as $_FILES[ $file_entry ]
+ * @param $pathname string the folder WITHOUT trailing slash
+ * @param $status int To know the error
+ * @param $args array Options
+ */
+function upload_file_to($file_entry, $pathname, & $status, $args = array()) {
+	$args = merge_args_defaults(
+		$args,
+		array(
+			'slug' => true,
+			'override-filename' => null,
+			'pre-filename' => '',
+			'post-filename' => '',
+			'max-filesize' => null,
+			'allowed-ext' => null,
+			'allowed-mimetypes' => null,
+			'min-length-filename' => 2,
+			'dont-overwrite' => true
+		)
+	);
+
+	if( ! isset( $_FILES[ $file_entry ] ) ) {
+		$status = UPLOAD_EXTRA_ERR_UNDEFINED;
+		return false;
+	}
+
+	// Undefined | Multiple Files | $_FILES Corruption Attack
+	// If this request falls under any of them, treat it invalid
+	if ( ! isset($_FILES[ $file_entry ]['error']) || is_array($_FILES[ $file_entry ]['error']) ) {
+		UPLOAD_EXTRA_ERR_INVALID_REQUEST;
+		return false;
+	}
+
+	switch($_FILES[ $file_entry ]['error']) {
+		case UPLOAD_ERR_OK:
+			break;
+		case UPLOAD_ERR_NO_FILE:
+		case UPLOAD_ERR_INI_SIZE:
+		case UPLOAD_ERR_FORM_SIZE:
+			// Return the same error
+			$status = $_FILES[ $file_entry ]['error'];
+			return false;
+		default:
+			$status = UPLOAD_EXTRA_ERR_GENERIC_ERROR;
+			return false;
+	}
+
+	// Check filesize
+	if($args['max-filesize'] !== null && $_FILES[ $file_entry ]['size'] > $args['max-filesize']) {
+		$status = UPLOAD_EXTRA_ERR_OVERSIZE;
+		return false;
+	}
+
+	// Get ext and check
+	$ext = is_file_extension_allowed( $_FILES[ $file_entry ]['name'], $args['allowed-ext'] );
+	if( ! $ext ) {
+		$status = UPLOAD_EXTRA_ERR_UNALLOWEED_EXTENSION;
+		return false;
+	}
+
+	// Check mimetype
+	if( is_mimetype_allowed( $_FILES[ $file_entry ]['tmp_name'], $args['allowed-mimetypes'] ) ) {
+		$status = UPLOAD_EXTRA_ERR_UNALLOWEED_MIMETYPE;
+		return false;
+	}
+
+	// Get filename
+	if($args['override-filename'] === null) {
+		$filename = substr($_FILES[ $file_entry ]['name'], 0, - strlen( $ext ));
+	} else {
+		$filename = $args['override-filename'];
+	}
+
+	// Append prefix (if any)
+	$filename = $args['pre-filename'] . $filename;
+
+	if($args['slug']) {
+		$filename = generate_slug( $filename );
+		$args['post-filename'] = generate_slug( $args['post-filename'] );
+	}
+
+	// Create destination
+	create_path( $pathname );
+
+	// Can be appended a progressive number
+	if( $args['dont-overwrite'] && file_exists( $pathname . "/$filename.$ext" )  ) {
+		$i = 1;
+		while( file_exists( $pathname . "/$filename-$i.$ext" ) ) {
+			$i++;
+		}
+		$filename = "$filename-$i";
+	}
+
+	// Append suffix (if any)
+	$filename = $filename . $args['post-filename'];
+
+	// Filename length
+	if( strlen($filename) < $args['min-length-filename'] ) {
+		$status = UPLOAD_EXTRA_ERR_FILENAME_TOO_SHORT;
+		return false;
+	}
+
+	$moved = move_uploaded_file(
+		$_FILES[ $file_entry ]['tmp_name'],
+		$pathname . "/$filename.$ext"
+	);
+
+	if(! $moved) {
+		$status = UPLOAD_EXTRA_ERR_CANT_SAVE_FILE;
+		return false;
+	}
+
+	return $filename;
 }
