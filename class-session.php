@@ -68,7 +68,7 @@ class Session {
 		}
 
 		$user = $this->db->get_row( $sql = sprintf(
-			"SELECT user_ID, user_uid, user_role, user_name, user_surname, user_email FROM {$this->db->get_table('user')} WHERE user_uid = '%s' AND user_password = '%s'",
+			"SELECT * FROM {$this->db->get_table('user')} WHERE user_uid = '%s' AND user_password = '%s'",
 			esc_sql($user_uid),
 			esc_sql($this->encryptUserPassword( $user_password) )
 		));
@@ -79,6 +79,8 @@ class Session {
 			$status = self::LOGIN_FAILED;
 			return false;
 		}
+
+		unset( $user->user_password );
 
 		$this->user = $user;
 
@@ -103,7 +105,7 @@ class Session {
 		}
 
 		$user = $this->db->get_row( sprintf(
-			"SELECT user_ID, user_uid, user_role, user_name, user_surname, user_email FROM {$this->db->get_table('user')} WHERE user_ID = %d",
+			"SELECT * FROM {$this->db->get_table('user')} WHERE user_ID = %d",
 			$_SESSION['user_ID']
 		));
 
@@ -113,6 +115,8 @@ class Session {
 			$this->user = null;
 			return false;
 		}
+
+		unset( $user->user_password );
 
 		// Aggressive browser additional restriction
 		if( isset( $_SERVER['REMOTE_ADDR'] ) ) {

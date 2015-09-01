@@ -133,6 +133,12 @@ function esc_attr($str) {
 /*
  * Friendly symlinks
  */
+function register_permission($role, $permission) {
+	$GLOBALS['permissions']->registerPermission( $role, $permission );
+}
+function inherit_permissions($role_to, $role_from) {
+	$GLOBALS['permissions']->inheritPermissions( $role_to, $role_from );
+}
 function register_javascript($javascript_uid, $url, $position = JavascriptLib::HEADER) {
 	return $GLOBALS['javascript']->register($javascript_uid, $url, $position);
 }
