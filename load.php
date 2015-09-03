@@ -24,26 +24,53 @@ if(!defined('ABSPATH')) {
 	die("ABSPATH is not specified");
 }
 
+if(!defined('ROOT')) { // Request installation pathname (after the domain name) e.g.: /cms
+	define('ROOT', dirname( $_SERVER['PHP_SELF'] ));
+}
 if(!defined('DEBUG')) {
 	define('DEBUG', false);
 }
 if(!defined('_')) { // Pathname slash
 	define('_', DIRECTORY_SEPARATOR);
 }
-if(!defined('UMASK_WRITABLE_DIRECTORY')) {
-	define('UMASK_WRITABLE_DIRECTORY', 0750);
+if(!defined('CHMOD_WRITABLE_DIRECTORY')) {
+	define('CHMOD_WRITABLE_DIRECTORY', 0777);
 }
-if(!defined('UMASK_WRITABLE_FILE')) {
-	define('UMASK_WRITABLE_FILE', 0640);
+if(!defined('CHMOD_WRITABLE_FILE')) {
+	define('CHMOD_WRITABLE_FILE', 0666);
+}
+
+if( ! isset($GLOBALS['IMAGE_EXTENSIONS']) ) {
+	$GLOBALS['IMAGE_EXTENSIONS'] = array(
+		'gif', 'jpg', 'jpef', 'png', 'svg'
+	);
+}
+
+if( ! isset($GLOBALS['VIDEO_EXTENSIONS']) ) {
+	$GLOBALS['VIDEO_EXTENSIONS'] = array(
+		'ogg', 'mp4', 'avi'
+	);
+}
+
+if( ! isset($GLOBALS['AUDIO_EXTENSIONS']) ) {
+	$GLOBALS['AUDIO_EXTENSIONS'] = array(
+		'flac', 'mp3', 'ogg'
+	);
 }
 
 // Default "constants"
-if(!isset($GLOBALS['ALLOWED_UPLOAD_EXTENSIONS'])) {
-	$GLOBALS['ALLOWED_UPLOAD_EXTENSIONS'] = array(
-		'doc', 'docx', 'gif', 'jpg', 'jpeg', 'mp3', 'mp4', 'odp', 'ods', 'odt', 'ogg', 'pdf', 'png', 'ppt', 'pptx', 'svg', 'xls', 'xlsx'
+if( ! isset($GLOBALS['ALLOWED_UPLOAD_EXTENSIONS']) ) {
+	$GLOBALS['ALLOWED_UPLOAD_EXTENSIONS'] = array_merge(
+		$GLOBALS['IMAGE_EXTENSIONS'],
+		$GLOBALS['VIDEO_EXTENSIONS'],
+		$GLOBALS['AUDIO_EXTENSIONS'],
+		array(
+			'doc', 'docx', 'odp', 'ods', 'odt', 'pdf', 'ppt', 'pptx', 'xls', 'xlsx'
+		)
 	);
 }
-if(!isset($GLOBALS['UPLOAD_ALLOWED_MIME_TYPES'])) {
+
+if( ! isset($GLOBALS['UPLOAD_ALLOWED_MIME_TYPES']) ) {
 	$GLOBALS['ALLOWED_UPLOAD_MIME_TYPES'] = array(
 		'jpg' => 'image/jpeg',
 		'png' => 'image/png',
@@ -57,6 +84,7 @@ define('HERE', dirname(__FILE__) );
 
 // Sbabababam!
 require HERE . '/functions.php';
+require HERE . '/class-file-uploader.php';
 require HERE . '/class-db.php';
 require HERE . '/class-permissions.php';
 require HERE . '/class-register-js-css.php';
@@ -70,9 +98,6 @@ if(!defined('PROTOCOL')) {
 }
 if(!defined('DOMAIN')) {
 	define('DOMAIN', get_domain());
-}
-if(!defined('ROOT')) { // Request installation pathname (after the domain name) e.g.: /cms
-	define('ROOT', dirname( $_SERVER['PHP_SELF'] ));
 }
 
 // Start stopwatch
@@ -91,12 +116,12 @@ define_default(
 define_default(
 	'SITE_NAME',
 	'site-name',
-	'Landscapefor'
+	'Boz PHP - Another PHP framework'
 );
 define_default(
 	'SITE_DESCRIPTION',
 	'site-description',
-	_('Content Management System per la geolocalizzazione dei POI (punti di interesse).')
+	'A simple framework'
 );
 define_default(
 	'CHARSET',

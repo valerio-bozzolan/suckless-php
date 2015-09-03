@@ -189,6 +189,7 @@ function get_user($property = null) {
 	}
 	return $user->$property;
 }
+
 function get_num_queries() {
 	return $GLOBALS['db']->get_num_queries();
 }
@@ -248,19 +249,6 @@ function require_permission($permission) {
 		get_footer();
 		exit; // Yes!
 	endif;
-}
-
-function get_user_complete_name() {
-	use_session();
-
-	$user = get_user();
-	if(!$user) {
-		if(DEBUG) {
-			error( _("Non sei autenticato") );
-		}
-		return;
-	}
-	return "{$user->user_name} {$user->user_surname}";
 }
 
 /**
@@ -497,43 +485,48 @@ function http_json_header() {
 	header('Content-Type: application/json');
 }
 
-/*
- * Check if a file have an extension or from a list of extensions
+/**
+ * Check if a file name end with a certain extension.
  *
- * @param $file_name string
- * @param $exts array of lower case strings
+ * @param string $filename File name.
+ * @param mixed $extensions Extensions.
  */
-function is_file_extension_allowed($file_name, $exts = null) {
-	if( $exts === null ) {
-		$exts = $GLOBALS['ALLOWED_UPLOAD_EXTENSIONS'];
+function check_file_extension($filename, $extensions) {
+	if( ! is_array( $extensions ) ) {
+		$extensions = array($extensions);
 	}
-	if( ! is_array($exts) ) {
-		$exts = array($exts);
-	}
-	$n = count($exts);
-	for($i=0; $i<$n; $i++) {
-		$ext = '.' . $exts[$i];
-		$file_ext = strtolower( substr( $file_name, - strlen($ext) ) );
-		if( $ext === $file_ext ) {
-			return $exts[$i];
+	foreach($extensions as $ext) {
+		$dotted = ".$ext";
+		if( substr( $filename, 0, -strlen($dotted) ) == $dotted ) {
+			return $ext;
 		}
 	}
 	return false;
 }
 
-function is_image($file_name) {
-	$exts = array('png', 'gif', 'svg', 'jpeg', 'jpg');
-	return check_file_extension($file_name, $exts);
+function is_image($filename) {
+	return check_file_extension($filename, $GLOBALS['IMAGE_EXTENSIONS']);
 }
 
-function is_audio($file_name) {
-	$exts = array('mp3');
-	return check_file_extension($file_name, $exts);
+function is_audio($filename) {
+	return check_file_extension($filename, $GLOBALS['AUDIO_EXTENSIONS']);
 }
 
-function is_video($file_name) {
-	$exts = array('ogg', 'mp4', 'avi', '3gp');
-	return check_file_extension($file_name, $exts);
+function is_video($filename) {
+	return check_file_extension($filename, $GLOBALS['VIDEO_EXTENSIONS']);
+}
+
+/*
+ * Check if a file have an extension or from a list of extensions
+ *
+ * @param string $filename string
+ * @param mixed $exts Array of lower case strings
+ */
+function is_file_extension_allowed($filename, $exts = null) {
+	if( $exts === null ) {
+		$exts = $GLOBALS['ALLOWED_UPLOAD_EXTENSIONS'];
+	}
+	return check_file_extension($filename, $ext);
 }
 
 function is_closure($t) {
@@ -558,152 +551,25 @@ function get_human_filesize($filesize, $separator = ' '){
 }
 
 /*
- * Check the mime type of a file
- *
- * @see http://php.net/manual/en/features.file-upload.php
- */
-function is_mimetype_allowed($file_name, $mime_types = null) {
-	if($mime_types === null) {
-		$mime_types = $GLOBALS['ALLOWED_UPLOAD_MIME_TYPES'];
-	}
-	$finfo = new finfo(FILEINFO_MIME_TYPE);
-	return array_search(
-		$finfo->file( $file_name ),
-		$mime_types,
-		true
-	) !== false;
-}
-
-/*
  * Create a pathname in the filesystem
  */
-function create_path($path, $umask = UMASK_WRITABLE_DIRECTORY) {
-	file_exists($path) || mkdir($path, $umask, true);
-}
-
-define('UPLOAD_EXTRA_ERR_UNDEFINED', 3);
-define('UPLOAD_EXTRA_ERR_INVALID_REQUEST', 5);
-define('UPLOAD_EXTRA_ERR_GENERIC_ERROR', 7);
-define('UPLOAD_EXTRA_ERR_UNALLOWED_EXT', 9);
-define('UPLOAD_EXTRA_ERR_UNALLOWED_MIMETYPE', 11);
-define('UPLOAD_EXTRA_ERR_OVERSIZE', 13);
-define('UPLOAD_EXTRA_ERR_FILENAME_TOO_SHORT', 15);
-define('UPLOAD_EXTRA_ERR_CANT_SAVE_FILE', 17);
-
-/**
- * Upload files.
- *
- * @param $file_entry string See it as $_FILES[ $file_entry ]
- * @param $pathname string the folder WITHOUT trailing slash
- * @param $status int To know the error
- * @param $args array Options
- */
-function upload_file_to($file_entry, $pathname, & $status, $args = array()) {
-	$args = merge_args_defaults(
-		$args,
-		array(
-			'slug' => true,
-			'override-filename' => null,
-			'pre-filename' => '',
-			'post-filename' => '',
-			'max-filesize' => null,
-			'allowed-ext' => null,
-			'allowed-mimetypes' => null,
-			'min-length-filename' => 2,
-			'dont-overwrite' => true
-		)
-	);
-
-	if( ! isset( $_FILES[ $file_entry ] ) ) {
-		$status = UPLOAD_EXTRA_ERR_UNDEFINED;
-		return false;
+function create_path($path, $chmod = CHMOD_WRITABLE_DIRECTORY) {
+	if( file_exists($path) ) {
+		return true;
 	}
 
-	// Undefined | Multiple Files | $_FILES Corruption Attack
-	// If this request falls under any of them, treat it invalid
-	if ( ! isset($_FILES[ $file_entry ]['error']) || is_array($_FILES[ $file_entry ]['error']) ) {
-		UPLOAD_EXTRA_ERR_INVALID_REQUEST;
-		return false;
+	var_dump($chmod);
+
+	if( mkdir($path, $chmod, true) ) {
+		return true;
 	}
 
-	switch($_FILES[ $file_entry ]['error']) {
-		case UPLOAD_ERR_OK:
-			break;
-		case UPLOAD_ERR_NO_FILE:
-		case UPLOAD_ERR_INI_SIZE:
-		case UPLOAD_ERR_FORM_SIZE:
-			// Return the same error
-			$status = $_FILES[ $file_entry ]['error'];
-			return false;
-		default:
-			$status = UPLOAD_EXTRA_ERR_GENERIC_ERROR;
-			return false;
+	if(DEBUG) {
+		error( sprintf(
+			_("Impossibile scrivere il percorso '%s'."),
+			esc_html( $path )
+		) );
 	}
 
-	// Check filesize
-	if($args['max-filesize'] !== null && $_FILES[ $file_entry ]['size'] > $args['max-filesize']) {
-		$status = UPLOAD_EXTRA_ERR_OVERSIZE;
-		return false;
-	}
-
-	// Get ext and check
-	$ext = is_file_extension_allowed( $_FILES[ $file_entry ]['name'], $args['allowed-ext'] );
-	if( ! $ext ) {
-		$status = UPLOAD_EXTRA_ERR_UNALLOWED_EXTENSION;
-		return false;
-	}
-
-	// Check mimetype
-	if( ! is_mimetype_allowed( $_FILES[ $file_entry ]['tmp_name'], $args['allowed-mimetypes'] ) ) {
-		$status = UPLOAD_EXTRA_ERR_UNALLOWED_MIMETYPE;
-		return false;
-	}
-
-	// Get filename
-	if($args['override-filename'] === null) {
-		$filename = substr($_FILES[ $file_entry ]['name'], 0, - strlen( $ext ));
-	} else {
-		$filename = $args['override-filename'];
-	}
-
-	// Append prefix (if any)
-	$filename = $args['pre-filename'] . $filename;
-
-	if($args['slug']) {
-		$filename = generate_slug( $filename );
-		$args['post-filename'] = generate_slug( $args['post-filename'] );
-	}
-
-	// Create destination
-	create_path( $pathname );
-
-	// Can be appended a progressive number
-	if( $args['dont-overwrite'] && file_exists( $pathname . "/$filename.$ext" )  ) {
-		$i = 1;
-		while( file_exists( $pathname . "/$filename-$i.$ext" ) ) {
-			$i++;
-		}
-		$filename = "$filename-$i";
-	}
-
-	// Append suffix (if any)
-	$filename = $filename . $args['post-filename'];
-
-	// Filename length
-	if( strlen($filename) < $args['min-length-filename'] ) {
-		$status = UPLOAD_EXTRA_ERR_FILENAME_TOO_SHORT;
-		return false;
-	}
-
-	$moved = move_uploaded_file(
-		$_FILES[ $file_entry ]['tmp_name'],
-		$pathname . "/$filename.$ext"
-	);
-
-	if(! $moved) {
-		$status = UPLOAD_EXTRA_ERR_CANT_SAVE_FILE;
-		return false;
-	}
-
-	return "$filename.$ext";
+	return true;
 }
