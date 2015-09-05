@@ -133,17 +133,20 @@ function esc_attr($str) {
 /*
  * Friendly symlinks
  */
+function register_mimetypes($category, $mimetypes) {
+	$GLOBALS['mimeTypes']->registerMimetypes($category, $mimetypes);
+}
 function register_permission($role, $permission) {
-	$GLOBALS['permissions']->registerPermission( $role, $permission );
+	$GLOBALS['permissions']->registerPermission($role, $permission);
 }
 function inherit_permissions($role_to, $role_from) {
-	$GLOBALS['permissions']->inheritPermissions( $role_to, $role_from );
+	$GLOBALS['permissions']->inheritPermissions($role_to, $role_from);
 }
 function register_javascript($javascript_uid, $url, $position = JavascriptLib::HEADER) {
-	return $GLOBALS['javascript']->register($javascript_uid, $url, $position);
+	return $GLOBALS['javascript']->register( $javascript_uid, $url, $position );
 }
 function enqueue_javascript($javascript_uid, $position = JavascriptLib::HEADER) {
-	return $GLOBALS['javascript']->enqueue($javascript_uid, $position);
+	return $GLOBALS['javascript']->enqueue( $javascript_uid, $position );
 }
 function register_css($css_uid, $url) {
 	return $GLOBALS['css']->register($css_uid, $url);
@@ -486,47 +489,120 @@ function http_json_header() {
 }
 
 /**
- * Check if a file name end with a certain extension.
+ * Get the MIME type from a file.
  *
- * @param string $filename File name.
- * @param mixed $extensions Extensions.
+ * @param string $filepath The file path.
+ * @param bool $pure
+ * 	TRUE for 'image/png; something';
+ * 	FALSE for 'image/png'.
  */
-function check_file_extension($filename, $extensions) {
-	if( ! is_array( $extensions ) ) {
-		$extensions = array($extensions);
-	}
-	foreach($extensions as $ext) {
-		$dotted = ".$ext";
-		if( substr( $filename, 0, -strlen($dotted) ) == $dotted ) {
-			return $ext;
+function get_mimetype($filepath, $pure = false) {
+	$finfo = finfo_open(FILEINFO_MIME, MAGIC_MIME_FILE);
+
+	if( ! $finfo ) {
+		if( DEBUG ) {
+			error( sprintf(
+				_("Errore aprendo il database fileinfo situato in '%s'."),
+				MAGIC_MIME_FILE
+			) );
 		}
+
+		return false;
 	}
+
+	$mime = finfo_file($finfo, $filepath);
+
+	if( ! $mime ) {
+		if(DEBUG) {
+			error( sprintf(
+				_("Impossibile ottenere il MIME del file '%s'."),
+				esc_html( $filepath )
+			) );
+		}
+		return false;
+	}
+
+	if( ! $pure ) {
+		$mime = explode(';', $mime, 2); // Split "; charset"
+		$mime = $mime[0];
+	}
+
+	return $mime;
+}
+
+/**
+ * Check if a file name end with an allowed extension.
+ *
+ * @see MimeTypes::checkFileExtension()
+ */
+function check_file_extension($filename) {
+	return $GLOBALS['mimeTypes']->checkFileExtension($filename);
+}
+
+/**
+ * Check if a file have a specified / allowed mimetype.
+ *
+ * @param string $filepath The path to the file. E.g. '/tmp/aakhajkdh'.
+ * @return mixed If the MIME is allowed
+ */
+function check_file_mimetype($filepath) {
+	$mime = get_mimetype($filepath);
+	if( ! $mime ) {
+		// get_mimetype() throwed yet an "exception"
+		return false;
+	}
+
+	return $GLOBALS['mimeTypes']->isMimeAllowed( $mime );
+}
+
+/**
+ * Check the MIME and the extension.
+ *
+ * @param string $filepath The file path.
+ * @param string$filename The file name (NULL for same as $filepath).
+ * @return mixed FALSE or the extension as string
+ */
+function is_file_allowed($filepath, $filename = null) {
+	if($filename === null) {
+		$filename = $filepath;
+	}
+
+	$extension = check_file_extension($filename);
+	if( ! $extension ) {
+		return false;
+	}
+
+	$allowed_extensions = check_file_mimetype($filepath);
+	if( ! $allowed_extensions ) {
+		return false;
+	}
+
+	$ok = in_array( $extension, $allowed_extensions );
+	if( $ok ) {
+		return $extension;
+	}
+
 	return false;
 }
 
-function is_image($filename) {
-	return check_file_extension($filename, $GLOBALS['IMAGE_EXTENSIONS']);
+function is_image($filepath) {
+	$mime = get_mimetype($filepath);
+	return $GLOBALS['mimeTypes']->isMimeInCategory($mime , 'image');
 }
 
-function is_audio($filename) {
-	return check_file_extension($filename, $GLOBALS['AUDIO_EXTENSIONS']);
+function is_audio($filepath) {
+	$mime = get_mimetype($filepath);
+	return $GLOBALS['mimeTypes']->isMimeInCategory($mime, 'audio');
 }
 
-function is_video($filename) {
-	return check_file_extension($filename, $GLOBALS['VIDEO_EXTENSIONS']);
+function is_video($filepath) {
+	$mime = get_mimetype($filepath);
+	return $GLOBALS['mimeTypes']->isMimeInCategory($mime, 'video');
 }
 
-/*
- * Check if a file have an extension or from a list of extensions
- *
- * @param string $filename string
- * @param mixed $exts Array of lower case strings
- */
-function is_file_extension_allowed($filename, $exts = null) {
-	if( $exts === null ) {
-		$exts = $GLOBALS['ALLOWED_UPLOAD_EXTENSIONS'];
-	}
-	return check_file_extension($filename, $ext);
+function is_document($filepath) {
+	$mime = get_mimetype($filepath);
+	return $GLOBALS['mimeTypes']->isMimeInCategory($mime, 'document');
 }
 
 function is_closure($t) {

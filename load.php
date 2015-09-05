@@ -39,51 +39,17 @@ if(!defined('CHMOD_WRITABLE_DIRECTORY')) {
 if(!defined('CHMOD_WRITABLE_FILE')) {
 	define('CHMOD_WRITABLE_FILE', 0666);
 }
-
-if( ! isset($GLOBALS['IMAGE_EXTENSIONS']) ) {
-	$GLOBALS['IMAGE_EXTENSIONS'] = array(
-		'gif', 'jpg', 'jpef', 'png', 'svg'
-	);
+if(!defined('MAGIC_MIME_FILE')) { // Fifo
+	define('MAGIC_MIME_FILE', null); // System default
 }
 
-if( ! isset($GLOBALS['VIDEO_EXTENSIONS']) ) {
-	$GLOBALS['VIDEO_EXTENSIONS'] = array(
-		'ogg', 'mp4', 'avi'
-	);
-}
-
-if( ! isset($GLOBALS['AUDIO_EXTENSIONS']) ) {
-	$GLOBALS['AUDIO_EXTENSIONS'] = array(
-		'flac', 'mp3', 'ogg'
-	);
-}
-
-// Default "constants"
-if( ! isset($GLOBALS['ALLOWED_UPLOAD_EXTENSIONS']) ) {
-	$GLOBALS['ALLOWED_UPLOAD_EXTENSIONS'] = array_merge(
-		$GLOBALS['IMAGE_EXTENSIONS'],
-		$GLOBALS['VIDEO_EXTENSIONS'],
-		$GLOBALS['AUDIO_EXTENSIONS'],
-		array(
-			'doc', 'docx', 'odp', 'ods', 'odt', 'pdf', 'ppt', 'pptx', 'xls', 'xlsx'
-		)
-	);
-}
-
-if( ! isset($GLOBALS['UPLOAD_ALLOWED_MIME_TYPES']) ) {
-	$GLOBALS['ALLOWED_UPLOAD_MIME_TYPES'] = array(
-		'jpg' => 'image/jpeg',
-		'png' => 'image/png',
-		'gif' => 'image/gif'
-	);
-
-	// @see is_allowed_mimetype() @ functions.php
-}
+// @see is_allowed_mimetype() @ functions.php
 
 define('HERE', dirname(__FILE__) );
 
 // Sbabababam!
 require HERE . '/functions.php';
+require HERE . '/class-mimetypes.php';
 require HERE . '/class-file-uploader.php';
 require HERE . '/class-db.php';
 require HERE . '/class-permissions.php';
@@ -91,6 +57,13 @@ require HERE . '/class-register-js-css.php';
 require HERE . '/class-register-module.php';
 require HERE . '/class-session.php';
 require HERE . '/class-html.php';
+
+// Important global vars
+$GLOBALS['mimeTypes'] = new MimeTypes();
+$GLOBALS['javascript'] = new RegisterJavascriptLibs();
+$GLOBALS['css'] = new RegisterCSSLibs();
+$GLOBALS['module'] = new RegisterModule();
+$GLOBALS['permissions'] = new Permissions();
 
 // Dependents from functions above ↑
 if(!defined('PROTOCOL')) {
@@ -132,11 +105,51 @@ define_default(
 // Related to DB options
 define('URL_', append_dir_to_URL(URL)); // Same as 'URL' but forced to have a slash ('/')
 
-// Important global vars
-$GLOBALS['javascript'] = new RegisterJavascriptLibs();
-$GLOBALS['css'] = new RegisterCSSLibs();
-$GLOBALS['module'] = new RegisterModule();
-$GLOBALS['permissions'] = new Permissions();
+register_mimetypes(
+	'image',
+	array(
+		'image/jpeg' => array('jpg', 'jpeg'),
+		'image/png' => 'png',
+		'image/gif' => 'gif',
+		'image/svg+xml' => 'svg'
+	)
+);
+register_mimetypes(
+	'audio',
+	array(
+		'audio/x-flac' => 'flac',
+		'audio/ogg' => 'ogg',
+		'audio/vorbis' => 'ogg',
+		'audio/vorbis-config' => 'ogg',
+		'audio/mpeg' => 'mp4',
+		'audio/MPA' => 'mp4',
+		'audio/mpa-robust' => 'mp4'
+	)
+);
+register_mimetypes(
+	'video',
+	array(
+		'video/mp4' => 'mp4',
+		'application/ogg' => 'ogg'
+	)
+);
+register_mimetypes(
+	'document',
+	array(
+		'application/pdf' => 'pdf',
+		'application/x-pdf' => 'pdf',
+		'application/x-bzpdf' => 'pdf',
+		'application/x-gzpdf' => 'pdf',
+		'application/vnd.oasis.opendocument.text' => 'odt',
+		'application/vnd.oasis.opendocument.presentation' => 'odp',
+		'application/vnd.oasis.opendocument.spreadsheet' => 'ods',
+		'application/vnd.oasis.opendocument.graphics' => 'odg',
+		'application/msword' => 'doc',
+		'application/vnd.ms-excel' => 'xls',
+		'application/vnd.ms-powerpoint' => 'ppt',
+		'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => array('docx', 'xlsx', 'pptx')
+	)
+);
 
 register_module('theme-header');
 register_module('theme-footer');

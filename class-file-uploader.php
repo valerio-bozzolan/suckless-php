@@ -18,19 +18,21 @@
 
 define('UPLOAD_EXTRA_ERR_INVALID_REQUEST', 101);
 define('UPLOAD_EXTRA_ERR_GENERIC_ERROR', 102);
-define('UPLOAD_EXTRA_ERR_UNALLOWED_EXT', 103);
-define('UPLOAD_EXTRA_ERR_UNALLOWED_MIMETYPE', 104);
-define('UPLOAD_EXTRA_ERR_OVERSIZE', 105);
-define('UPLOAD_EXTRA_ERR_FILENAME_TOO_SHORT', 106);
-define('UPLOAD_EXTRA_ERR_FILENAME_TOO_LONG', 107);
-define('UPLOAD_EXTRA_ERR_CANT_SAVE_FILE', 108);
+define('UPLOAD_EXTRA_ERR_UNALLOWED_FILE', 104);
+define('UPLOAD_EXTRA_ERR_OVERSIZE', 106);
+define('UPLOAD_EXTRA_ERR_FILENAME_TOO_SHORT', 107);
+define('UPLOAD_EXTRA_ERR_FILENAME_TOO_LONG', 108);
+define('UPLOAD_EXTRA_ERR_CANT_SAVE_FILE', 109);
 
 /**
  * Manage upload exceptions.
  */
 class FileUploader {
 	private $fileEntry;
+
 	private $args;
+
+	private $mimeTypes;
 
 	/**
 	 * Create a FileUploader object.
@@ -39,9 +41,14 @@ class FileUploader {
 	 * @param array $args Arguments.
 	 * @see FileUploader::setArgs()
 	 */
-	function __construct($fileEntry, $args = array()) {
+	function __construct($fileEntry, $args = array(), $mimeTypes = null) {
 		$this->fileEntry = $fileEntry;
 		$this->setArgs($args);
+		if($mimeTypes === null) {
+			$this->mimeTypes = & $GLOBALS['mimeTypes'];
+		} else {
+			$this->mimeTypes = $mimeTypes;
+		}
 	}
 
 	/**
@@ -93,8 +100,6 @@ class FileUploader {
 				'pre-filename' => '',
 				'post-filename' => '',
 				'max-filesize' => null,
-				'allowed-ext' => null,
-				'allowed-mimetypes' => null,
 				'min-length-filename' => 2,
 				'max-length-filename' => 200,
 				'dont-overwrite' => true
@@ -166,16 +171,13 @@ class FileUploader {
 		}
 
 		// Get ext and check
-		$ext = is_file_extension_allowed( $_FILES[ $this->fileEntry ]['name'], $this->args['allowed-ext'] );
-		if( ! $ext ) {
-			$status = UPLOAD_EXTRA_ERR_UNALLOWED_EXTENSION;
-			return false;
-		}
+		$ext = is_file_allowed(
+			$_FILES[ $this->fileEntry ]['tmp_name'],
+			$_FILES[ $this->fileEntry ]['name']
+		);
 
-		// Check mimetype
-		// @TODO is_mimetype_allowed DON'T EXISTS
-		if( false && ! is_mimetype_allowed( $_FILES[ $this->fileEntry ]['tmp_name'], $this->args['allowed-mimetypes'] ) ) {
-			$status = UPLOAD_EXTRA_ERR_UNALLOWED_MIMETYPE;
+		if( ! $ext ) {
+			$status = UPLOAD_EXTRA_ERR_UNALLOWED_FILE;
 			return false;
 		}
 
@@ -231,6 +233,7 @@ class FileUploader {
 			return false;
 		}
 
+		$status = UPLOAD_ERR_OK;
 		return "$filename.$ext";
 	}
 
@@ -240,8 +243,11 @@ class FileUploader {
 	 * @param int $status The $status var from FileUploader::uploadTo()
 	 * @return string The proper error message.
 	 */
-	public static function getErrorMessage($status) {
+	public function getErrorMessage($status) {
 		switch($status) {
+			case UPLOAD_ERR_OK:
+				// You should avoid this. Is not an error!
+				return _("Upload completato con successo.");
 			case UPLOAD_ERR_NO_FILE:
 				return _("Non è stato selezionato alcun file.");
 			case UPLOAD_ERR_INI_SIZE:
@@ -259,16 +265,36 @@ class FileUploader {
 				);
 			case UPLOAD_EXTRA_ERR_CANT_SAVE_FILE:
 				return _("Impossibile salvare il file.");
-			case UPLOAD_EXTRA_ERR_UNALLOWED_EXT:
-				return _("Il file ha un'estensione non valida.");
-			case UPLOAD_EXTRA_ERR_UNALLOWED_MIMETYPE:
-				return _("Il file è di un tipo non concesso");
+			case UPLOAD_EXTRA_ERR_UNALLOWED_FILE:
+				$mime = get_mimetype( $_FILES[ $this->fileEntry ]['tmp_name'] );
+
+				if( $types = $this->mimeTypes->isMimeAllowed($mime) ) {
+					foreach($types as $i=>$type) {
+						$types[$i] = ".$type";
+					}
+					return sprintf(
+						_("Il file ha un'estensione non valida. Formati permessi: <em>%s</em>."),
+						esc_html( implode(', ', $types) )
+					);
+				} else {
+					return sprintf(
+						_("Il file é di un tipo non concesso: <em>%s</em>."),
+						esc_html( $mime )
+					);
+				}
 			case UPLOAD_EXTRA_ERR_FILENAME_TOO_SHORT:
 				return _("Il file ha un nome troppo breve.");
 			case UPLOAD_EXTRA_ERR_FILENAME_TOO_LONG:
 				return _("Il file ha un nome troppo lungo.");
 			case UPLOAD_EXTRA_ERR_GENERIC_ERROR:
+				return _("Errore di caricamento.");
 			default:
+				if(DEBUG) {
+					error( sprintf(
+						_("Stato di errore non previsto: '%d'"),
+						$status
+					) );
+				}
 				return _("Errore di caricamento.");
 		}
 	}
