@@ -665,10 +665,10 @@ class DynamicQuery {
 		$this->offset = $offset;
 	}
 
-	public function appendConditionSomethingIn($heystack, $needles) {
-		if( !is_array( $needles ) ) {
+	public function appendConditionSomethingIn($heystack, $needles, $glue = 'AND', $not_in = false) {
+		if( ! is_array( $needles ) ) {
 			$needles = single_quotes( esc_sql( $needles ) );
-			$this->append_condition("$heystack = $needles");
+			$this->appendCondition("$heystack = $needles", $glue);
 			return;
 		}
 		$values = '';
@@ -680,8 +680,16 @@ class DynamicQuery {
 			$values .= single_quotes( esc_sql($needles[ $i ]) );
 		}
 		if( $values !== '') {
-			$this->append_condition("$heystack IN ($values)");
+			if($not_in) {
+				$this->appendCondition("$heystack NOT IN ($values)", $glue);
+			} else {
+				$this->appendCondition("$heystack IN ($values)", $glue);
+			}
 		}
+	}
+
+	public function appendConditionSomethingNotIn($heystack, $needles, $glue = 'AND') {
+		$this->appendConditionSomethingIn($heystack, $needles, $glue, true); // See true
 	}
 
 	private function appendInArray($values, & $array) {

@@ -24,14 +24,18 @@ if(!defined('ABSPATH')) {
 	die("ABSPATH is not specified");
 }
 
-if(!defined('ROOT')) { // Request installation pathname (after the domain name) e.g.: /cms
-	define('ROOT', dirname( $_SERVER['PHP_SELF'] ));
-}
 if(!defined('DEBUG')) {
 	define('DEBUG', false);
 }
 if(!defined('_')) { // Pathname slash
 	define('_', DIRECTORY_SEPARATOR);
+}
+if(!defined('ROOT')) { // Request installation pathname (after the domain name) e.g.: /cms
+	if( dirname( $_SERVER['PHP_SELF'] ) === _ ) {
+		define('ROOT', '');
+	} else {
+		define('ROOT', dirname( $_SERVER['PHP_SELF'] ));
+	}
 }
 if(!defined('CHMOD_WRITABLE_DIRECTORY')) {
 	define('CHMOD_WRITABLE_DIRECTORY', 0777);
@@ -58,12 +62,8 @@ require HERE . '/class-register-module.php';
 require HERE . '/class-session.php';
 require HERE . '/class-html.php';
 
-// Important global vars
-$GLOBALS['mimeTypes'] = new MimeTypes();
-$GLOBALS['javascript'] = new RegisterJavascriptLibs();
-$GLOBALS['css'] = new RegisterCSSLibs();
-$GLOBALS['module'] = new RegisterModule();
-$GLOBALS['permissions'] = new Permissions();
+// Start stopwatch
+get_page_load();
 
 // Dependents from functions above ↑
 if(!defined('PROTOCOL')) {
@@ -73,18 +73,22 @@ if(!defined('DOMAIN')) {
 	define('DOMAIN', get_domain());
 }
 
-// Start stopwatch
-get_page_load();
-
 // Test the database connection (or die!)
-$db = new DB(@$username, @$password, @$location, @$database, @$prefix);
+$GLOBALS['db'] = new DB(@$username, @$password, @$location, @$database, @$prefix);
 unset($username, $password, $location, $database, $prefix);
+
+// Important global vars
+$GLOBALS['mimeTypes'] = new MimeTypes();
+$GLOBALS['javascript'] = new RegisterJavascriptLibs();
+$GLOBALS['css'] = new RegisterCSSLibs();
+$GLOBALS['module'] = new RegisterModule();
+$GLOBALS['permissions'] = new Permissions();
 
 // Default DB options
 define_default(
 	'URL',
 	'url',
-	get_site_root() // @ functions.php see "ROOT"
+	get_site_root() // This SHOULD NOT END with a slash
 );
 define_default(
 	'SITE_NAME',
@@ -121,7 +125,7 @@ register_mimetypes(
 		'audio/ogg' => 'ogg',
 		'audio/vorbis' => 'ogg',
 		'audio/vorbis-config' => 'ogg',
-		'audio/mpeg' => 'mp4',
+		'audio/mpeg' => 'mp3',
 		'audio/MPA' => 'mp4',
 		'audio/mpa-robust' => 'mp4'
 	)

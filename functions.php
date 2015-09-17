@@ -54,16 +54,17 @@ function merge_args_defaults($args, $defaults) {
  * @source http://gravatar.com/site/implement/images/php/
  */
 function get_gravatar($email, $s = 80, $d = 'mm', $r = 'g', $img = false, $atts = array() ) {
-    $url = 'http://www.gravatar.com/avatar/';
-    $url .= md5( strtolower( trim( $email ) ) );
-    $url .= "?s=$s&d=$d&r=$r";
-    if ( $img ) {
-        $url = '<img src="' . $url . '"';
-        foreach ( $atts as $key => $val )
-            $url .= ' ' . $key . '="' . $val . '"';
-        $url .= ' />';
-    }
-    return $url;
+	$url = 'http://www.gravatar.com/avatar/';
+	$url .= md5( strtolower( trim( $email ) ) );
+	$url .= "?s=$s&d=$d&r=$r";
+	if($img) {
+		$url = '<img src="' . $url . '"';
+		foreach($atts as $key => $val) {
+			$url .= ' ' . $key . '="' . $val . '"';
+		}
+		$url .= ' />';
+	}
+	return $url;
 }
 
 /**
@@ -116,11 +117,24 @@ function enfatize_substr($s, $q, $pre = "<b>", $post = "</b>") {
 function esc_sql($str) {
 	return $GLOBALS['db']->escapeString($str);
 }
+
+/**
+ * Escape a LIKE = '' SQL
+ */
+function esc_sql_like($s) {
+	$s = str_replace('%', '', $s);
+	return esc_sql($s);
+}
+
 /**
  * HTML escape
  */
-function esc_html($str) {
-	return htmlentities($str);
+function esc_html($s) {
+	return htmlentities($s);
+}
+
+function _esc_html($s) {
+	echo htmlentities($s);
 }
 
 /**
@@ -198,6 +212,9 @@ function get_num_queries() {
 }
 
 function get_human_datetime($datetime, $format = 'd/m/Y H:i') {
+	if( ! $datetime ) {
+		return $datetime;
+	}
 	$time = strtotime($datetime);
 	return date($format, $time);
 }
@@ -234,19 +251,16 @@ function has_permission($permission) {
 	return $GLOBALS['permissions']->hasPermission($user_role, $permission);
 }
 
-function require_permission($permission) {
+function require_permission($permission, $redirect = 'login.php?redirect=') {
 	use_session();
 
 	if( ! has_permission($permission) ) :
 		if( is_logged() ) :
-?>
-	<p><?php _e("Non hai permessi a sufficienza.") ?></p>
-<?php
+			echo HTML::tag('p', _("Non hai permessi a sufficienza.") );
 		else :
-			http_redirect(site_page(
-				'login.php?redirect=' .
-					urlencode( site_page($_SERVER['REQUEST_URI']) )
-			));
+			http_redirect( site_page(
+				$redirect . urlencode( site_page( $_SERVER['REQUEST_URI'] ) )
+			) );
 		endif;
 
 		get_footer();
@@ -269,7 +283,17 @@ function append_dir_to_URL($base_URL, $dir = '/') {
 	return $base_URL . '/' . $dir;
 }
 
+/**
+ * Full URL or folder from ROOT.
+ */
 function site_page($page) {
+	if( @$page[0] === '#' ) {
+		return $page;
+	}
+	$sub = substr($page, 0, 6);
+	if( $sub === 'http:/' || $sub === 'https:' ) {
+		return $page;
+	}
 	return append_dir_to_URL(URL, $page);
 }
 
@@ -287,10 +311,6 @@ function get_this_folder() {
 
 function get_URL_folder() {
 	return DOMAIN . $_SERVER['REQUEST_URI'];
-}
-
-function get_media_URL($media_path) {
-	return append_dir_to_URL(MEDIA_URL, $media_path);
 }
 
 /**
@@ -633,8 +653,6 @@ function create_path($path, $chmod = CHMOD_WRITABLE_DIRECTORY) {
 	if( file_exists($path) ) {
 		return true;
 	}
-
-	var_dump($chmod);
 
 	if( mkdir($path, $chmod, true) ) {
 		return true;

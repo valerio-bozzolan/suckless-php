@@ -97,7 +97,7 @@ class RegisterJavascriptLibs {
 		$this->generated[(int) $position] = true;
 	}
 
-	public function is_generated($position) {
+	public function isGenerated($position) {
 		return $this->generated[(int) $position];
 	}
 }

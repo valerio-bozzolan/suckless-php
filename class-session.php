@@ -23,10 +23,14 @@ class Session {
 
 	private $db;
 
-	function __construct($db) {
+	function __construct($db = null) {
 		session_start();
 
-		$this->db = $db;
+		if($db === null) {
+			$db = $_GLOBALS['db'];
+		} else {
+			$this->db = $db;
+		}
 
 		$this->isLogged();
 	}
@@ -49,6 +53,9 @@ class Session {
 		if($user_password === null) {
 			$user_password = @$_POST[ 'user_password' ];
 		}
+
+		$user_uid = trim( $user_uid );
+		$user_password = trim( $user_password );
 
 		if(empty($user_uid)) {
 			$status = self::EMPTY_USER_UID;
