@@ -27,7 +27,7 @@ class Session {
 		session_start();
 
 		if($db === null) {
-			$db = $_GLOBALS['db'];
+			$db = $GLOBALS['db'];
 		} else {
 			$this->db = $db;
 		}
@@ -65,17 +65,17 @@ class Session {
 			$status = self::EMPTY_USER_PASSWORD;
 			return false;
 		}
-		if(strlen($user_uid) > 32) {
+		if(strlen($user_uid) > 32) { // Todo parametrize as arg
 			$status = self::TOO_LONG_USER_UID;
 			return false;
 		}
-		if(strlen($user_password) > 64) {
+		if(strlen($user_password) > 64) { // @Todo parametrize as arg
 			$status = self::TOO_LONG_USER_PASSWORD;
 			return false;
 		}
 
-		$user = $this->db->get_row( $sql = sprintf(
-			"SELECT * FROM {$this->db->get_table('user')} WHERE user_uid = '%s' AND user_password = '%s'",
+		$user = $this->db->getRow( sprintf(
+			"SELECT * FROM {$this->db->getTable('user')} WHERE user_uid = '%s' AND user_password = '%s'",
 			esc_sql($user_uid),
 			esc_sql($this->encryptUserPassword( $user_password) )
 		));
@@ -111,8 +111,8 @@ class Session {
 			return false;
 		}
 
-		$user = $this->db->get_row( sprintf(
-			"SELECT * FROM {$this->db->get_table('user')} WHERE user_ID = %d",
+		$user = $this->db->getRow( sprintf(
+			"SELECT * FROM {$this->db->getTable('user')} WHERE user_ID = %d",
 			$_SESSION['user_ID']
 		));
 
@@ -161,6 +161,6 @@ class Session {
 	}
 
 	public static function encryptUserPassword($password) {
-		return sha1('drGth' . $password . 'pw72kP');
+		return sha1('drGth' . $password . 'pw72kP'); // @Todo parametrize salt, function and "pepe"
 	}
 }
