@@ -111,13 +111,13 @@ class DB {
 	}
 
 	function __destruct() {
-		$this->close_connection();
+		$this->closeConnection();
 	}
 
 	/**
 	 * Lock the door when you leave a room.
 	 */
-	public function close_connection() {
+	public function closeConnection() {
 		if($this->mysqli) {
 			@$this->mysqli->close();
 		}
@@ -164,6 +164,7 @@ class DB {
 	/**
 	 * To get a single row from a query.
 	 *
+	 * @deprecated
 	 * @param $SQL SQL query
 	 * @param $args Arguments.
 	 * @return object Object row.
@@ -175,6 +176,7 @@ class DB {
 	/**
 	 * Return multi-row from a query.
 	 *
+	 * @deprecated
 	 * @param string $SQL The SQL query to execute
 	 * @param array $args Arguments.
 	 * @return array The result is as an array of object.
@@ -641,6 +643,9 @@ class DynamicQuery {
 		$this->appendInArray($t, $this->tables);
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public function use_table($t) {
 		$this->useTable($t);
 	}
@@ -656,6 +661,9 @@ class DynamicQuery {
 		$this->conditions .= $c;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public function append_condition($c, $glue = 'AND') {
 		$this->appendCondition($c, $glue);
 	}

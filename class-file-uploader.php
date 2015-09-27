@@ -193,7 +193,6 @@ class FileUploader {
 
 		if($this->args['slug']) {
 			$filename = generate_slug( $filename );
-			$this->args['post-filename'] = generate_slug( $this->args['post-filename'] );
 		}
 
 		// Create destination

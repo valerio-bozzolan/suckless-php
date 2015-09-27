@@ -1,3 +1,7 @@
+Pre-packages
+============
+libmagic-dev
+
 Symlink installation
 ====================
 This framework is intended to be used as a shared library: one installation is enough for many sites.

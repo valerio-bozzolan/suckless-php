@@ -132,7 +132,6 @@ function esc_sql_like($s) {
 function esc_html($s) {
 	return htmlentities($s);
 }
-
 function _esc_html($s) {
 	echo htmlentities($s);
 }
@@ -140,8 +139,11 @@ function _esc_html($s) {
 /**
  * Escape form attributes
  */
-function esc_attr($str) {
-	return htmlspecialchars($str);
+function esc_attr($s) {
+	return htmlspecialchars($s);
+}
+function _esc_attr($s) {
+	echo htmlspecialchars($s);
 }
 
 /*
@@ -156,10 +158,19 @@ function register_permission($role, $permission) {
 function inherit_permissions($role_to, $role_from) {
 	$GLOBALS['permissions']->inheritPermissions($role_to, $role_from);
 }
+/**
+ * @deprecated
+ */
 function register_javascript($javascript_uid, $url, $position = JavascriptLib::HEADER) {
 	return $GLOBALS['javascript']->register( $javascript_uid, $url, $position );
 }
+function register_js($javascript_uid, $url, $position = JavascriptLib::HEADER) {
+	return $GLOBALS['javascript']->register( $javascript_uid, $url, $position );
+}
 function enqueue_javascript($javascript_uid, $position = JavascriptLib::HEADER) {
+	return $GLOBALS['javascript']->enqueue( $javascript_uid, $position );
+}
+function enqueue_js($javascript_uid, $position = JavascriptLib::HEADER) {
 	return $GLOBALS['javascript']->enqueue( $javascript_uid, $position );
 }
 function register_css($css_uid, $url) {
@@ -251,7 +262,11 @@ function has_permission($permission) {
 	return $GLOBALS['permissions']->hasPermission($user_role, $permission);
 }
 
-function require_permission($permission, $redirect = 'login.php?redirect=') {
+/**
+ * Do it on your own!
+ * @deprecated
+ */
+function require_permission($permission, $redirect = 'login.php?redirect=', $preFunction = '', $postFunction = '') {
 	use_session();
 
 	if( ! has_permission($permission) ) :
@@ -306,7 +321,7 @@ function double_quotes($s) {
 }
 
 function get_this_folder() {
-	return dirname($_SERVER['PHP_SELF']);
+	return dirname( $_SERVER['PHP_SELF'] );
 }
 
 function get_URL_folder() {
@@ -364,7 +379,7 @@ function get_page_load($decimals = 6) {
 function multi_text($n, $text_multi, $text_one, $text_no) {
 	if($n > 1) {
 		return str_replace($text_multi, '%', $n);
-	} else if($n == 1) {
+	} elseif($n == 1) {
 		return $text_one;
 	}
 	return $text_no;
@@ -487,17 +502,6 @@ function error($msg) {
 }
 
 /**
- * From the results of the DB query it print tags
- */
-function _tags($tags) {
-	for($i=count($tags)-1; $i>=0; $i--) {
-?>
-	<a href=""
-<?php
-	}
-}
-
-/**
  * Support for gettext
  */
 function _e($s) {
@@ -605,24 +609,32 @@ function is_file_allowed($filepath, $filename = null) {
 	return false;
 }
 
-function is_image($filepath) {
+/**
+ * Know if a file belongs to a certain category
+ *
+ * @param string $filepath The file path
+ * @param string $category The category
+ * @return mixed FALSE if not
+ */
+function is_file_in_category($filepath, $category) {
 	$mime = get_mimetype($filepath);
-	return $GLOBALS['mimeTypes']->isMimeInCategory($mime , 'image');
+	return $GLOBALS['mimeTypes']->isMimeInCategory($mime , $category);
+}
+
+function is_image($filepath) {
+	return is_file_in_category($filepath, 'image');
 }
 
 function is_audio($filepath) {
-	$mime = get_mimetype($filepath);
-	return $GLOBALS['mimeTypes']->isMimeInCategory($mime, 'audio');
+	return is_file_in_category($filepath, 'audio');
 }
 
 function is_video($filepath) {
-	$mime = get_mimetype($filepath);
-	return $GLOBALS['mimeTypes']->isMimeInCategory($mime, 'video');
+	return is_file_in_category($filepath, 'video');
 }
 
 function is_document($filepath) {
-	$mime = get_mimetype($filepath);
-	return $GLOBALS['mimeTypes']->isMimeInCategory($mime, 'document');
+	return is_file_in_category($filepath, 'document');
 }
 
 function is_closure($t) {

@@ -37,6 +37,9 @@ if(!defined('ROOT')) { // Request installation pathname (after the domain name) 
 		define('ROOT', dirname( $_SERVER['PHP_SELF'] ));
 	}
 }
+if(!defined('REQUIRE_LOAD_POST')) {
+	define('REQUIRE_LOAD_POST', true);
+}
 if(!defined('CHMOD_WRITABLE_DIRECTORY')) {
 	define('CHMOD_WRITABLE_DIRECTORY', 0777);
 }
@@ -167,5 +170,7 @@ inject_in_module('theme-footer', function() {
 	$GLOBALS['javascript']->enqueue_all( JavascriptLib::FOOTER );
 });
 
-// Callback
-require ABSPATH . '/load-post.php';
+if( REQUIRE_LOAD_POST ) {
+	// Callback
+	require ABSPATH . '/load-post.php';
+}

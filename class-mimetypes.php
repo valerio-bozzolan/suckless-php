@@ -52,7 +52,6 @@ class MimeTypes {
 		if( ! isset( $this->mimeTypes[ $category ] ) ) {
 			$this->mimeTypes[ $category ] = array();
 		}
-
 		foreach($mimeTypes as $mime => $filetypes) {
 			if( ! is_array( $filetypes ) ) {
 				$filetypes = array($filetypes);
@@ -67,6 +66,36 @@ class MimeTypes {
 				$this->mimeTypes[ $category ][ $mime ],
 				$filetypes
 			);
+		}
+	}
+
+	/**
+	 * Get an array of MIME of the selected category. If category is NULL, all the MIME are returned.
+	 *
+	 * @param string $category Category e.g. 'audio'
+	 * @return array Array of MIME.
+	 */
+	public function getMimetypes($category = null) {
+		$allMimeTypes = array();
+
+		if( $category === null ) {
+			foreach($this->mimeTypes as $mimeTypes) {
+				foreach($mimeTypes as $mime => $filetypes) {
+					$allMimeTypes[] = $mime;
+				}
+			}
+
+			return array_unique( $allMimeTypes );
+		} else {
+			if( ! isset( $this->mimeTypes[ $category ]  ) ) {
+				return false;
+			}
+
+			foreach($this->mimeTypes[ $category ] as $mime => $filetypes) {
+				$allMimeTypes[] = $mime;
+			}
+
+			return $allMimeTypes;
 		}
 	}
 
@@ -131,6 +160,7 @@ class MimeTypes {
 
 	/**
 	 * Get the file types of a MIME.
+	 * @AMBIGUOS SEE getMimetypes that is in function of a $category
 	 *
 	 * @param string $mime_value The MIME.
 	 * @return mixed FALSE if the MIME is not registered or an array of file types.
