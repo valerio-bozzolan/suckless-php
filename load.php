@@ -27,6 +27,9 @@ if(!defined('ABSPATH')) {
 if(!defined('DEBUG')) {
 	define('DEBUG', false);
 }
+if(!defined('SHOW_EVERY_SQL')) {
+	define('SHOW_EVERY_SQL', false);
+}
 if(!defined('_')) { // Pathname slash
 	define('_', DIRECTORY_SEPARATOR);
 }
@@ -48,6 +51,9 @@ if(!defined('CHMOD_WRITABLE_FILE')) {
 }
 if(!defined('MAGIC_MIME_FILE')) { // Fifo
 	define('MAGIC_MIME_FILE', null); // System default
+}
+if(!defined('USE_DB_OPTIONS')) {
+	define('USE_DB_OPTIONS', true);
 }
 
 // @see is_allowed_mimetype() @ functions.php
@@ -96,12 +102,12 @@ define_default(
 define_default(
 	'SITE_NAME',
 	'site-name',
-	'Boz PHP - Another PHP framework'
+	_("Boz PHP - Another PHP framework")
 );
 define_default(
 	'SITE_DESCRIPTION',
 	'site-description',
-	'A simple framework'
+	_("A simple framework")
 );
 define_default(
 	'CHARSET',
@@ -110,6 +116,9 @@ define_default(
 );
 
 // Related to DB options
+/**
+ * @deprecated
+ */
 define('URL_', append_dir_to_URL(URL)); // Same as 'URL' but forced to have a slash ('/')
 
 register_mimetypes(
@@ -170,7 +179,7 @@ inject_in_module('theme-footer', function() {
 	$GLOBALS['javascript']->enqueue_all( JavascriptLib::FOOTER );
 });
 
+// Callback
 if( REQUIRE_LOAD_POST ) {
-	// Callback
 	require ABSPATH . '/load-post.php';
 }

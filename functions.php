@@ -189,7 +189,7 @@ function load_module($module_uid) {
 	return $GLOBALS['module']->load_module($module_uid);
 }
 function get_table_prefix() {
-	return $GLOBALS['db']->get_prefix();
+	return $GLOBALS['db']->getPrefix();
 }
 function register_option($option_name) {
 	return $GLOBALS['db']->registerOption($option_name);
@@ -209,17 +209,18 @@ function get_user($property = null) {
 	if( $property === null ) {
 		return $user;
 	}
-	if( is_logged() && ! isset( $user->$property ) ) {
-		if(DEBUG) {
-			error( sprintf( "Not specified user field called %s", $property) );
-		}
+	if( is_logged() && ! isset( $user->{$property} ) ) {
+		DEBUG && error( sprintf(
+			_("Colonna utente '%s' mancante!"),
+			$property
+		) );
 		return null;
 	}
 	return $user->$property;
 }
 
 function get_num_queries() {
-	return $GLOBALS['db']->get_num_queries();
+	return $GLOBALS['db']->getNumQueries();
 }
 
 function get_human_datetime($datetime, $format = 'd/m/Y H:i') {
@@ -482,19 +483,24 @@ function generate_slug($s, $max_length = -1, & $truncated = false) {
  */
 function error_die($msg) {
 	http_503();
-	exit(
-"<!doctype html>
+?>
+<!doctype HTML>
 <html>
 <head>
-	<title>Error</title>
+	<title><?php _e("Errore") ?></title>
 </head>
 <body>
-	<h1>Sorry! We have a little problem" . ((DEBUG) ? ' <small>[debug]</small>' : '') . "</h1>
-	<p>The following error occurred at startup: </p>
-	<p>&laquo; $msg &raquo;</p>
-	<p>If you know what it means...</p>
+	<h1><?php printf(
+		_("Ci dispiace! C'è qualche piccolo problema! <small>(DEBUG: %s)</small>"),
+		(DEBUG) ? _("sì") : _("no")
+	) ?></h1>
+	<p><?php _e("Si è verificato il seguente errore durante l'avvio del framework:") ?></p>
+	<p>&laquo; <?php echo $msg ?> &raquo;</p>
+	<p><?php _e("Sai a che cosa significhi tutto ciò...") ?></p>
 </body>
-</html>");
+</html>
+<?php
+exit; // Yes!
 }
 
 function error($msg) {
@@ -519,17 +525,16 @@ function http_json_header() {
  * @param bool $pure
  * 	TRUE for 'image/png; something';
  * 	FALSE for 'image/png'.
+ * @return string|false
  */
 function get_mimetype($filepath, $pure = false) {
 	$finfo = finfo_open(FILEINFO_MIME, MAGIC_MIME_FILE);
 
 	if( ! $finfo ) {
-		if( DEBUG ) {
-			error( sprintf(
-				_("Errore aprendo il database fileinfo situato in '%s'."),
-				MAGIC_MIME_FILE
-			) );
-		}
+		DEBUG && error( sprintf(
+			_("Errore aprendo il database fileinfo situato in '%s'."),
+			MAGIC_MIME_FILE
+		) );
 
 		return false;
 	}
@@ -537,12 +542,11 @@ function get_mimetype($filepath, $pure = false) {
 	$mime = finfo_file($finfo, $filepath);
 
 	if( ! $mime ) {
-		if(DEBUG) {
-			error( sprintf(
-				_("Impossibile ottenere il MIME del file '%s'."),
-				esc_html( $filepath )
-			) );
-		}
+		DEBUG && error( sprintf(
+			_("Impossibile ottenere il MIME del file '%s'."),
+			esc_html( $filepath )
+		) );
+
 		return false;
 	}
 
@@ -555,61 +559,6 @@ function get_mimetype($filepath, $pure = false) {
 }
 
 /**
- * Check if a file name end with an allowed extension.
- *
- * @see MimeTypes::checkFileExtension()
- */
-function check_file_extension($filename) {
-	return $GLOBALS['mimeTypes']->checkFileExtension($filename);
-}
-
-/**
- * Check if a file have a specified / allowed mimetype.
- *
- * @param string $filepath The path to the file. E.g. '/tmp/aakhajkdh'.
- * @return mixed If the MIME is allowed
- */
-function check_file_mimetype($filepath) {
-	$mime = get_mimetype($filepath);
-	if( ! $mime ) {
-		// get_mimetype() throwed yet an "exception"
-		return false;
-	}
-
-	return $GLOBALS['mimeTypes']->isMimeAllowed( $mime );
-}
-
-/**
- * Check the MIME and the extension.
- *
- * @param string $filepath The file path.
- * @param string$filename The file name (NULL for same as $filepath).
- * @return mixed FALSE or the extension as string
- */
-function is_file_allowed($filepath, $filename = null) {
-	if($filename === null) {
-		$filename = $filepath;
-	}
-
-	$extension = check_file_extension($filename);
-	if( ! $extension ) {
-		return false;
-	}
-
-	$allowed_extensions = check_file_mimetype($filepath);
-	if( ! $allowed_extensions ) {
-		return false;
-	}
-
-	$ok = in_array( $extension, $allowed_extensions );
-	if( $ok ) {
-		return $extension;
-	}
-
-	return false;
-}
-
-/**
  * Know if a file belongs to a certain category
  *
  * @param string $filepath The file path
@@ -618,7 +567,7 @@ function is_file_allowed($filepath, $filename = null) {
  */
 function is_file_in_category($filepath, $category) {
 	$mime = get_mimetype($filepath);
-	return $GLOBALS['mimeTypes']->isMimeInCategory($mime , $category);
+	return $GLOBALS['mimeTypes']->isMimetypeInCategory($mime , $category);
 }
 
 function is_image($filepath) {
@@ -670,12 +619,10 @@ function create_path($path, $chmod = CHMOD_WRITABLE_DIRECTORY) {
 		return true;
 	}
 
-	if(DEBUG) {
-		error( sprintf(
-			_("Impossibile scrivere il percorso '%s'."),
-			esc_html( $path )
-		) );
-	}
+	DEBUG && error( sprintf(
+		_("Impossibile scrivere il percorso '%s'."),
+		esc_html( $path )
+	) );
 
 	return true;
 }

@@ -54,7 +54,7 @@ class DB {
 	 * Table prefix.
 	 * @var string
 	 */
-	private $table_prefix;
+	private $tablePrefix;
 
 	/**
 	 * Number of executed queries.
@@ -87,27 +87,36 @@ class DB {
 	 * @param type $db_password Database password
 	 * @param type $db_location Database location
 	 * @param type $db_name Database name
-	 * @param type $table_prefix Table Prefix
+	 * @param type $tablePrefix Table Prefix
 	 */
 	function __construct($db_username, $db_password, $db_location, $db_name, $table_prefix) {
 		$this->db_username = $db_username;
 		$this->db_location = $db_location;
 		$this->db_name = $db_name;
-		$this->table_prefix = $table_prefix;
+		$this->tablePrefix = $table_prefix;
 		@$this->mysqli = new mysqli($db_location, $db_username, $db_password, $db_name);
 		if($this->error_connection()) {
 			if(DEBUG) {
-				error_die( sprintf( _('Impossibile connettersi al database "<em>%s</em>" tramite l\'utente "<em>%s</em>" e password <em>"%s"</em>. Server "<em>%s</em>". Modifica il file <code>config.php</code> con i dati del tuo database.'),
+				error_die( sprintf(
+					_("Impossibile connettersi al database '%s' tramite l'utente '%s' e password (%s) sul server MySQL/MariaDB '%s'. Specifica correttamente queste informazioni nel file di configurazione del tuo progetto (usualmente '%s')."),
 					$db_name,
 					$db_username,
-					(($db_password === '') ? 'none' : 'secret'),
-					$db_location
-				));
+					($db_password === '') ? _("nessuna") : sprintf(
+						_("di %d caratteri"),
+						strlen( $db_password )
+					),
+					$db_location,
+					'load.php'
+				) );
 			} else {
-				error_die( _('Errore nello stabilire una connessione al database.') );
+				error_die( _("Errore nello stabilire una connessione al database.") );
 			}
 		}
 		@$this->mysqli->set_charset("utf8");
+
+		if( USE_DB_OPTIONS ) {
+			$this->loadAutoloadOptions();
+		}
 	}
 
 	function __destruct() {
@@ -137,11 +146,15 @@ class DB {
 		$this->num_queries++;
 		// @$this->last_result->close();
 		@$this->last_result = $this->mysqli->query($SQL);
-		if(!$this->last_result) {
-			if(DEBUG) {
-				error_die($this->get_SQL_error_message($SQL));
-			}
+		if( ! $this->last_result ) {
+			DEBUG && error_die( $this->get_SQL_error_message($SQL) );
 			return false;
+		} elseif(DEBUG && SHOW_EVERY_SQL) {
+			echo HTML::tag('p', sprintf(
+				_("Query numero %d: <pre>%s</pre>"),
+				$this->num_queries,
+				$SQL
+			) );
 		}
 		return $this->last_result;
 	}
@@ -247,15 +260,13 @@ class DB {
 			$SQL_values = array();
 
 			if($n_columns != count($rows[$i])) {
-				if(DEBUG) {
-					error(sprintf(
-						_('Errore inserendo nella tabella <em>%s</em>. Colonne: <em>%d</em>. Colonne values[<em>%d</em>]: <em>%d</em>'),
-						esc_html($table_name),
-						$n_columns,
-						$i,
-						count($rows[$i])
-					));
-				}
+				DEBUG && error( sprintf(
+					_("Errore inserendo nella tabella <em>%s</em>. Colonne: <em>%d</em>. Colonne values[<em>%d</em>]: <em>%d</em>"),
+					esc_html($table_name),
+					$n_columns,
+					$i,
+					count($rows[$i])
+				) );
 				return false;
 			}
 
@@ -319,6 +330,9 @@ class DB {
 		return $this->mysqli->insert_id;
 	}
 
+	/**
+	 * @deprecated
+ 	 */
 	public function get_last_inserted_id() {
 		return $this->mysqli->insert_id;
 	}
@@ -327,10 +341,16 @@ class DB {
 	 * Load options with autoload.
 	 */
 	public function loadAutoloadOptions() {
-		$options = $this->getResults("SELECT option_name, option_value FROM {$this->getTable('option')} where autoload='1'");
+		$options = $this->getResults("SELECT option_name, option_value FROM {$this->getTable('option')} WHERE option_autoload = '1'");
 		if($options === false) {
-			error_die("Database error." .
-				((DEBUG) ? " Probably your {$this->getTable('option')} table does not exists." : ''));
+			if(DEBUG) {
+				error_die( _("Errore caricando le opzioni dal database") );
+			} else {
+				error_die( sprintf(
+					_("Probabilmente la tabella %s non esiste."),
+					$this->getTable('option')
+				) );
+			}
 		}
 		$n = count($options);
 		for($i=0; $i<$n; $i++) {
@@ -349,9 +369,10 @@ class DB {
 	 */
 	public function registerOption($option_name, $wildcard = false) {
 		if(in_array($option_name, $this->options_used)) {
-			if(DEBUG) {
-				error("Trying to register " . esc_html($option_name) . ", that it's yet registered!");
-			}
+			DEBUG && error( sprintf(
+				_("Errore registrando l'opzione '%s' poichè risulta già registrata!"),
+				esc_html($option_name)
+			) );
 			return false;
 		}
 		$this->options_used[] = $option_name;
@@ -377,6 +398,9 @@ class DB {
 	 * @param string $defalut_value Default value if this option does not exist.
 	 */
 	public function getOption($option_name, $default_value = '') {
+		if( ! USE_DB_OPTIONS ) {
+			return $default_value;
+		}
 		if(isset($this->options_cache[$option_name])) {
 			return (empty($this->options_cache[$option_name])) ? $default_value : $this->options_cache[$option_name];
 		} else {
@@ -496,17 +520,12 @@ class DB {
 		return $this->mysqli->real_escape_string($s);
 	}
 
-	/**
-	 * To know the number of executed queries.
-	 *
-	 * @return int Queries.
-	 */
-	public function get_num_queries() {
+	public function getNumQueries() {
 		return $this->num_queries;
 	}
 
-	public function get_prefix() {
-		return $this->table_prefix;
+	public function getPrefix() {
+		return $this->tablePrefix;
 	}
 
 	/**
@@ -517,10 +536,10 @@ class DB {
 	 * @return string Table $name with the prefix
 	 */
 	public function getTable($name, $as = false) {
-		if($this->table_prefix === '') {
+		if($this->tablePrefix === '') {
 			$as = false;
 		}
-		$r = "`{$this->table_prefix}$name`";
+		$r = "`{$this->tablePrefix}$name`";
 		if($as) {
 			$r .= " AS `$name`";
 		}
@@ -577,9 +596,10 @@ class DB {
 			case null:
 			case 'null':	return 'NULL'; // 'NULL' for indexes
 		}
-		if(DEBUG) {
-			error("Type '$type' is not permitted in force_type() (Please use: 'd', 's', 'f', 'null'). Using default 's'.");
-		}
+		DEBUG && error( sprintf(
+			"Tipo '%s' non concesso in DB::force_type(). Vedi la documentazione (esiste?). Sarà usato l'escape 's'.",
+			esc_html($type)
+		) );
 		return "'{$this->escapeString($s)}'";
 	}
 

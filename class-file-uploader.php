@@ -18,7 +18,9 @@
 
 define('UPLOAD_EXTRA_ERR_INVALID_REQUEST', 101);
 define('UPLOAD_EXTRA_ERR_GENERIC_ERROR', 102);
-define('UPLOAD_EXTRA_ERR_UNALLOWED_FILE', 104);
+define('UPLOAD_EXTRA_ERR_CANT_READ_MIMETYPE', 103);
+define('UPLOAD_EXTRA_ERR_UNALLOWED_MIMETYPE', 104);
+define('UPLOAD_EXTRA_ERR_UNALLOWED_FILE', 105);
 define('UPLOAD_EXTRA_ERR_OVERSIZE', 106);
 define('UPLOAD_EXTRA_ERR_FILENAME_TOO_SHORT', 107);
 define('UPLOAD_EXTRA_ERR_FILENAME_TOO_LONG', 108);
@@ -26,6 +28,7 @@ define('UPLOAD_EXTRA_ERR_CANT_SAVE_FILE', 109);
 
 /**
  * Manage upload exceptions.
+ *
  */
 class FileUploader {
 	private $fileEntry;
@@ -70,14 +73,9 @@ class FileUploader {
 	 *		Filename suffix.
 	 *		E.g.: '_XL'
 	 *		Default: ''
-	 *	'allowed-ext' => array
-	 *		Allowed file extensions.
-	 *		E.g.: array('odf', 'txt')
-	 *		Default: null (for the defaults)
-	 *	'allowed-mimetypes' => array
-	 *		Allowed mimetypes.
-	 *		E.g.: TODO
-	 *		Default: TODO
+	 *	'category' => string|null
+	 *		Allowed MIME category/categories.
+	 *		Default: null (all the categories)
 	 *	'min-length-filename' => int
 	 *		Min length of the filename (no extension, no pathname).
 	 *		E.g.: 5
@@ -99,6 +97,7 @@ class FileUploader {
 				'override-filename' => null,
 				'pre-filename' => '',
 				'post-filename' => '',
+				'category' => null,
 				'max-filesize' => null,
 				'min-length-filename' => 2,
 				'max-length-filename' => 200,
@@ -121,7 +120,7 @@ class FileUploader {
 	 *
 	 * This obviusly see if this request have sense.
 	 *
-	 * @return bool If the user have sent a file or not.
+	 * @return bool If the user have sent a valid file or not.
 	 */
 	public function fileChoosed() {
 		return $this->uploadRequestOK() && $_FILES[ $this->fileEntry ]['error'] !== UPLOAD_ERR_NO_FILE;
@@ -154,35 +153,46 @@ class FileUploader {
 				// It's OK
 				break;
 			default:
-				if(DEBUG) {
-					error( sprintf(
-						_("FileUploader ha ottenuto un errore sconosciuto: %d."),
-						$_FILES[ $this->fileEntry ]['error']
-					) );
-				}
+				DEBUG && error( sprintf(
+					_("FileUploader ha ottenuto un errore sconosciuto: %d."),
+					$_FILES[ $this->fileEntry ]['error']
+				) );
 				$status = UPLOAD_EXTRA_ERR_GENERIC_ERROR;
 				return false;
 		}
 
 		// Check filesize
-		if($this->args['max-filesize'] !== null && $_FILES[ $this->fileEntry ]['size'] > $this->args['max-filesize']) {
+		if( $this->args['max-filesize'] !== null && $_FILES[ $this->fileEntry ]['size'] > $this->args['max-filesize'] ) {
 			$status = UPLOAD_EXTRA_ERR_OVERSIZE;
 			return false;
 		}
 
-		// Get ext and check
-		$ext = is_file_allowed(
-			$_FILES[ $this->fileEntry ]['tmp_name'],
-			$_FILES[ $this->fileEntry ]['name']
-		);
+		// Check original MIME type
+		$mime = get_mimetype( $_FILES[ $this->fileEntry ]['tmp_name'] );
+		if( ! $mime ) {
+			$status = UPLOAD_EXTRA_ERR_CANT_READ_MIMETYPE;
+			return false;
+		}
 
+		// Check if MIME type it's allowed
+		if( ! $GLOBALS['mimeTypes']->isMimetypeInCategory( $mime, $this->args['category'] ) ) {
+			$status = UPLOAD_EXTRA_ERR_UNALLOWED_MIMETYPE;
+			return false;
+		}
+
+		// Check original file extension
+		$ext = $GLOBALS['mimeTypes']->getFileExtensionFromExpectations(
+			$_FILES[ $this->fileEntry ]['name'],
+			$this->args['category'],
+			$mime
+		);
 		if( ! $ext ) {
 			$status = UPLOAD_EXTRA_ERR_UNALLOWED_FILE;
 			return false;
 		}
 
 		// Get filename
-		if($this->args['override-filename'] === null) {
+		if( $this->args['override-filename'] === null ) {
 			$filename = substr($_FILES[ $this->fileEntry ]['name'], 0, - strlen( $ext ));
 		} else {
 			$filename = $this->args['override-filename'];
@@ -191,7 +201,7 @@ class FileUploader {
 		// Append prefix (if any)
 		$filename = $this->args['pre-filename'] . $filename;
 
-		if($this->args['slug']) {
+		if( $this->args['slug'] ) {
 			$filename = generate_slug( $filename );
 		}
 
@@ -252,9 +262,7 @@ class FileUploader {
 			case UPLOAD_ERR_INI_SIZE:
 				return _("Il file eccede i limiti di sistema.");
 			case UPLOAD_ERR_FORM_SIZE:
-				if(DEBUG) {
-					error( _("Non affidarti a UPLOAD_ERR_FORM_SIZE!") );
-				}
+				DEBUG && error( _("Non affidarti a UPLOAD_ERR_FORM_SIZE!") );
 				return _("Il file eccede i limiti imposti.");
 			case UPLOAD_EXTRA_ERR_OVERSIZE:
 				return sprintf(
@@ -264,23 +272,27 @@ class FileUploader {
 				);
 			case UPLOAD_EXTRA_ERR_CANT_SAVE_FILE:
 				return _("Impossibile salvare il file.");
+			case UPLOAD_EXTRA_ERR_CANT_READ_MIMETYPE:
+				return _("Il MIME del file non è validabile.");	
+			case UPLOAD_EXTRA_ERR_UNALLOWED_MIMETYPE:
+				$mime = get_mimetype( $_FILES[ $this->fileEntry ]['tmp_name'] );
+
+				return sprintf(
+					_("Il file é di un <em>MIME type</em> non concesso: <em>%s</em>."),
+					esc_html( $mime )
+				);
 			case UPLOAD_EXTRA_ERR_UNALLOWED_FILE:
 				$mime = get_mimetype( $_FILES[ $this->fileEntry ]['tmp_name'] );
 
-				if( $types = $this->mimeTypes->isMimeAllowed($mime) ) {
-					foreach($types as $i=>$type) {
-						$types[$i] = ".$type";
-					}
-					return sprintf(
-						_("Il file ha un'estensione non valida. Formati permessi: <em>%s</em>."),
-						esc_html( implode(', ', $types) )
-					);
-				} else {
-					return sprintf(
-						_("Il file é di un tipo non concesso: <em>%s</em>."),
-						esc_html( $mime )
-					);
-				}
+				$allowed_filetypes = $this->mimeTypes->getFiletypes(
+					$this->args['category'],
+					$mime
+				);
+
+				return sprintf(
+					_("Il file ha un'estensione non valida. Formati permessi: <em>%s</em>."),
+					esc_html( implode(', ', $allowed_filetypes ) )
+				);
 			case UPLOAD_EXTRA_ERR_FILENAME_TOO_SHORT:
 				return _("Il file ha un nome troppo breve.");
 			case UPLOAD_EXTRA_ERR_FILENAME_TOO_LONG:
@@ -288,13 +300,11 @@ class FileUploader {
 			case UPLOAD_EXTRA_ERR_GENERIC_ERROR:
 				return _("Errore di caricamento.");
 			default:
-				if(DEBUG) {
-					error( sprintf(
-						_("Stato di errore non previsto: '%d'"),
-						$status
-					) );
-				}
-				return _("Errore di caricamento.");
+				DEBUG && error( sprintf(
+					_("Stato di errore non previsto: '%d'"),
+					$status
+				) );
+				return _("Errore durante l'upload.");
 		}
 	}
 }

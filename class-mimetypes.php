@@ -88,6 +88,7 @@ class MimeTypes {
 			return array_unique( $allMimeTypes );
 		} else {
 			if( ! isset( $this->mimeTypes[ $category ]  ) ) {
+				DEBUG && self::printErrorUnknownCategory($category);
 				return false;
 			}
 
@@ -103,97 +104,82 @@ class MimeTypes {
 	 * Check if a MIME belongs to a certain category.
 	 *
 	 * @param string $mime_value E.g.: 'audio/vorbis'.
-	 * @param string $category E.g.: 'document'
+	 * @param mixed $category E.g.: 'document'
 	 * @return bool
 	 */
-	public function isMimeInCategory($mime_value, $category) {
-		if( ! isset( $this->mimeTypes[ $category ] ) ) {
-			if(DEBUG) {
-				error( sprintf(
-					_("Categoria di MIME <em>%s</em> non registrata."),
-					esc_html( $category )
-				) );
-			}
-			return false;
-		}
-		foreach($this->mimeTypes[ $category ] as $mime => $filetypes) {
-			if($mime === $mime_value) {
-				return $filetypes;
-			}
-		}
-		return false;
-	}
-
-	/**
-	 * Check in all the MIME.
-	 *
-	 * @param string $mime_value The MINE e.g. 'audio/ogg'.
-	 * @return mixed FALSE if is not registered. File types if exists.
-	 */
-	public function isMimeAllowed($mime_value) {
-		foreach($this->mimeTypes as $mimeTypes) {
-			foreach($mimeTypes as $mime => $filetypes) {
-				if($mime_value === $mime) {
-					return $filetypes;
-				}
-			}
-		}
-		return false;
-	}
-
-	/**
-	 * Check in all the file types.
-	 *
-	 * @param string $filetype The file type e.g. 'png'
-	 * @return bool If the file type is registered.
-	 */
-	public function isFiletypeAllowed($filetype) {
-		foreach($this->mimeTypes as $mimeTypes) {
-			foreach($mimeTypes as $mime => $filetypes) {
-				if( in_array($filetype, $filetypes) ) {
-					return true;
-				}
-			}
-		}
-		return false;
+	public function isMimetypeInCategory($mimetype, $category = null ) {
+		return in_array(
+			$mimetype,
+			$this->getMimetypes($category),
+			true // strict
+		);
 	}
 
 	/**
 	 * Get the file types of a MIME.
-	 * @AMBIGUOS SEE getMimetypes that is in function of a $category
 	 *
-	 * @param string $mime_value The MIME.
+	 * @param string|null $category
+	 * 	If NULL it search in all the categories.
+	 * @param string|null $mimetype The MIME type.
 	 * @return mixed FALSE if the MIME is not registered or an array of file types.
 	 */
-	public function getFiletypes($mime_value) {
-		foreach($this->mimeTypes as $mimeTypes) {
-			foreach($mimeTypes as $mime => $types) {
-				if($mime_value === $mime) {
-					return $types;
+	public function getFiletypes($category = null, $mimetype = null) {
+		$all_types = array();
+
+		if( $category === null ) {
+			// Search in all the categories.
+			foreach($this->mimeTypes as $mimeTypes) {
+				foreach($mimeTypes as $mime => $types) {
+					if($mimetype === null || $mime === $mymetype) {
+						$all_types = array_merge($all_types, $types);
+					}
+				}
+			}
+		} else {
+			// Search *that* category if exists
+			if( ! isset( $this->mimeTypes[ $category ] ) ) {
+				DEBUG && self::printErrorUnknownCategory($category);
+				return false;
+			}
+
+			foreach($this->mimeTypes[ $category ] as $mime => $types) {
+				if($mimetype === null || $mime === $mymetype) {
+					$all_types = array_merge($all_types, $types);
 				}
 			}
 		}
-		return false;
+
+		if( $all_types === null || $mimetype === null ) {
+			return array_unique( $all_types );
+		}
+
+		return $all_types;
 	}
 
 	/**
 	 * Check (and get) the known file extension.
 	 *
 	 * @param string $filename The file name.
-	 * @return mixed FALSE or the file extension e.g.: 'png'
+	 * @param string|null $category The category.
+	 * @param string|null $mimetype The MIME type.
+	 * @return string|false FALSE or the file extension e.g.: 'png'
 	 */
-	public function checkFileExtension($filename) {
-		foreach($this->mimeTypes as $mimeTypes) {
-			foreach($mimeTypes as $mime => $filetypes) {
-				foreach($filetypes as $filetype) {
-					$dotted = ".$filetype";
-					$strlen = strlen($dotted);
-					if( substr( $filename, -$strlen, $strlen) === $dotted ) {
-						return $filetype;
-					}
-				}
+	public function getFileExtensionFromExpectations($filename, $category = null, $mimetype = null) {
+		$expected_filetypes = $this->getFiletypes($category, $mimetype);
+		foreach($expected_filetypes as $filetype) {
+			$dotted = ".$filetype";
+			$strlen = strlen($dotted);
+			if( substr( $filename, -$strlen, $strlen) === $dotted ) {
+				return $filetype;
 			}
 		}
 		return false;
+	}
+
+	private static function printErrorUnknownCategory($category) {
+		error( sprintf(
+			_("Categoria di MIME <em>%s</em> non registrata."),
+			esc_html( $category )
+		) );
 	}
 }
