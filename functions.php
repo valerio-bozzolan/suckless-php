@@ -152,6 +152,9 @@ function _esc_attr($s) {
 function register_mimetypes($category, $mimetypes) {
 	$GLOBALS['mimeTypes']->registerMimetypes($category, $mimetypes);
 }
+function get_mimetypes($category = null) {
+	return $GLOBALS['mimeTypes']->getMimetypes($category);
+}
 function register_permission($role, $permission) {
 	$GLOBALS['permissions']->registerPermission($role, $permission);
 }
@@ -377,9 +380,9 @@ function get_page_load($decimals = 6) {
  * @param string $text_one Text displayed if n == 1
  * @param string $text_no Text displayed if n < 1
  */
-function multi_text($n, $text_multi, $text_one, $text_no) {
+function multi_text($n, $text_multi, $text_one, $text_no = '') {
 	if($n > 1) {
-		return str_replace($text_multi, '%', $n);
+		return str_replace('%', $n, $text_multi);
 	} elseif($n == 1) {
 		return $text_one;
 	}

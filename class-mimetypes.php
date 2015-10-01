@@ -72,32 +72,42 @@ class MimeTypes {
 	/**
 	 * Get an array of MIME of the selected category. If category is NULL, all the MIME are returned.
 	 *
-	 * @param string $category Category e.g. 'audio'
+	 * @param array|string|null $category Category e.g. 'audio'
 	 * @return array Array of MIME.
 	 */
-	public function getMimetypes($category = null) {
+	public function getMimetypes($categories = null) {
 		$allMimeTypes = array();
 
-		if( $category === null ) {
+		if( $categories === null ) {
+			// All MIME types
 			foreach($this->mimeTypes as $mimeTypes) {
 				foreach($mimeTypes as $mime => $filetypes) {
 					$allMimeTypes[] = $mime;
 				}
 			}
-
-			return array_unique( $allMimeTypes );
 		} else {
-			if( ! isset( $this->mimeTypes[ $category ]  ) ) {
-				DEBUG && self::printErrorUnknownCategory($category);
-				return false;
+			if( ! is_array($categories) ) {
+				$categories = array($categories);
 			}
 
-			foreach($this->mimeTypes[ $category ] as $mime => $filetypes) {
-				$allMimeTypes[] = $mime;
+			// MIME types from selected categories
+			foreach($categories as $category) {
+				if( ! isset( $this->mimeTypes[ $category ]  ) ) {
+					DEBUG && self::printErrorUnknownCategory( $category );
+					continue;
+				}
+
+				foreach($this->mimeTypes[ $category ] as $mime => $filetypes) {
+					$allMimeTypes[] = $mime;
+				}
 			}
 
-			return $allMimeTypes;
+			if( count($categories) > 0 ) {
+				$allMimeTypes = array_unique( $allMimeTypes );
+			}
 		}
+
+		return $allMimeTypes;
 	}
 
 	/**
@@ -123,48 +133,50 @@ class MimeTypes {
 	 * @param string|null $mimetype The MIME type.
 	 * @return mixed FALSE if the MIME is not registered or an array of file types.
 	 */
-	public function getFiletypes($category = null, $mimetype = null) {
+	public function getFiletypes($categories = null, $mimetype = null) {
 		$all_types = array();
 
-		if( $category === null ) {
+		if( $categories === null ) {
 			// Search in all the categories.
 			foreach($this->mimeTypes as $mimeTypes) {
 				foreach($mimeTypes as $mime => $types) {
-					if($mimetype === null || $mime === $mymetype) {
+					if($mimetype === null || $mime === $mimetype) {
 						$all_types = array_merge($all_types, $types);
 					}
 				}
 			}
 		} else {
-			// Search *that* category if exists
-			if( ! isset( $this->mimeTypes[ $category ] ) ) {
-				DEBUG && self::printErrorUnknownCategory($category);
-				return false;
+			if( ! is_array($categories) ) {
+				$categories = array($categories);
 			}
 
-			foreach($this->mimeTypes[ $category ] as $mime => $types) {
-				if($mimetype === null || $mime === $mymetype) {
-					$all_types = array_merge($all_types, $types);
+			// Search *that* category if exists
+			foreach($categories as $category) {
+				if( ! isset( $this->mimeTypes[ $category ] ) ) {
+					DEBUG && self::printErrorUnknownCategory($category);
+					continue;
+				}
+
+				foreach($this->mimeTypes[ $category ] as $mime => $types) {
+					if($mimetype === null || $mime === $mimetype) {
+						$all_types = array_merge($all_types, $types);
+					}
 				}
 			}
 		}
 
-		if( $all_types === null || $mimetype === null ) {
-			return array_unique( $all_types );
-		}
-
-		return $all_types;
+		return array_unique( $all_types );
 	}
 
 	/**
 	 * Check (and get) the known file extension.
 	 *
 	 * @param string $filename The file name.
-	 * @param string|null $category The category.
+	 * @param array|string|null $categories MIME categories.
 	 * @param string|null $mimetype The MIME type.
 	 * @return string|false FALSE or the file extension e.g.: 'png'
 	 */
-	public function getFileExtensionFromExpectations($filename, $category = null, $mimetype = null) {
+	public function getFileExtensionFromExpectations($filename, $categories = null, $mimetype = null) {
 		$expected_filetypes = $this->getFiletypes($category, $mimetype);
 		foreach($expected_filetypes as $filetype) {
 			$dotted = ".$filetype";

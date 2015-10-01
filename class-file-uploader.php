@@ -273,7 +273,7 @@ class FileUploader {
 			case UPLOAD_EXTRA_ERR_CANT_SAVE_FILE:
 				return _("Impossibile salvare il file.");
 			case UPLOAD_EXTRA_ERR_CANT_READ_MIMETYPE:
-				return _("Il MIME del file non è validabile.");	
+				return _("Il MIME del file non è validabile.");
 			case UPLOAD_EXTRA_ERR_UNALLOWED_MIMETYPE:
 				$mime = get_mimetype( $_FILES[ $this->fileEntry ]['tmp_name'] );
 
@@ -289,9 +289,16 @@ class FileUploader {
 					$mime
 				);
 
-				return sprintf(
-					_("Il file ha un'estensione non valida. Formati permessi: <em>%s</em>."),
-					esc_html( implode(', ', $allowed_filetypes ) )
+				return multi_text(
+					count( $allowed_filetypes ),
+					sprintf(
+						_("Il file ha un'estensione non valida. Estensioni attese: <em>%s</em>."),
+						esc_html( implode(', ', $allowed_filetypes ) )
+					),
+					sprintf(
+						_("Il file ha un'estensione non valida. Estensione attesa: <em>%s</em>."),
+						esc_html( $allowed_filetypes[0] )
+					)
 				);
 			case UPLOAD_EXTRA_ERR_FILENAME_TOO_SHORT:
 				return _("Il file ha un nome troppo breve.");

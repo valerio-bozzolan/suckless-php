@@ -81,6 +81,9 @@ if(!defined('PROTOCOL')) {
 if(!defined('DOMAIN')) {
 	define('DOMAIN', get_domain());
 }
+if(!defined('URL')) {
+	define('URL', get_site_root());
+}
 
 // Test the database connection (or die!)
 $GLOBALS['db'] = new DB(@$username, @$password, @$location, @$database, @$prefix);
@@ -93,12 +96,6 @@ $GLOBALS['css'] = new RegisterCSSLibs();
 $GLOBALS['module'] = new RegisterModule();
 $GLOBALS['permissions'] = new Permissions();
 
-// Default DB options
-define_default(
-	'URL',
-	'url',
-	get_site_root() // This SHOULD NOT END with a slash
-);
 define_default(
 	'SITE_NAME',
 	'site-name',
@@ -126,8 +123,7 @@ register_mimetypes(
 	array(
 		'image/jpeg' => array('jpg', 'jpeg'),
 		'image/png' => 'png',
-		'image/gif' => 'gif',
-		'image/svg+xml' => 'svg'
+		'image/gif' => 'gif'
 	)
 );
 register_mimetypes(
@@ -180,6 +176,6 @@ inject_in_module('theme-footer', function() {
 });
 
 // Callback
-if( REQUIRE_LOAD_POST ) {
+if(REQUIRE_LOAD_POST) {
 	require ABSPATH . '/load-post.php';
 }
