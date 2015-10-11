@@ -80,11 +80,11 @@ It's normal to have your own custom configuration of this framework. So the `loa
 use_session();
 
 // Here I place my files
-define('MEDIA_FOLDER', '/media');
+define('MEDIA', 'media');
 
 // Register a jquery file and a stylesheet
-register_js('jquery', URL . MEDIA_FOLDER . '/jquery-min.js');
-register_css('my-style', URL . MEDIA_FOLDER . '/style.css');
+register_js('jquery', URL . _ . MEDIA . '/jquery-min.js');
+register_css('my-style', URL . _ . MEDIA . '/style.css');
 
 register_permission('unregistered', 'vote-post');
 inherit_permissions('subscribed', 'unregistered');
@@ -94,17 +94,25 @@ inherit_permissions('superadmin', 'subscribed');
 register_permission('superadmin', 'do-wonderful-things');
 
 register_mimetypes(
-        'only-pdf',
-        array(
-                'application/pdf' => 'pdf',
-                'application/x-pdf' => 'pdf',
-                'application/x-bzpdf' => 'pdf',
-                'application/x-gzpdf' => 'pdf'
+	'a-pdf',
+	array(
+		'application/pdf' => 'pdf',
+		'application/x-pdf' => 'pdf',
+		'application/x-bzpdf' => 'pdf',
+		'application/x-gzpdf' => 'pdf'
         )
 );
 
+add_menu_entries([
+	new MenuEntry('home', URL . '/home.php', _("Home") ),
+	new MenuEntry('services', URL . '/services.php', _("Our services") ),
+	new MenuEntry('meet', URL . '/meet.php', _("Meet us"), 'services'),
+	new MenuEntry('colorado', URL . '/meet.php', _("Meet us in Colorado"), 'meet'),
+	new MenuEntry('cast', URL . '/cast.php', _("Cast") )
+]);
+
 set_option(
-    get_option('visits', 0)
+	get_option('visits', 0)
 );
 ```
 Now remove the declaration of `REQUIRE_LOAD_POST` in your `load.php`.

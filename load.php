@@ -55,6 +55,9 @@ if(!defined('MAGIC_MIME_FILE')) { // Fifo
 if(!defined('USE_DB_OPTIONS')) {
 	define('USE_DB_OPTIONS', true);
 }
+if(!defined('CHARSET')) {
+	define('CHARSET', 'utf-8');
+}
 
 // @see is_allowed_mimetype() @ functions.php
 
@@ -62,6 +65,7 @@ define('HERE', dirname(__FILE__) );
 
 // Sbabababam!
 require HERE . '/functions.php';
+require HERE . '/class-menu.php';
 require HERE . '/class-mimetypes.php';
 require HERE . '/class-file-uploader.php';
 require HERE . '/class-db.php';
@@ -95,22 +99,6 @@ $GLOBALS['javascript'] = new RegisterJavascriptLibs();
 $GLOBALS['css'] = new RegisterCSSLibs();
 $GLOBALS['module'] = new RegisterModule();
 $GLOBALS['permissions'] = new Permissions();
-
-define_default(
-	'SITE_NAME',
-	'site-name',
-	_("Boz PHP - Another PHP framework")
-);
-define_default(
-	'SITE_DESCRIPTION',
-	'site-description',
-	_("A simple framework")
-);
-define_default(
-	'CHARSET',
-	'charset',
-	'UTF-8'
-);
 
 // Related to DB options
 /**
@@ -174,6 +162,8 @@ inject_in_module('theme-header', function(){
 inject_in_module('theme-footer', function() {
 	$GLOBALS['javascript']->enqueue_all( JavascriptLib::FOOTER );
 });
+
+$GLOBALS['menu'] = new Menu();
 
 // Callback
 if(REQUIRE_LOAD_POST) {

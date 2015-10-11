@@ -182,6 +182,15 @@ function register_css($css_uid, $url) {
 function enqueue_css($css_uid) {
 	return $GLOBALS['css']->enqueue($css_uid);
 }
+function add_menu_entries($menuEntries) {
+	$GLOBALS['menu']->add($menuEntries);
+}
+function get_menu_entry($uid) {
+	return $GLOBALS['menu']->getMenuEntry($uid);
+}
+function get_children_menu_entries($parentUid) {
+	return $GLOBALS['menu']->getChildrenMenuEntries($parentUid);
+}
 function register_module($module_uid) {
 	return $GLOBALS['module']->register($module_uid);
 }
