@@ -28,7 +28,7 @@ class MenuEntry {
 
 	/**
 	 * Identifier of the parent menu.
-	 * @type string
+	 * @type array|string|null
 	 */
 	public $parentUid;
 
@@ -41,7 +41,6 @@ class MenuEntry {
 
 	/**
 	 * Create a menu entry.
-	 * As default, it's parent is the default root identifier.
 	 */
 	function __construct($uid, $url = null, $name = null, $parentUid = null, $extra = null) {
 		$this->uid = $uid;
@@ -81,10 +80,16 @@ class Menu {
 
 		foreach($menuEntries as $menuEntry) {
 			$this->menuEntries[ $menuEntry->uid ] = $menuEntry;
-			if( $menuEntry->parentUid === null ) {
-				$menuEntry->parentUid = $this->rootUid;
+
+			if( ! is_array($menuEntry->parentUid) ) {
+				$menuEntry->parentUid = array($menuEntry->parentUid);
 			}
-			$this->setParent($menuEntry->uid, $menuEntry->parentUid);
+			foreach($menuEntry->parentUid as $parentUid) {
+				if( $parentUid === null ) {
+					$parentUid = $this->rootUid;
+				}
+				$this->setParent($menuEntry->uid, $parentUid);
+			}
 		}
 	}
 

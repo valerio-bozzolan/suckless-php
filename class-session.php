@@ -112,7 +112,7 @@ class Session {
 		}
 
 		$user = $this->db->getRow( sprintf(
-			"SELECT * FROM {$this->db->getTable('user')} WHERE user_ID = %d",
+			"SELECT * FROM {$this->db->getTable('user')} WHERE user_ID = '%d'",
 			$_SESSION['user_ID']
 		));
 
@@ -161,6 +161,9 @@ class Session {
 	}
 
 	public static function encryptUserPassword($password) {
-		return sha1('drGth' . $password . 'pw72kP'); // @Todo parametrize salt, function and "pepe"
+		return hash(
+			PASSWD_HASH_ALGO,
+			PASSWD_HASH_SALT . $password . PASSWD_HASH_PEPP
+		);
 	}
 }

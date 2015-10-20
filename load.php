@@ -20,19 +20,12 @@
  * Start the CMS
  */
 
-if(!defined('ABSPATH')) {
-	die("ABSPATH is not specified");
-}
+defined('ABSPATH') || die("ABSPATH is not specified");
 
-if(!defined('DEBUG')) {
-	define('DEBUG', false);
-}
-if(!defined('SHOW_EVERY_SQL')) {
-	define('SHOW_EVERY_SQL', false);
-}
-if(!defined('_')) { // Pathname slash
-	define('_', DIRECTORY_SEPARATOR);
-}
+defined('DEBUG') || define('DEBUG', false);
+defined('SHOW_EVERY_SQL') || define('SHOW_EVERY_SQL', false);
+
+defined('_') || define('_', DIRECTORY_SEPARATOR); // Pathname slash
 if(!defined('ROOT')) { // Request installation pathname (after the domain name) e.g.: /cms
 	if( dirname( $_SERVER['PHP_SELF'] ) === _ ) {
 		define('ROOT', '');
@@ -40,26 +33,15 @@ if(!defined('ROOT')) { // Request installation pathname (after the domain name) 
 		define('ROOT', dirname( $_SERVER['PHP_SELF'] ));
 	}
 }
-if(!defined('REQUIRE_LOAD_POST')) {
-	define('REQUIRE_LOAD_POST', true);
-}
-if(!defined('CHMOD_WRITABLE_DIRECTORY')) {
-	define('CHMOD_WRITABLE_DIRECTORY', 0777);
-}
-if(!defined('CHMOD_WRITABLE_FILE')) {
-	define('CHMOD_WRITABLE_FILE', 0666);
-}
-if(!defined('MAGIC_MIME_FILE')) { // Fifo
-	define('MAGIC_MIME_FILE', null); // System default
-}
-if(!defined('USE_DB_OPTIONS')) {
-	define('USE_DB_OPTIONS', true);
-}
-if(!defined('CHARSET')) {
-	define('CHARSET', 'utf-8');
-}
-
-// @see is_allowed_mimetype() @ functions.php
+defined('REQUIRE_LOAD_POST') || define('REQUIRE_LOAD_POST', true);
+defined('CHMOD_WRITABLE_DIRECTORY') || define('CHMOD_WRITABLE_DIRECTORY', 0777);
+defined('CHMOD_WRITABLE_FILE')|| define('CHMOD_WRITABLE_FILE', 0666);
+defined('MAGIC_MIME_FILE') || define('MAGIC_MIME_FILE', null); // Fifo system default
+defined('USE_DB_OPTIONS') || define('USE_DB_OPTIONS', true);
+defined('CHARSET') || define('CHARSET', 'utf-8');
+defined('PASSWD_HASH_ALGO') || define('PASSWD_HASH_ALGO', 'sha1'); // Just something
+defined('PASSWD_HASH_SALT') || define('PASSWD_HASH_SALT', 'drGth'); // Just something
+defined('PASSWD_HASH_PEPP') || define('PASSWD_HASH_PEPP', 'pw72kP'); // Just something
 
 define('HERE', dirname(__FILE__) );
 
@@ -79,15 +61,9 @@ require HERE . '/class-html.php';
 get_page_load();
 
 // Dependents from functions above ↑
-if(!defined('PROTOCOL')) {
-	define('PROTOCOL', get_protocol());
-}
-if(!defined('DOMAIN')) {
-	define('DOMAIN', get_domain());
-}
-if(!defined('URL')) {
-	define('URL', get_site_root());
-}
+defined('PROTOCOL') || define('PROTOCOL', get_protocol());
+defined('DOMAIN') || define('DOMAIN', get_domain());
+defined('URL') || define('URL', get_site_root());
 
 // Test the database connection (or die!)
 $GLOBALS['db'] = new DB(@$username, @$password, @$location, @$database, @$prefix);
@@ -101,11 +77,13 @@ $GLOBALS['module'] = new RegisterModule();
 $GLOBALS['permissions'] = new Permissions();
 
 // Related to DB options
+
 /**
  * @deprecated
  */
 define('URL_', append_dir_to_URL(URL)); // Same as 'URL' but forced to have a slash ('/')
 
+// @see is_allowed_mimetype() @ functions.php
 register_mimetypes(
 	'image',
 	array(
@@ -166,6 +144,4 @@ inject_in_module('theme-footer', function() {
 $GLOBALS['menu'] = new Menu();
 
 // Callback
-if(REQUIRE_LOAD_POST) {
-	require ABSPATH . '/load-post.php';
-}
+REQUIRE_LOAD_POST && require ABSPATH . '/load-post.php';

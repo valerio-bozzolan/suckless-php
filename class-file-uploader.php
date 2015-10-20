@@ -97,6 +97,7 @@ class FileUploader {
 				'override-filename' => null,
 				'pre-filename' => '',
 				'post-filename' => '',
+				'autoincrement' => '-%d',
 				'category' => null,
 				'max-filesize' => null,
 				'min-length-filename' => 2,
@@ -208,17 +209,27 @@ class FileUploader {
 		// Create destination
 		create_path( $pathname );
 
+		$getFilename = function(&$filename, &$args, &$ext, $i = null) {
+			if( $i === null ) {
+				$autoincrement = '';
+			} else {
+				$autoincrement = sprintf($this->args['autoincrement'], $i);
+			}
+
+			return $filename . $autoincrement . $args['post-filename'] . ".$ext";
+		};
+
 		// Can be appended a progressive number
-		if( $this->args['dont-overwrite'] && file_exists( $pathname . "/$filename.$ext" )  ) {
+		if( $this->args['dont-overwrite'] && file_exists( $pathname . _ . $getFilename($filename, $this->args, $ext) ) ) {
 			$i = 1;
-			while( file_exists( $pathname . "/$filename-$i.$ext" ) ) {
+			while( file_exists( $pathname . _ . $getFilename($filename, $this->args, $ext, $i) ) ) {
 				$i++;
 			}
-			$filename = "$filename-$i";
+			$filename = $getFilename($filename, $this->args, $ext, $i);
+		} else {
+			// Append suffix (if any)
+			$filename = $getFilename($filename, $this->args, $ext, $i);
 		}
-
-		// Append suffix (if any)
-		$filename = $filename . $this->args['post-filename'];
 
 		// Filename length
 		if( strlen($filename) < $this->args['min-length-filename'] ) {
@@ -234,7 +245,7 @@ class FileUploader {
 
 		$moved = move_uploaded_file(
 			$_FILES[ $this->fileEntry ]['tmp_name'],
-			$pathname . "/$filename.$ext"
+			$pathname . _ . $filename
 		);
 
 		if(! $moved) {
@@ -243,7 +254,7 @@ class FileUploader {
 		}
 
 		$status = UPLOAD_ERR_OK;
-		return "$filename.$ext";
+		return "$filename";
 	}
 
 	/**
