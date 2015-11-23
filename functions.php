@@ -54,9 +54,9 @@ function merge_args_defaults($args, $defaults) {
  * @source http://gravatar.com/site/implement/images/php/
  */
 function get_gravatar($email, $s = 80, $d = 'mm', $r = 'g', $img = false, $atts = array() ) {
-	$url = 'http://www.gravatar.com/avatar/';
+	$url = '//www.gravatar.com/avatar/';
 	$url .= md5( strtolower( trim( $email ) ) );
-	$url .= "?s=$s&d=$d&r=$r";
+	$url .= "?s=$s&amp;d=$d&amp;r=$r";
 	if($img) {
 		$url = '<img src="' . $url . '"';
 		foreach($atts as $key => $val) {
@@ -155,17 +155,11 @@ function register_mimetypes($category, $mimetypes) {
 function get_mimetypes($category = null) {
 	return $GLOBALS['mimeTypes']->getMimetypes($category);
 }
-function register_permission($role, $permission) {
-	$GLOBALS['permissions']->registerPermission($role, $permission);
+function register_permissions($role, $permissions) {
+	$GLOBALS['permissions']->registerPermissions($role, $permissions);
 }
 function inherit_permissions($role_to, $role_from) {
 	$GLOBALS['permissions']->inheritPermissions($role_to, $role_from);
-}
-/**
- * @deprecated
- */
-function register_javascript($javascript_uid, $url, $position = JavascriptLib::HEADER) {
-	return $GLOBALS['javascript']->register( $javascript_uid, $url, $position );
 }
 function register_js($javascript_uid, $url, $position = JavascriptLib::HEADER) {
 	return $GLOBALS['javascript']->register( $javascript_uid, $url, $position );
@@ -273,27 +267,6 @@ function has_permission($permission) {
 		$user_role = DEFAULT_USER_ROLE;
 	}
 	return $GLOBALS['permissions']->hasPermission($user_role, $permission);
-}
-
-/**
- * Do it on your own!
- * @deprecated
- */
-function require_permission($permission, $redirect = 'login.php?redirect=', $preFunction = '', $postFunction = '') {
-	use_session();
-
-	if( ! has_permission($permission) ) :
-		if( is_logged() ) :
-			echo HTML::tag('p', _("Non hai permessi a sufficienza.") );
-		else :
-			http_redirect( site_page(
-				$redirect . urlencode( site_page( $_SERVER['REQUEST_URI'] ) )
-			) );
-		endif;
-
-		get_footer();
-		exit; // Yes!
-	endif;
 }
 
 /**
@@ -471,11 +444,13 @@ function remove_accents($s) {
 /**
  * Get a secured version of a string
  */
-function generate_slug($s, $max_length = -1, & $truncated = false) {
+function generate_slug($s, $max_length = -1, $glue = '-', & $truncated = false) {
 	$s = strtolower( remove_accents($s) );
-	$s = str_replace('_', ' ', $s);
-	$s = preg_replace('/[^a-z0-9\s-]/', '', $s);
-	$s = preg_replace('/[\s-]+/', ' ', $s);
+	if( $glue !== '_' ) {
+		$s = str_replace('_', ' ', $s);
+	}
+	$s = preg_replace("/[^a-z0-9\s\\$glue]/", '', $s);
+	$s = preg_replace("/[\s\\$glue]+/", ' ', $s);
 	$s = trim($s, ' ');
 	if($max_length !== -1) {
 		$len = strlen($s);
@@ -484,8 +459,8 @@ function generate_slug($s, $max_length = -1, & $truncated = false) {
 			$truncated = true;
 		}
 	}
-	$s = preg_replace('/\s/', '-', $s);
-	return rtrim($s, '-');
+	$s = preg_replace('/\s/', $glue, $s);
+	return rtrim($s, $glue);
 }
 
 /**
@@ -500,11 +475,12 @@ function error_die($msg) {
 <html>
 <head>
 	<title><?php _e("Errore") ?></title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /
 </head>
 <body>
 	<h1><?php printf(
 		_("Ci dispiace! C'è qualche piccolo problema! <small>(DEBUG: %s)</small>"),
-		(DEBUG) ? _("sì") : _("no")
+		DEBUG ? _("sì") : _("no")
 	) ?></h1>
 	<p><?php _e("Si è verificato il seguente errore durante l'avvio del framework:") ?></p>
 	<p>&laquo; <?php echo $msg ?> &raquo;</p>
@@ -636,5 +612,53 @@ function create_path($path, $chmod = CHMOD_WRITABLE_DIRECTORY) {
 		esc_html( $path )
 	) );
 
-	return true;
+	return false;
+}
+
+/**
+ * I use this to clean user input before DB#insert()
+ *
+ * @param string $s Input string
+ * @param int $max Max length
+ */
+function luser_input($s, $max) {
+	return str_truncate( trim( $s ) , $max );
+}
+
+/*
+ * DEPRECATION ZONE
+ */
+
+/**
+ * @deprecated
+ */
+function register_permission($role, $permissions) {
+	$GLOBALS['permissions']->registerPermissions($role, $permissions);
+}
+/**
+ * @deprecated
+ */
+function register_javascript($javascript_uid, $url, $position = JavascriptLib::HEADER) {
+	return $GLOBALS['javascript']->register( $javascript_uid, $url, $position );
+}
+
+/**
+ * Do it on your own!
+ * @deprecated
+ */
+function require_permission($permission, $redirect = 'login.php?redirect=', $preFunction = '', $postFunction = '') {
+	use_session();
+
+	if( ! has_permission($permission) ) :
+		if( is_logged() ) :
+			echo HTML::tag('p', _("Non hai permessi a sufficienza.") );
+		else :
+			http_redirect( site_page(
+				$redirect . urlencode( site_page( $_SERVER['REQUEST_URI'] ) )
+			) );
+		endif;
+
+		get_footer();
+		exit; // Yes!
+	endif;
 }

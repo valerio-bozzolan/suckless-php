@@ -78,7 +78,7 @@ class Session {
 			"SELECT * FROM {$this->db->getTable('user')} WHERE user_uid = '%s' AND user_password = '%s'",
 			esc_sql($user_uid),
 			esc_sql($this->encryptUserPassword( $user_password) )
-		));
+		) );
 
 		$this->loginVerified = true;
 
@@ -114,7 +114,7 @@ class Session {
 		$user = $this->db->getRow( sprintf(
 			"SELECT * FROM {$this->db->getTable('user')} WHERE user_ID = '%d'",
 			$_SESSION['user_ID']
-		));
+		) );
 
 		$this->loginVerified = true;
 

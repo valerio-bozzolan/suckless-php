@@ -21,6 +21,9 @@ define('ROOT', '');
 // It enable extra verbose framework errors
 define('DEBUG', true);
 
+// Very very very debuggly!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+define('SHOW_EVERY_SQL', true);
+
 // Leave this as is. It is this folder.
 // NO TRAILING SLASH
 // E.g. '/var/www/blog/01'

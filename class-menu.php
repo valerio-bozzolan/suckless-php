@@ -49,6 +49,17 @@ class MenuEntry {
 		$this->parentUid = $parentUid;
 		$this->extra = $extra;
 	}
+
+	public function getExtra($arg, $default = null) {
+		return $this->get($arg, $default);
+	}
+
+	public function get($arg, $default = null) {
+		if( isset( $this->extra[$arg] ) ) {
+			return $this->extra[$arg];
+		}
+		return $default;
+	}
 }
 
 /**

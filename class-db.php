@@ -195,7 +195,7 @@ class DB {
 	 * @return array The result is as an array of object.
 	 */
 	public function get_results($SQL, $args=array()) {
-		$this->getResults($SQL, $args);
+		return $this->getResults($SQL, $args);
 	}
 
 	public function getResults($SQL, $args=array()) {
@@ -285,9 +285,17 @@ class DB {
 	 * To execute update queries.
 	 */
 	public function update($table_name, $dbCols, $conditions = null) {
+		if( $conditions === null ) {
+			if(DEBUG) {
+				error( _("DB#update() va lanciato con il terzo argomento per evitare di eseguire una query su tutte le rige. Se invece è proprio ciò che desideri fare per favore specifica <code>1</code> (per creare WHERE 1).") );
+			} else {
+				error( _("Impossibile lanciare DB#update() senza il terzo argomento.") );
+			}
+			return false;
+		}
 		$SQL = "UPDATE {$this->getTable($table_name)} SET ";
-		if( !is_array($dbCols) ) {
-			$dbCols = array( 0 => $dbCols );
+		if( ! is_array($dbCols) ) {
+			$dbCols = array($dbCols);
 		}
 		$n_cols = count($dbCols);
 		for($i=0; $i<$n_cols; $i++) {
@@ -442,11 +450,11 @@ class DB {
 				$option_autoload = ($option_autoload) ? 1 : 0;
 
 				return $this->query( sprintf(
-					"UPDATE {$this->getTable('option')} SET option_value='%s', autoload='%d' WHERE option_name='%s' LIMIT 1",
+					"UPDATE {$this->getTable('option')} SET option_value='%s', option_autoload='%d' WHERE option_name='%s' LIMIT 1",
 					$this->escapeString($option_value),
 					$option_autoload,
 					$this->escapeString($option_name)
-				));
+				) );
 			}
 		} else {
 			return $this->insertOption($option_name, $option_value, $option_autoload);

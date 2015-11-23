@@ -1,18 +1,36 @@
-# Requirements
-Obviously a webserver with PHP and MySQL or MariaDB working. Personally I have a simple GLAMP machine (GNU/Linux + Apache + PHP + MariaDB or MySQL). Extra packages suggested:
+# Boz PHP - Another PHP Framework
+To be clear I use to twist this framework very often deprecating and killing stuff how I feel in the morning. It's my custom laser cannon that serves dozen of very-different Content Management Systems "made from zero" in my single Debian GNU/Linux server.
+
+## Benefits as developer
+You can create a super-custom RDBMS CMS without reinventing the wheel:
+
+* No pain with DB table prefixes
+* No pain with DB associative options
+* No pain with login and user capabilities
+* No pain with register and enqueue JS and CSS
+* No pain with menu tree
+* No pain with file uploads
+* Very small websites with only what you want in the root of you project
+
+## Benefits as sysadmin
+* No pain with overweight copy-pasted websites to be hosted with redundant backups and too things to keep updated: The framework is in one place; the websites are in another places; data are in dabasase/databases. Everything it's how it should be done!
+* Do not waste the filesystem file cache feature (feel the pain of your kernel and of your hard-drive cache with `n` stand-alone websites without shared resources!)
+
+## Requirements
+Obviously a webserver with PHP and MySQL or MariaDB working. Personally I have a simple GLAMP machine (GNU/Linux + Apache + PHP + MySQL or MariaDB). Extra packages suggested:
 * `libmagic-dev`
 
 The `libmagic-dev` package is in the main Debian GNU/Linux repository and so I think it is in all other GNU/Linux distributions. It is needed in order to upload files safetely.
 
-# Simplest shared installation
-This framework is intended to be used as a "shared library": so one can serve many sites. Start copy-pasting the source-code in a shared folder as `/usr/share`:
+## Simplest shared installation
+As a shared library: one can serve many sites with a simple `require`. Start cloning the source-code in a shared folder as `/usr/share`:
 
     bzr branch lp:boz-php-another-php-framework /usr/share/boz-php-another-php-framework
 
 That's it! Leave that folder as is, you don't have to touch it anymore.
 
-# Use it
-Go to your website folder (e.g. `/var/www/blog`), and create your friendly config file (I use to call it `load.php` and please do so...) and write in it something as:
+## Use it
+Go to your website folder (e.g. `/var/www/blog`), and create your friendly config file. I use to call it `load.php` and please do so. Write in something as:
 ```php
 <?php
 $username = 'Your database username';
@@ -34,7 +52,7 @@ define('DB_USE_OPTIONS', false);
 // That's it! This will load the framework with the above configurations
 require '/usr/share/boz-php-another-php-framework/load.php';
 ```
-And now create your first file. E.g. `index.php`:
+And now create your first file e.g. `index.php`:
 ```php
 <?php
 require 'load.php';
@@ -46,10 +64,10 @@ echo $row->time;
 // If you see the datetime, the database works!
 ```
 
-# Database installation
+## Database installation
 You can add support for user *autentication* / user *permissions* and *associative options* importing the database schema into your database. To do it you should have received a file called `example-schema.sql` in the framework folder. Import it into your database. Actually there are only two tables. When you have done it, remember to remove the `DB_USE_OPTIONS` declarations in your config file (`load.php`), or obviously set that constant to `true`.
 
-# What works in `load.php`
+## Stuff in `load.php`
 Have to specify these:
 * `$username` (`string`) The database username.
 * `$password` (`string`) The password of the database username.
@@ -60,7 +78,7 @@ Have to specify these:
 * `ROOT` (`string`) The absolute request pathname (something as `/blog` or simply an empty string). No trailing slash.
 
 Definibles (as  (`type`) `default`):
-* `DEBUG` (`bool`) `false`: Enable verbose debugging (use it in your scripts)!
+* `DEBUG` (`bool`) `false`: Enable verbose debugging.
 * `SHOW_EVERY_SQL` (`bool`) `false`: It does what you think. Only if `DEBUG`.
 * `REQUIRE_LOAD_POST` (`bool`) `true`: To require your `ABSPATH . '/load-post.php`.
 * `USE_DB_OPTIONS` (`bool`) `true`: To enable associative database options.
@@ -68,41 +86,39 @@ Definibles (as  (`type`) `default`):
 * `DOMAIN` (`string`): Default is your domain name. You can override it. It builds the `URL` constant.
 * `URL` (`string`): Default is `PROTOCOL . DOMAIN . ROOT`.
 
-# What you have then
+## What you have then
 Well. I hope to auto-document it with inline comments. For now you can just see `functions.php` in the framework folder.
 
-# Own functions / stuff
+## Own functions / stuff
 It's normal to have your own custom configuration of this framework. So the `load-post.php` file is made for you. Create it and write in it what you want:
 ```php
 <?php
-// This file is automagically called after post.php and before your own file.
+// This file is automagically called after load.php
 
 use_session();
 
-// Here I place my files
-define('MEDIA', 'media');
+// Custom JavaScript and CSS declaration
+register_js('jquery', URL . '/media/jquery-min.js');
+register_css('my-style', URL . '/media/style.css');
 
-// Register a jquery file and a stylesheet
-register_js('jquery', URL . _ . MEDIA . '/jquery-min.js');
-register_css('my-style', URL . _ . MEDIA . '/style.css');
-
-register_permission('unregistered', 'vote-post');
-inherit_permissions('subscribed', 'unregistered');
-register_permission('subscribed', 'add-comment');
+// Custom permissions declaration
+register_permissions('subscribed', [
+	'add-comment',
+	'page-vote'
+] );
 
 inherit_permissions('superadmin', 'subscribed');
-register_permission('superadmin', 'do-wonderful-things');
+register_permissions('superadmin', 'do-wonderful-things');
 
-register_mimetypes(
-	'a-pdf',
-	array(
-		'application/pdf' => 'pdf',
-		'application/x-pdf' => 'pdf',
-		'application/x-bzpdf' => 'pdf',
-		'application/x-gzpdf' => 'pdf'
-        )
-);
+// Custom mime types declaration
+register_mimetypes('pdf', [
+	'application/pdf' => 'pdf',
+	'application/x-pdf' => 'pdf',
+	'application/x-bzpdf' => 'pdf',
+	'application/x-gzpdf' => 'pdf'
+] );
 
+// Custom menu tree declaration
 add_menu_entries([
 	new MenuEntry('home', URL . '/home.php', _("Home") ),
 	new MenuEntry('services', URL . '/services.php', _("Our services") ),
@@ -111,8 +127,15 @@ add_menu_entries([
 	new MenuEntry('cast', URL . '/cast.php', _("Cast") )
 ]);
 
-set_option(
-	get_option('visits', 0)
-);
+// Create a submenu in certain conditions
+has_permission('do-wonderful-things') && add_menu_entries([
+	new MenuEntry('cast-edit', URL . '/foo.php', _("Cast administration"), 'cast' )
+]);
+
+// Use of custom associative options
+set_option('visits', get_option('visits', 0) + 1);
 ```
 Now remove the declaration of `REQUIRE_LOAD_POST` in your `load.php`.
+
+# License
+This is a **Free** as in **Freedom** project. It comes with ABSOLUTELY NO WARRANTY. You are welcome to redistribute it under the terms of the **GNU Affero General Public License v3+**.

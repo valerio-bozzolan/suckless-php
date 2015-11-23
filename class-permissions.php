@@ -40,17 +40,33 @@ class Permissions {
 		}
 	}
 
-	public function registerPermission($role, $permission) {
+	public function registerPermissions($role, $permissions) {
 		if( !$this->roleExists($role) ) {
 			$this->rolePermissions[ $role ] = array();
 		}
-		$this->rolePermissions[ $role ][] = new Permission($permission);
+
+		if( ! is_array($permissions) ) {
+			$permissions = array($permissions);
+		}
+
+		$n = count($permissions);
+		for($i=0; $i<$n; $i++) {
+			$this->rolePermissions[ $role ][] = new Permission( $permissions[$i] );
+		}
+	}
+
+	/**
+	 * @deprecated
+	 */
+	public function registerPermission($role, $permissions) {
+		$this->registerPermissions($role, $permissions);
 	}
 
 	public function hasPermission($role, $permission) {
 		if( !$this->roleExists($role) ) {
 			return false;
 		}
+
 		foreach($this->rolePermissions[ $role ] as $singlePermission) {
 			if($singlePermission->permission == $permission) {
 				return true;
@@ -78,12 +94,10 @@ class Permissions {
 	}
 
 	private function errorRole($role) {
-		if( DEBUG ) {
-			error( sprintf(
-				_("Il ruolo %s non è stato ancora registrato"),
-				esc_html( $role )
-			));
-		}
+		DEBUG && error( sprintf(
+			_("Il ruolo %s non è stato ancora registrato"),
+			esc_html( $role )
+		) );
 	}
 
 	public function getPermissions() {
