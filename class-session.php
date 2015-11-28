@@ -21,6 +21,8 @@ class Session {
 
 	private $user = null;
 
+	private $user_class = 'SessionUser';
+
 	private $db;
 
 	function __construct($db = null) {
@@ -42,6 +44,7 @@ class Session {
 	const EMPTY_USER_PASSWORD = 8;
 	const TOO_LONG_USER_UID = 16;
 	const TOO_LONG_USER_PASSWORD = 32;
+	const USER_DISABLED = 64;
 	public function login(& $status = null, $user_uid = null, $user_password = null) {
 		if( $this->isLogged() ) {
 			$status = self::ALREADY_LOGGED;
@@ -74,11 +77,19 @@ class Session {
 			return false;
 		}
 
-		$user = $this->db->getRow( sprintf(
-			"SELECT * FROM {$this->db->getTable('user')} WHERE user_uid = '%s' AND user_password = '%s'",
-			esc_sql($user_uid),
-			esc_sql($this->encryptUserPassword( $user_password) )
-		) );
+		$user = $this->db->getRow(
+			sprintf(
+				"SELECT * FROM {$this->db->getTable('user')} WHERE user_uid = '%s' AND user_password = '%s'",
+				esc_sql($user_uid),
+				esc_sql($this->encryptUserPassword( $user_password) )
+			),
+			$this->user_class
+		);
+
+		if( ! $user->isActive() ) {
+			$status = self::USER_DISABLED;
+			return false;
+		}
 
 		$this->loginVerified = true;
 
@@ -111,19 +122,26 @@ class Session {
 			return false;
 		}
 
-		$user = $this->db->getRow( sprintf(
-			"SELECT * FROM {$this->db->getTable('user')} WHERE user_ID = '%d'",
-			$_SESSION['user_ID']
-		) );
+		$user = $this->db->getRow(
+			sprintf(
+				"SELECT * FROM {$this->db->getTable('user')} WHERE user_ID = '%d'",
+				$_SESSION['user_ID']
+			),
+			$this->user_class
+		);
 
 		$this->loginVerified = true;
 
-		if(!$user) {
+		if( ! $user ) {
 			$this->user = null;
 			return false;
 		}
 
 		unset( $user->user_password );
+
+		if( ! $user->isActive() ) {
+			return false;
+		}
 
 		// Aggressive browser additional restriction
 		if( isset( $_SERVER['REMOTE_ADDR'] ) ) {
@@ -165,5 +183,17 @@ class Session {
 			PASSWD_HASH_ALGO,
 			PASSWD_HASH_SALT . $password . PASSWD_HASH_PEPP
 		);
+	}
+}
+
+class SessionUser {
+	function __construct() {
+		$this->user_ID = (int) $this->user_ID;
+
+		$this->user_active = (bool) (int) $this->user_active;
+	}
+
+	function isActive() {
+		return $this->user_active;
 	}
 }

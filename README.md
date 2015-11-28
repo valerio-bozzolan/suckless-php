@@ -119,23 +119,23 @@ register_mimetypes('pdf', [
 ] );
 
 // Custom menu tree declaration
-add_menu_entries([
+add_menu_entries( [
 	new MenuEntry('home', URL . '/home.php', _("Home") ),
 	new MenuEntry('services', URL . '/services.php', _("Our services") ),
 	new MenuEntry('meet', URL . '/meet.php', _("Meet us"), 'services'),
 	new MenuEntry('colorado', URL . '/meet.php', _("Meet us in Colorado"), 'meet'),
 	new MenuEntry('cast', URL . '/cast.php', _("Cast") )
-]);
+] );
 
 // Create a submenu in certain conditions
-has_permission('do-wonderful-things') && add_menu_entries([
+has_permission('do-wonderful-things') && add_menu_entries( [
 	new MenuEntry('cast-edit', URL . '/foo.php', _("Cast administration"), 'cast' )
-]);
+] );
 
 // Use of custom associative options
 set_option('visits', get_option('visits', 0) + 1);
 ```
 Now remove the declaration of `REQUIRE_LOAD_POST` in your `load.php`.
 
-# License
+## License
 This is a **Free** as in **Freedom** project. It comes with ABSOLUTELY NO WARRANTY. You are welcome to redistribute it under the terms of the **GNU Affero General Public License v3+**.

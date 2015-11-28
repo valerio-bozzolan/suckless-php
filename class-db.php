@@ -36,19 +36,19 @@ class DB {
 	 * Database username.
 	 * @var string
 	 */
-	private $db_username;
+	private $dbUsername;
 
 	/**
 	 * Database location.
 	 * @var string
 	 */
-	private $db_location;
+	private $dbLocation;
 
 	/**
 	 * Database name.
 	 * @var string
 	 */
-	private $db_name;
+	private $dbName;
 
 	/**
 	 * Table prefix.
@@ -60,13 +60,13 @@ class DB {
 	 * Number of executed queries.
 	 * @var int
 	 */
-	private $num_queries = 0;
+	private $numQueries = 0;
 
 	/**
 	 * Last query result.
 	 * @var query-result
 	 */
-	private $last_result;
+	private $lastResult;
 
 	/**
 	 * Cached options
@@ -83,40 +83,38 @@ class DB {
 	/**
 	 * Prepare the DB object.
 	 *
-	 * @param type $db_username Database username
-	 * @param type $db_password Database password
-	 * @param type $db_location Database location
-	 * @param type $db_name Database name
+	 * @param type $dbUsername Database username
+	 * @param type $dbPassword Database password
+	 * @param type $dbLocation Database location
+	 * @param type $dbName Database name
 	 * @param type $tablePrefix Table Prefix
 	 */
-	function __construct($db_username, $db_password, $db_location, $db_name, $table_prefix) {
-		$this->db_username = $db_username;
-		$this->db_location = $db_location;
-		$this->db_name = $db_name;
-		$this->tablePrefix = $table_prefix;
-		@$this->mysqli = new mysqli($db_location, $db_username, $db_password, $db_name);
-		if($this->error_connection()) {
+	function __construct($dbUsername, $dbPassword, $dbLocation, $dbName, $tablePrefix) {
+		$this->dbUsername = $dbUsername;
+		$this->dbLocation = $dbLocation;
+		$this->dbName = $dbName;
+		$this->tablePrefix = $tablePrefix;
+		@$this->mysqli = new mysqli($dbLocation, $dbUsername, $dbPassword, $dbName);
+		if( $this->errorConnection() ) {
 			if(DEBUG) {
 				error_die( sprintf(
 					_("Impossibile connettersi al database '%s' tramite l'utente '%s' e password (%s) sul server MySQL/MariaDB '%s'. Specifica correttamente queste informazioni nel file di configurazione del tuo progetto (usualmente '%s')."),
-					$db_name,
-					$db_username,
-					($db_password === '') ? _("nessuna") : sprintf(
+					$dbName,
+					$dbUsername,
+					($dbPassword === '') ? _("nessuna") : sprintf(
 						_("di %d caratteri"),
-						strlen( $db_password )
+						strlen( $dbPassword )
 					),
-					$db_location,
+					$dbLocation,
 					'load.php'
 				) );
 			} else {
 				error_die( _("Errore nello stabilire una connessione al database.") );
 			}
 		}
-		@$this->mysqli->set_charset("utf8");
+		@$this->mysqli->set_charset('utf8');
 
-		if( USE_DB_OPTIONS ) {
-			$this->loadAutoloadOptions();
-		}
+		USE_DB_OPTIONS && $this->loadAutoloadOptions();
 	}
 
 	function __destruct() {
@@ -127,13 +125,7 @@ class DB {
 	 * Lock the door when you leave a room.
 	 */
 	public function closeConnection() {
-		if($this->mysqli) {
-			@$this->mysqli->close();
-		}
-	}
-
-	public function num_rows() {
-		return @$this->last_result->num_rows;
+		$this->mysqli && @$this->mysqli->close();
 	}
 
 	/**
@@ -143,76 +135,80 @@ class DB {
 	 * @param boolean $tagReplace Use tag sobstitution, or no
 	 */
 	public function query($SQL) {
-		$this->num_queries++;
-		// @$this->last_result->close();
-		@$this->last_result = $this->mysqli->query($SQL);
-		if( ! $this->last_result ) {
+		$this->numQueries++;
+		// @$this->lastResult->close();
+		@$this->lastResult = $this->mysqli->query($SQL);
+		if( ! $this->lastResult ) {
 			DEBUG && error_die( $this->get_SQL_error_message($SQL) );
 			return false;
 		} elseif(DEBUG && SHOW_EVERY_SQL) {
 			echo HTML::tag('p', sprintf(
 				_("Query numero %d: <pre>%s</pre>"),
-				$this->num_queries,
+				$this->numQueries,
 				$SQL
 			) );
 		}
-		return $this->last_result;
+		return $this->lastResult;
 	}
 
-	public function getRow($SQL, $args=array()) {
-		$args = merge_args_defaults(
-			$args,
-			array(
-				'fetch' => 'object'
-			)
-		);
-		return ($this->query($SQL)) ? $this->fetch_row( $args['fetch'] ) : false;
+	public function getRow($query, $class_name = 'DBRow', $params = array() ) {
+		$results = $this->getResults($query, $class_name, $params);
+		return @$results[0];
 	}
 
-	public function getValue($SQL, $column_name, $args = array()) {
-		$row = $this->getRow($SQL, $args);
+	public function getValue($SQL, $column_name, $class_name = 'DBRow', $params = array() ) {
+		$row = $this->getRow($SQL, $class_name, $params);
 		return @$row->{$column_name};
 	}
 
 	/**
-	 * To get a single row from a query.
+	 * Execute a query and return an array of $class_name objects.
 	 *
-	 * @deprecated
-	 * @param $SQL SQL query
-	 * @param $args Arguments.
-	 * @return object Object row.
+	 * @param string $query Database SQL query.
+	 * @param string $class_name The name of the class to instantiate.
+	 * @param array $params Optional data for the $class_name constructor.
+	 * @See http://php.net/manual/en/mysqli-result.fetch-object.php
 	 */
-	public function get_row($SQL, $args=array()) {
-		return $this->getRow($SQL, $args);
+	public function getResults($query, $class_name = 'DBRow', $params = array() ) {
+		if( ! $this->query($query) ) {
+			return false;
+		}
+		$res = array();
+
+		// FOR HISTORICAL REASONS
+		if( is_array( $class_name ) ) {
+			$class_name = 'DBRow';
+		}
+		// FOR HISTORICAL REASONS
+
+		while( $row = $this->lastResult->fetch_object($class_name, $params) ) {
+			$res[] = $row;
+		}
+
+		return $res;
 	}
 
 	/**
-	 * Return multi-row from a query.
-	 *
-	 * @deprecated
-	 * @param string $SQL The SQL query to execute
-	 * @param array $args Arguments.
-	 * @return array The result is as an array of object.
+	 * To insert a single row
 	 */
-	public function get_results($SQL, $args=array()) {
-		return $this->getResults($SQL, $args);
-	}
+	public function insertRow($table_name, $dbCols) {
+		$SQL_columns = '';
+		$n_cols = count($dbCols);
+		for($i=0; $i<$n_cols; $i++) {
+			if($i !== 0) {
+				$SQL_columns .= ', ';
+			}
+			$SQL_columns .= "`{$dbCols[$i]->column}`";
+		}
 
-	public function getResults($SQL, $args=array()) {
-		if(!$this->query($SQL)) {
-			return false;
+		$values = '';
+		for($i=0; $i<$n_cols; $i++) {
+			if($i !== 0) {
+				$values .= ', ';
+			}
+			$values .= $this->force_type($dbCols[$i]->value, $dbCols[$i]->forceType);
 		}
-		$args = merge_args_defaults(
-			$args,
-			array(
-				'fetch' => 'object' // {object, assoc}
-			)
-		);
-		$res = array();
-		while($row = $this->fetch_row($args['fetch'])) {
-			$res[] = $row;
-		}
-		return $res;
+		return $this->query("INSERT INTO {$this->getTable($table_name)} ($SQL_columns) VALUES ($values)");
 	}
 
 	/**
@@ -231,12 +227,12 @@ class DB {
                         )
                 );
 
-		if(!is_array($rows)) {
-			$rows = array(0 => $rows); // 'value col 1' => array_columns('value col 1')
+		if( ! is_array($rows) ) {
+			$rows = array($rows); // 'value col 1' => array_columns('value col 1')
 		}
 
-		if(!@is_array($rows[0]) ) {
-			$rows = array(0 => $rows); // array_columns('value col 1', '..') => array_rows( array_columns( 'value col 1', ..) )
+		if( ! @is_array($rows[0]) ) {
+			$rows = array($rows); // array_columns('value col 1', '..') => array_rows( array_columns( 'value col 1', ..) )
 		}
 
 		$n_columns = count($columns);
@@ -284,15 +280,7 @@ class DB {
 	/**
 	 * To execute update queries.
 	 */
-	public function update($table_name, $dbCols, $conditions = null) {
-		if( $conditions === null ) {
-			if(DEBUG) {
-				error( _("DB#update() va lanciato con il terzo argomento per evitare di eseguire una query su tutte le rige. Se invece è proprio ciò che desideri fare per favore specifica <code>1</code> (per creare WHERE 1).") );
-			} else {
-				error( _("Impossibile lanciare DB#update() senza il terzo argomento.") );
-			}
-			return false;
-		}
+	public function update($table_name, $dbCols, $conditions) {
 		$SQL = "UPDATE {$this->getTable($table_name)} SET ";
 		if( ! is_array($dbCols) ) {
 			$dbCols = array($dbCols);
@@ -311,37 +299,7 @@ class DB {
 		return $this->query($SQL);
 	}
 
-	/**
-	 * To insert a single row
-	 */
-	public function insertRow($table_name, $dbCols) {
-		$SQL_columns = '';
-		$n_cols = count($dbCols);
-		for($i=0; $i<$n_cols; $i++) {
-			if($i !== 0) {
-				$SQL_columns .= ', ';
-			}
-			$SQL_columns .= "`{$dbCols[$i]->column}`";
-		}
-
-		$values = '';
-		for($i=0; $i<$n_cols; $i++) {
-			if($i !== 0) {
-				$values .= ', ';
-			}
-			$values .= $this->force_type($dbCols[$i]->value, $dbCols[$i]->forceType);
-		}
-		return $this->query("INSERT INTO {$this->getTable($table_name)} ($SQL_columns) VALUES ($values)");
-	}
-
 	public function getLastInsertedID() {
-		return $this->mysqli->insert_id;
-	}
-
-	/**
-	 * @deprecated
- 	 */
-	public function get_last_inserted_id() {
 		return $this->mysqli->insert_id;
 	}
 
@@ -468,12 +426,21 @@ class DB {
 	 * @param string $option_value Option value
 	 * @param boolean $option_autoload If the option it's automatically requested on every page-request
 	 * @return boolean Sucessfully or not
+	 * @TODO 'replace-into' => This is not OK
 	 */
 	private function insertOption($option_name, $option_value, $option_autoload = true) {
 		if(isset($this->options_cache[$option_name])) {
 			return $this->updateOption($option_name, $option_value);
 		} else {
 			$option_autoload = ($option_autoload) ? 1 : 0;
+
+			/*
+			$db->insertRow('option', [
+				new DBCol('option_name', $option_name, 's'),
+				new DBCol('option_value', $option_value, 's'),
+				new DBCol('option_autoload', $option_autoload, 's')
+			]);
+			*/
 
 			$this->insert(
 				'option',
@@ -489,7 +456,7 @@ class DB {
 					'replace-into' => true
 				)
 			);
-			if(!$this->last_result) {
+			if( ! $this->lastResult ) {
 				return false;
 			}
 
@@ -510,7 +477,7 @@ class DB {
 				"DELETE FROM {$this->getTable('option')} WHERE option_name='%s' LIMIT 1",
 				$this->escapeString($option_name)
 			));
-			if(!$this->last_result) {
+			if(!$this->lastResult) {
 				return false;
 			}
 			unset($this->options_cache[$option_name]);
@@ -529,7 +496,7 @@ class DB {
 	}
 
 	public function getNumQueries() {
-		return $this->num_queries;
+		return $this->numQueries;
 	}
 
 	public function getPrefix() {
@@ -577,6 +544,9 @@ class DB {
 		return $tables;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public function get_tables($args = array()) {
 		if(!is_array($args)) {
 			$args = func_get_args();
@@ -616,7 +586,7 @@ class DB {
 	 *
 	 * @return boolean
 	 */
-	private function error_connection() {
+	private function errorConnection() {
 		return @mysqli_connect_errno();
 	}
 
@@ -625,12 +595,12 @@ class DB {
 	 */
 	private function fetch_row($fetch) {
 		if($fetch === 'object' || $fetch === 'assoc') {
-			return $this->last_result->{'fetch_' . $fetch}();
+			return $this->lastResult->{'fetch_' . $fetch}();
 		}
 		error_die('Fetch row cannot be ' . $fetch);
 	}
 
-	public function affected_rows() {
+	public function affectedRows() {
 		return @$this->mysqli->affected_rows();
 	}
 
@@ -643,10 +613,41 @@ class DB {
 	private function get_SQL_error_message($SQL) {
 		return sprintf(
 			_("Errore eseguendo una query SQL: Query n. %d: <blockquote><pre>%s</pre></blockquote><br />Errore: <pre>%s</pre>"),
-			$this->num_queries,
+			$this->numQueries,
 			$SQL,
 			esc_html($this->mysqli->error)
 		);
+	}
+
+	/**
+	 * To get a single row from a query.
+	 *
+	 * @deprecated
+	 * @param $SQL SQL query
+	 * @param $args Arguments.
+	 * @return object Object row.
+	 */
+	public function get_row($SQL) {
+		return $this->getRow($SQL);
+	}
+
+	/**
+	 * Return multi-row from a query.
+	 *
+	 * @deprecated
+	 * @param string $SQL The SQL query to execute
+	 * @param array $args Arguments.
+	 * @return array The result is as an array of object.
+	 */
+	public function get_results($SQL) {
+		return $this->getResults($SQL);
+	}
+
+	/**
+	 * @deprecated
+ 	 */
+	public function get_last_inserted_id() {
+		return $this->mysqli->insert_id;
 	}
 }
 
@@ -776,12 +777,12 @@ class DynamicQuery {
 		return $sql;
 	}
 
-	public function getResults() {
-		return $this->db->getResults( $this->getQuery() );
+	public function getResults($class_name = 'DBRow', $params = array() ) {
+		return $this->db->getResults( $this->getQuery(), $class_name, $params );
 	}
 
-	public function getRow() {
-		return $this->db->getRow( $this->getQuery() );
+	public function getRow($class_name = 'DBRow', $params = array()) {
+		return $this->db->getRow( $this->getQuery(), $class_name, $params );
 	}
 
 	public function getValue($column_name) {
@@ -791,12 +792,22 @@ class DynamicQuery {
 
 class DBCol {
 	public $column;
-	public $value;
 	public $forceType;
+	public $value;
 
 	function __construct($column, $value, $forceType) {
 		$this->column = $column;
 		$this->value = $value;
 		$this->forceType = $forceType;
+	}
+}
+
+/**
+ * The stdClass does not have a constructor.
+ *
+ * @See http://php.net/manual/en/mysqli-result.fetch-object.php
+ */
+class DBRow {
+	function __construct() {
 	}
 }

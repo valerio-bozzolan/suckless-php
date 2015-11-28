@@ -29,14 +29,18 @@
  * @return array Merged user defined values with defaults
  */
 function merge_args_defaults($args, $defaults) {
-        if(!is_array($args)) {
-		if(DEBUG) {
-			error_die('Error merge_args_defaults: Parameter 1 ($args) must be an array.');
-		}
+        if( ! is_array($args) ) {
+		DEBUG && error( sprintf(
+			_("Errore in %s: l'argomento 1 dovrebbe essere un array."),
+			__FUNCTION__
+		) );
 		return $defaults;
 	}
-	if(!is_array($defaults)) {
-		error_die('Error merge_args_defaults: Parameter 2 ($defaults) must be an array.');
+	if( ! is_array($defaults) ) {
+		error_die( sprintf(
+			_("Errore in %s: l'argomento 2 deve essere un array."),
+			__FUNCTION__
+		) );
 	}
 	return array_merge($defaults, $args);
 }
@@ -218,7 +222,7 @@ function get_user($property = null) {
 	if( is_logged() && ! isset( $user->{$property} ) ) {
 		DEBUG && error( sprintf(
 			_("Colonna utente '%s' mancante!"),
-			$property
+			esc_html( $property )
 		) );
 		return null;
 	}
@@ -455,9 +459,7 @@ function generate_slug($s, $max_length = -1, $glue = '-', & $truncated = false) 
 	if($max_length !== -1) {
 		$len = strlen($s);
 		$s = substr($s, 0, $max_length);
-		if($len !== strlen($s)) {
-			$truncated = true;
-		}
+		$truncated = $len !== strlen($s);
 	}
 	$s = preg_replace('/\s/', $glue, $s);
 	return rtrim($s, $glue);
