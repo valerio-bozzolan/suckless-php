@@ -29,8 +29,11 @@ define('UPLOAD_EXTRA_ERR_CANT_SAVE_FILE', 109);
 /**
  * Manage upload exceptions.
  *
+ * @use build_filename()
+ * @use search_free_filename()
  */
 class FileUploader {
+
 	private $fileEntry;
 
 	private $args;
@@ -90,21 +93,18 @@ class FileUploader {
 	 *		Default: true
 	 */
 	public function setArgs($args) {
-		$this->args = merge_args_defaults(
-			$args,
-			array(
-				'slug' => true,
-				'override-filename' => null,
-				'pre-filename' => '',
-				'post-filename' => '',
-				'autoincrement' => '-%d',
-				'category' => null,
-				'max-filesize' => null,
-				'min-length-filename' => 2,
-				'max-length-filename' => 200,
-				'dont-overwrite' => true
-			)
-		);
+		$this->args = merge_args_defaults($args, array(
+			'slug' => true,
+			'override-filename' => null,
+			'pre-filename' => '',
+			'post-filename' => '',
+			'autoincrement' => '-%d',
+			'category' => null,
+			'max-filesize' => null,
+			'min-length-filename' => 2,
+			'max-length-filename' => 200,
+			'dont-overwrite' => true
+		) );
 	}
 
 	/**
@@ -130,7 +130,7 @@ class FileUploader {
 	/**
 	 * Upload the filename to a filepath.
 	 *
-	 * @param string $pathname The folder WITHOUT trailing slash
+	 * @param string $pathname The absolute folder WITHOUT trailing slash
 	 * @param int $status To get the exceptions
 	 */
 	public function uploadTo($pathname, & $status) {
@@ -206,30 +206,18 @@ class FileUploader {
 			$filename = generate_slug( $filename );
 		}
 
-		// Create destination
+		// Make sure that the destination folder exists
 		create_path( $pathname );
 
-		$getFilename = function(&$filename, &$args, &$ext, $i = null) {
-			if( $i === null ) {
-				$autoincrement = '';
-			} else {
-				$autoincrement = sprintf($this->args['autoincrement'], $i);
-			}
+		// Append a suffix to the filename if it already exists
+		$filename = search_free_filename(
+			$pathname . _ ,
+			$filename,
+			$ext,
+			$this->args
+		);
 
-			return $filename . $autoincrement . $args['post-filename'] . ".$ext";
-		};
-
-		// Can be appended a progressive number
-		if( $this->args['dont-overwrite'] && file_exists( $pathname . _ . $getFilename($filename, $this->args, $ext) ) ) {
-			$i = 1;
-			while( file_exists( $pathname . _ . $getFilename($filename, $this->args, $ext, $i) ) ) {
-				$i++;
-			}
-			$filename = $getFilename($filename, $this->args, $ext, $i);
-		} else {
-			// Append suffix (if any)
-			$filename = $getFilename($filename, $this->args, $ext, $i);
-		}
+		$filename = $filename;
 
 		// Filename length
 		if( strlen($filename) < $this->args['min-length-filename'] ) {
@@ -248,13 +236,13 @@ class FileUploader {
 			$pathname . _ . $filename
 		);
 
-		if(! $moved) {
+		if( ! $moved ) {
 			$status = UPLOAD_EXTRA_ERR_CANT_SAVE_FILE;
 			return false;
 		}
 
 		$status = UPLOAD_ERR_OK;
-		return "$filename";
+		return $filename;
 	}
 
 	/**

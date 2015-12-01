@@ -618,6 +618,75 @@ function create_path($path, $chmod = CHMOD_WRITABLE_DIRECTORY) {
 }
 
 /**
+ * Default mode to build a file name.
+ * It's called multiple times in search_free_filename().
+ *
+ * Create your own but NEVER get two equal strings if $i changes.
+ *
+ * @param string $filename File name without extension
+ * @param string $ext File name extension with the dot
+ * @param array $args Custom stuff
+ * @param int $i Received from search_free_filename() as
+ *	auto increment if the precedent file name already exists.
+ *	To be used to-get (or not-to-get) a suffix.
+ *	It's NULL during the first call.
+ * @return string File name (with extension)
+ */
+function build_filename($filename, $ext, $args, $i = null) {
+	if( ! isset( $args['autoincrement'] ) ) {
+		$args['autoincrement'] = '-%d';
+		DEBUG && error( sprintf(
+			_("Arg [autoincrement] atteso in %s. Assunto '%s'."),
+			__FUNCTION__,
+			'-%d'
+		) );
+	}
+
+	if( ! isset( $args['post-filename']  ) ) {
+		$args['post-filename'] = '';
+		DEBUG && error( sprintf(
+			_("Arg [post-filename] atteso in %s. Assunto vuoto."),
+			__FUNCTION__
+		) );
+	}
+
+	$suffix = ( $i === null ) ? '' : sprintf( $args['autoincrement'], $i );
+
+	return $filename . $suffix . $args['post-filename'] . ".$ext";
+}
+
+/**
+ * When you want a not-taken file name.
+ *
+ * @param string $filepath Absolute directory with trailing slash
+ * @param string $filename 1° arg of $build_filename()
+ * @param string $ext 2° arg of $build_filename()
+ * @param string $args 3° args of $build_filename()
+ * @param null|string $build_filename NULL for 'build_filename'
+ */
+function search_free_filename($filepath, $filename, $ext, $args, $build_filename = null) {
+	if($build_filename === null) {
+		$build_filename = 'build_filename';
+	}
+
+	if( ! function_exists( $build_filename ) ) {
+		error_die( sprintf(
+			_("Il 5° argomento di %s dovrebbe essere il nome di una funzione ma non esiste alcuna funzione '%s'."),
+			__FUNCTION__,
+			esc_html( $build_filename )
+		) );
+	}
+
+	$i = null;
+	while( file_exists( $filepath . call_user_func($build_filename, $filename, $ext, $args, $i) ) ) {
+		// http://php.net/manual/en/language.operators.increment.php
+		// «Decrementing NULL values has no effect too, but incrementing them results in 1.»
+		$i++;
+	}
+	return call_user_func($build_filename, $filename, $ext, $args, $i);
+}
+
+/**
  * I use this to clean user input before DB#insert()
  *
  * @param string $s Input string
