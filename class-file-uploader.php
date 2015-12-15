@@ -131,9 +131,12 @@ class FileUploader {
 	 * Upload the filename to a filepath.
 	 *
 	 * @param string $pathname The absolute folder WITHOUT trailing slash
-	 * @param int $status To get the exceptions
+	 * @param int $status Exception code
+	 * @param string $filename File name without extension
+	 * @param string $ext File extension with dot
+	 * @param string $mime MIME type
 	 */
-	public function uploadTo($pathname, & $status) {
+	public function uploadTo($pathname, & $status, & $filename = null, & $ext = null, & $mime = null) {
 		if( ! $this->uploadRequestOK() ) {
 			$status = UPLOAD_EXTRA_ERR_INVALID_REQUEST;
 			return false;
@@ -192,10 +195,11 @@ class FileUploader {
 			return false;
 		}
 
-		// Get filename
 		if( $this->args['override-filename'] === null ) {
-			$filename = substr($_FILES[ $this->fileEntry ]['name'], 0, - strlen( $ext ));
+			// Strip original complete file name from extension
+			$filename = substr($_FILES[ $this->fileEntry ]['name'], 0, - ( strlen( $ext ) + 1 ) );
 		} else {
+			// Override file name
 			$filename = $this->args['override-filename'];
 		}
 
@@ -217,23 +221,24 @@ class FileUploader {
 			$this->args
 		);
 
-		$filename = $filename;
+		// File name with extension
+		$complete_filename = "$filename.$ext";
 
-		// Filename length
-		if( strlen($filename) < $this->args['min-length-filename'] ) {
+		// File name length
+		if( strlen($complete_filename) < $this->args['min-length-filename'] ) {
 			$status = UPLOAD_EXTRA_ERR_FILENAME_TOO_SHORT;
 			return false;
 		}
 
-		// Filename length
-		if( strlen($filename) > $this->args['max-length-filename'] ) {
+		// File name length
+		if( strlen($complete_filename) > $this->args['max-length-filename'] ) {
 			$status = UPLOAD_EXTRA_ERR_FILENAME_TOO_LONG;
 			return false;
 		}
 
 		$moved = move_uploaded_file(
 			$_FILES[ $this->fileEntry ]['tmp_name'],
-			$pathname . _ . $filename
+			$pathname . _ . $complete_filename
 		);
 
 		if( ! $moved ) {
@@ -242,7 +247,7 @@ class FileUploader {
 		}
 
 		$status = UPLOAD_ERR_OK;
-		return $filename;
+		return $complete_filename;
 	}
 
 	/**

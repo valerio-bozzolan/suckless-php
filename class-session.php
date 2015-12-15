@@ -21,7 +21,7 @@ class Session {
 
 	private $user = null;
 
-	private $user_class = 'SessionUser';
+	private $userClass = 'SessionUser';
 
 	private $db;
 
@@ -83,8 +83,13 @@ class Session {
 				esc_sql($user_uid),
 				esc_sql($this->encryptUserPassword( $user_password) )
 			),
-			$this->user_class
+			$this->userClass
 		);
+
+		if( ! $user ) {
+			$status = self::LOGIN_FAILED;
+			return false;
+		}
 
 		if( ! $user->isActive() ) {
 			$status = self::USER_DISABLED;
@@ -92,11 +97,6 @@ class Session {
 		}
 
 		$this->loginVerified = true;
-
-		if(!$user) {
-			$status = self::LOGIN_FAILED;
-			return false;
-		}
 
 		unset( $user->user_password );
 
@@ -127,7 +127,7 @@ class Session {
 				"SELECT * FROM {$this->db->getTable('user')} WHERE user_ID = '%d'",
 				$_SESSION['user_ID']
 			),
-			$this->user_class
+			$this->userClass
 		);
 
 		$this->loginVerified = true;
@@ -189,7 +189,6 @@ class Session {
 class SessionUser {
 	function __construct() {
 		$this->user_ID = (int) $this->user_ID;
-
 		$this->user_active = (bool) (int) $this->user_active;
 	}
 

@@ -226,7 +226,7 @@ function get_user($property = null) {
 		) );
 		return null;
 	}
-	return $user->$property;
+	return $user->{$property};
 }
 
 function get_num_queries() {
@@ -280,12 +280,29 @@ function has_permission($permission) {
  *
  * @param string $base_URL Base URL with/without any slash at start
  * @param string $dir Directory without any slash
+ * @deprecated
  * @return string URL
 */
 function append_dir_to_URL($base_URL, $dir = '/') {
 	$base_URL = rtrim($base_URL, '/');
 	$dir = ltrim($dir, '/');
 	return $base_URL . '/' . $dir;
+}
+
+/**
+ * Add a directory to a base URL or a pathname.
+ * If the base URL it is not defined, a slash ('/') is appended to the URL.
+ * The base URL could end with a slash ('/') or not.
+ *
+ * @param string $base_URL Base URL with/without any slash at start
+ * @param string $dir Directory without any slash
+ * @deprecated
+ * @return string URL / Pathname
+*/
+function append_dir($base_URL, $dir = _ ) {
+	$base_URL = rtrim($base_URL, _);
+	$dir = ltrim($dir, _);
+	return $base_URL . _ . $dir;
 }
 
 /**
@@ -299,7 +316,7 @@ function site_page($page) {
 	if( $sub === 'http:/' || $sub === 'https:' ) {
 		return $page;
 	}
-	return append_dir_to_URL(URL, $page);
+	return append_dir(URL, $page);
 }
 
 function single_quotes($s) {
@@ -560,6 +577,13 @@ function is_file_in_category($filepath, $category) {
 	return $GLOBALS['mimeTypes']->isMimetypeInCategory($mime , $category);
 }
 
+/**
+ * Get the file extension
+ */
+function get_file_extension_from_expectations($filename, $category) {
+	return $GLOBALS['mimeTypes']->getFileExtensionFromExpectations($filename, $category);
+}
+
 function is_image($filepath) {
 	return is_file_in_category($filepath, 'image');
 }
@@ -618,13 +642,13 @@ function create_path($path, $chmod = CHMOD_WRITABLE_DIRECTORY) {
 }
 
 /**
- * Default mode to build a file name.
+ * Default mode to build a file name WITHOUT extension.
  * It's called multiple times in search_free_filename().
  *
  * Create your own but NEVER get two equal strings if $i changes.
  *
  * @param string $filename File name without extension
- * @param string $ext File name extension with the dot
+ * @param string $ext File name extension without dot
  * @param array $args Custom stuff
  * @param int $i Received from search_free_filename() as
  *	auto increment if the precedent file name already exists.
@@ -652,11 +676,11 @@ function build_filename($filename, $ext, $args, $i = null) {
 
 	$suffix = ( $i === null ) ? '' : sprintf( $args['autoincrement'], $i );
 
-	return $filename . $suffix . $args['post-filename'] . ".$ext";
+	return $filename . $suffix . $args['post-filename'];
 }
 
 /**
- * When you want a not-taken file name.
+ * When you want a not-taken file name WITHOUT extension.
  *
  * @param string $filepath Absolute directory with trailing slash
  * @param string $filename 1° arg of $build_filename()
@@ -678,10 +702,14 @@ function search_free_filename($filepath, $filename, $ext, $args, $build_filename
 	}
 
 	$i = null;
-	while( file_exists( $filepath . call_user_func($build_filename, $filename, $ext, $args, $i) ) ) {
+	while( file_exists( $filepath . call_user_func($build_filename, $filename, $ext, $args, $i) . ".$ext" ) ) {
 		// http://php.net/manual/en/language.operators.increment.php
 		// «Decrementing NULL values has no effect too, but incrementing them results in 1.»
 		$i++;
+
+		if($i === 30) {
+			exit;
+		}
 	}
 	return call_user_func($build_filename, $filename, $ext, $args, $i);
 }

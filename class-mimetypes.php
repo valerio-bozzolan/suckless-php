@@ -177,7 +177,13 @@ class MimeTypes {
 	 * @return string|false FALSE or the file extension e.g.: 'png'
 	 */
 	public function getFileExtensionFromExpectations($filename, $categories = null, $mimetype = null) {
-		$expected_filetypes = $this->getFiletypes($category, $mimetype);
+
+		// Have to insert an arg to enable this feature?
+		// ASD.JPEG => asd.jpeg
+		// @TODO
+		$filename = strtolower($filename);
+
+		$expected_filetypes = $this->getFiletypes($categories, $mimetype);
 		foreach($expected_filetypes as $filetype) {
 			$dotted = ".$filetype";
 			$strlen = strlen($dotted);

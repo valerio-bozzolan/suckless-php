@@ -2,15 +2,16 @@
 To be clear I use to twist this framework very often deprecating and killing stuff how I feel in the morning. It's my custom laser cannon that serves dozen of very-different Content Management Systems "made from zero" in my single Debian GNU/Linux server.
 
 ## Benefits as developer
-You can create a super-custom RDBMS CMS without reinventing the wheel:
+You can create a RDBMS CMS with:
 
 * No pain with DB table prefixes
 * No pain with DB associative options
 * No pain with login and user capabilities
-* No pain with register and enqueue JS and CSS
-* No pain with menu tree
+* No pain with registering and enqueueing JS and CSS
+* No pain with menu trees
 * No pain with file uploads
 * Very small websites with only what you want in the root of you project
+* Very small framework with a few flat files
 
 ## Benefits as sysadmin
 * No pain with overweight copy-pasted websites to be hosted with redundant backups and too things to keep updated: The framework is in one place; the websites are in another places; data are in dabasase/databases. Everything it's how it should be done!

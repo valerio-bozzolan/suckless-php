@@ -20,8 +20,6 @@
  * Start the CMS
  */
 
-defined('ABSPATH') || die("ABSPATH is not specified");
-
 defined('DEBUG') || define('DEBUG', false);
 defined('SHOW_EVERY_SQL') || define('SHOW_EVERY_SQL', false);
 
@@ -144,4 +142,8 @@ inject_in_module('theme-footer', function() {
 $GLOBALS['menu'] = new Menu();
 
 // Callback
-REQUIRE_LOAD_POST && require ABSPATH . '/load-post.php';
+if( REQUIRE_LOAD_POST ) {
+	defined('ABSPATH') || die("ABSPATH is not specified.");
+
+	require ABSPATH . '/load-post.php';
+}
