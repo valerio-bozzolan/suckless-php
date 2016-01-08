@@ -280,7 +280,7 @@ function has_permission($permission) {
  *
  * @param string $base_URL Base URL with/without any slash at start
  * @param string $dir Directory without any slash
- * @deprecated
+ * @deprecated for append_dir
  * @return string URL
 */
 function append_dir_to_URL($base_URL, $dir = '/') {
@@ -296,7 +296,6 @@ function append_dir_to_URL($base_URL, $dir = '/') {
  *
  * @param string $base_URL Base URL with/without any slash at start
  * @param string $dir Directory without any slash
- * @deprecated
  * @return string URL / Pathname
 */
 function append_dir($base_URL, $dir = _ ) {

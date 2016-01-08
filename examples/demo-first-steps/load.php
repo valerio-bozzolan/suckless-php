@@ -3,31 +3,30 @@
  * Require this file to start the framework.
  */
 
-// Database info. You know it!
-$username = 'insert-here-username';
+// Database info. You know them!
+$username = 'insert-here-user';
 $password = 'insert-here-password';
 $database = 'insert-here-database-name';
 $location = 'localhost';
 
 // Database table prefix, if any.
 // E.g. 'asd_'
+// Anyway in this example you don't need tables
 $prefix = '';
 
 // Specify the folder of your site after the domain name.
 // NO TRAILING SLASH
 // E.g. '/blog/01'
-define('ROOT', '');
+define('ROOT', '/first-steps');
 
-// It enable extra verbose framework errors
+// It enables extra verbose framework errors like wrong database password
 define('DEBUG', true);
 
-// Very very very debuggly!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-define('SHOW_EVERY_SQL', true);
+// In the example I don't use this
+define('USE_DB_OPTIONS', false);
 
-// Leave this as is. It is this folder.
-// NO TRAILING SLASH
-// E.g. '/var/www/blog/01'
-define('ABSPATH', __DIR__);
+// In the example I don't use this
+define('REQUIRE_LOAD_POST', false);
 
-// Where is the framework? Change it!
+// Where is the framework? It should be always there:
 require '/usr/share/boz-php-another-php-framework/load.php';

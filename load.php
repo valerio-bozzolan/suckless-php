@@ -41,19 +41,19 @@ defined('PASSWD_HASH_ALGO') || define('PASSWD_HASH_ALGO', 'sha1'); // Just somet
 defined('PASSWD_HASH_SALT') || define('PASSWD_HASH_SALT', 'drGth'); // Just something
 defined('PASSWD_HASH_PEPP') || define('PASSWD_HASH_PEPP', 'pw72kP'); // Just something
 
-define('HERE', dirname(__FILE__) );
+define('BOZ_PHP', __DIR__ );
 
 // Sbabababam!
-require HERE . '/functions.php';
-require HERE . '/class-menu.php';
-require HERE . '/class-mimetypes.php';
-require HERE . '/class-file-uploader.php';
-require HERE . '/class-db.php';
-require HERE . '/class-permissions.php';
-require HERE . '/class-register-js-css.php';
-require HERE . '/class-register-module.php';
-require HERE . '/class-session.php';
-require HERE . '/class-html.php';
+require BOZ_PHP . '/functions.php';
+require BOZ_PHP . '/class-menu.php';
+require BOZ_PHP . '/class-mimetypes.php';
+require BOZ_PHP . '/class-file-uploader.php';
+require BOZ_PHP . '/class-db.php';
+require BOZ_PHP . '/class-permissions.php';
+require BOZ_PHP . '/class-register-js-css.php';
+require BOZ_PHP . '/class-register-module.php';
+require BOZ_PHP . '/class-session.php';
+require BOZ_PHP . '/class-html.php';
 
 // Start stopwatch
 get_page_load();

@@ -66,7 +66,7 @@ echo $row->time;
 ```
 
 ## Database installation
-You can add support for user *autentication* / user *permissions* and *associative options* importing the database schema into your database. To do it you should have received a file called `example-schema.sql` in the framework folder. Import it into your database. Actually there are only two tables. When you have done it, remember to remove the `DB_USE_OPTIONS` declarations in your config file (`load.php`), or obviously set that constant to `true`.
+You can add support for user *autentication* / user *permissions* and *associative options* importing the database schema into your database. To do it you should have received a file called `example-schema.sql` in the `examples` framework folder. Import it into your database. Actually there are only two tables. When you have done it, remember to remove the `DB_USE_OPTIONS` declarations in your config file (`load.php`), or obviously set that constant to `true`.
 
 ## Stuff in `load.php`
 Have to specify these:
