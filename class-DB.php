@@ -78,6 +78,8 @@ class DB {
 			$location  = @$GLOBALS['location'];
 			$database  = @$GLOBALS['database'];
 			$prefix    = @$GLOBALS['prefix'];
+
+			unset( $GLOBALS['username'], $GLOBALS['password'], $GLOBALS['location'], $GLOBALS['database'], $GLOBALS['prefix'] );
 		}
 
 		$this->prefix = $prefix;
