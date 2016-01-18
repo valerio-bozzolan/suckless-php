@@ -192,6 +192,7 @@ function enqueue_css($css_uid) {
 	return $GLOBALS['css']->enqueue($css_uid);
 }
 function add_menu_entries($menuEntries) {
+	expect('menu');
 	$GLOBALS['menu']->add($menuEntries);
 }
 function get_menu_entry($uid) {
@@ -231,7 +232,7 @@ function set_option($option_name, $option_value, $option_autoload = true) {
 	return $GLOBALS['db']->setOption($option_name, $option_value, $option_autoload);
 }
 function remove_option($option_name) {
-
+	expect('db');
 	return $GLOBALS['db']->removeOption($option_name);
 }
 function get_user($property = null) {
@@ -282,22 +283,6 @@ function has_permission($permission) {
 		$user_role = DEFAULT_USER_ROLE;
 	}
 	return $GLOBALS['permissions']->hasPermission($user_role, $permission);
-}
-
-/**
- * Add a directory to a base URL.
- * If the base URL it is not defined, a slash ('/') is appended to the URL.
- * The base URL could end with a slash ('/') or not.
- *
- * @param string $base_URL Base URL with/without any slash at start
- * @param string $dir Directory without any slash
- * @deprecated for append_dir
- * @return string URL
-*/
-function append_dir_to_URL($base_URL, $dir = '/') {
-	$base_URL = rtrim($base_URL, '/');
-	$dir = ltrim($dir, '/');
-	return $base_URL . '/' . $dir;
 }
 
 /**
@@ -750,7 +735,7 @@ function luser_input($s, $max) {
  *
  * @deprecated
  */
-if( ! function_exists('require_permission') {
+if( ! function_exists('require_permission') ) {
 
 	/**
 	 * Do it on your own!
