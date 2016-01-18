@@ -31,10 +31,9 @@ class Session {
 		if($db === null) {
 			expect('db');
 			$db = & $GLOBALS['db'];
-		} else {
-			$this->db = $db;
 		}
 
+		$this->db = $db;
 		$this->isLogged();
 	}
 
