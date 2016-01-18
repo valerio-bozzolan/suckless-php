@@ -35,8 +35,15 @@ class JS {
 	 * @param boolean $in_head {JS::HEADER, JS::FOOTER}
 	 */
 	public function enqueue($position = self::HEADER) {
-		$this->position = $position;
+		$this->position = self::filterPosition($position);
 		$this->enqueue = true;
+	}
+
+	public static function filterPosition($position) {
+		if( $position === null ) {
+			return self::HEADER;
+		}
+		return $position;
 	}
 }
 
@@ -69,7 +76,9 @@ class RegisterJS {
 	 * @param string $name JS name.
 	 * @param bool $in_head Place it in the head of the page or not.
 	 */
-	public function enqueue($javascript_uid, $position = JS::HEADER) {
+	public function enqueue($javascript_uid, $position = null) {
+		$position = JS::filterPosition($position);
+
 		if(isset($this->javascript[$javascript_uid])) {
 			$this->javascript[$javascript_uid]->enqueue($position);
 			return true;

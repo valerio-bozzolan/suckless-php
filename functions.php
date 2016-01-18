@@ -175,11 +175,11 @@ function inherit_permissions($role_to, $role_from) {
 	expect('permissions');
 	$GLOBALS['permissions']->inheritPermissions($role_to, $role_from);
 }
-function register_js($javascript_uid, $url, $position = JS::HEADER) {
+function register_js($javascript_uid, $url, $position = null) {
 	expect('javascript');
 	return $GLOBALS['javascript']->register( $javascript_uid, $url, $position );
 }
-function enqueue_js($javascript_uid, $position = JS::HEADER) {
+function enqueue_js($javascript_uid, $position = null) {
 	expect('javascript');
 	return $GLOBALS['javascript']->enqueue( $javascript_uid, $position );
 }
@@ -493,7 +493,7 @@ function error_die($msg) {
 <html>
 <head>
 	<title><?php _e("Errore") ?></title>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /
+	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo CHARSET ?>" />
 </head>
 <body>
 	<h1><?php printf(
@@ -502,7 +502,7 @@ function error_die($msg) {
 	) ?></h1>
 	<p><?php _e("Si è verificato il seguente errore durante l'avvio del framework:") ?></p>
 	<p>&laquo; <?php echo $msg ?> &raquo;</p>
-	<p><?php _e("Sai a che cosa significhi tutto ciò...") ?></p>
+	<p><?php _e("Sai che cosa significhi tutto ciò...") ?></p>
 </body>
 </html>
 <?php

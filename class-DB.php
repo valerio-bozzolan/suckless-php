@@ -72,7 +72,7 @@ class DB {
 	 * @param type $prefix Table Prefix
 	 */
 	function __construct($username = null, $password = null, $location = null, $database = null, $prefix = '') {
-		if( func_get_args() === 0 ) {
+		if( func_num_args() === 0 ) {
 			$username  = @$GLOBALS['username'];
 			$password  = @$GLOBALS['password'];
 			$location  = @$GLOBALS['location'];
@@ -211,7 +211,7 @@ class DB {
 	 * @param array $rows Array of rows
 	 * @param array $args Extra arguments
 	 */
-	public function insert($table_name, $columns, $rows, $args=array()) {
+	public function insert($table_name, $columns, $rows, $args = []) {
 		$args = merge_args_defaults(
 			$args,
 			array(
@@ -525,9 +525,9 @@ class DB {
 	/**
 	 * Return the list of every table name inserted as arguments or as an array()
 	 */
-	public function getTables($args = array()) {
+	public function getTables($args = []) {
 		$tables = '';
-		if(!is_array($args)) {
+		if( ! is_array($args) ) {
 			$args = func_get_args();
 		}
 		if($n = count($args)) {
@@ -544,8 +544,8 @@ class DB {
 	/**
 	 * @deprecated
 	 */
-	public function get_tables($args = array()) {
-		if(!is_array($args)) {
+	public function get_tables($args = []) {
+		if( ! is_array($args) ) {
 			$args = func_get_args();
 		}
 		return $this->getTables($args);
