@@ -70,7 +70,7 @@ class RegisterModule {
 	 */
 	public function injectFunction($module_uid, $callback) {
 		if( ! isset( $this->module[ $module_uid ] ) ) {
-			$this->module[$module_uid] = array();
+			$this->module[$module_uid] = [];
 			DEBUG && error( sprintf(
 				_("Il modulo %s non è stato ancora creato. Hai sbagliato a scriverlo?"),
 				"<em>" . esc_html($module_uid) . "</em>"

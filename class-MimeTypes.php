@@ -54,7 +54,7 @@ class MimeTypes {
 	public function registerMimetypes($category, $mimeTypes) {
 		// Register category if not exists
 		if( ! isset( $this->mimeTypes[ $category ] ) ) {
-			$this->mimeTypes[ $category ] = array();
+			$this->mimeTypes[ $category ] = [];
 		}
 		foreach($mimeTypes as $mime => $filetypes) {
 			if( ! is_array( $filetypes ) ) {
@@ -118,7 +118,7 @@ class MimeTypes {
 	 * @return array Array of MIME.
 	 */
 	public function getMimetypes($categories = null) {
-		$allMimeTypes = array();
+		$allMimeTypes = [];
 
 		if( $categories === null ) {
 			// All MIME types
@@ -176,7 +176,7 @@ class MimeTypes {
 	 * @return mixed FALSE if the MIME is not registered or an array of file types.
 	 */
 	public function getFiletypes($categories = null, $mimetype = null) {
-		$all_types = array();
+		$all_types = [];
 
 		if( $categories === null ) {
 			// Search in all the categories.

@@ -145,12 +145,12 @@ class DB {
 		) );
 	}
 
-	public function getRow($query, $class_name = 'DBRow', $params = array() ) {
+	public function getRow($query, $class_name = 'DBRow', $params = [] ) {
 		$results = $this->getResults($query, $class_name, $params);
 		return @$results[0];
 	}
 
-	public function getValue($SQL, $column_name, $class_name = 'DBRow', $params = array() ) {
+	public function getValue($SQL, $column_name, $class_name = 'DBRow', $params = [] ) {
 		$row = $this->getRow($SQL, $class_name, $params);
 		return @$row->{$column_name};
 	}
@@ -163,11 +163,11 @@ class DB {
 	 * @param array $params Optional data for the $class_name constructor.
 	 * @See http://php.net/manual/en/mysqli-result.fetch-object.php
 	 */
-	public function getResults($query, $class_name = 'DBRow', $params = array() ) {
+	public function getResults($query, $class_name = 'DBRow', $params = [] ) {
 		if( ! $this->query($query) ) {
 			return false;
 		}
-		$res = array();
+		$res = [];
 
 		// FOR HISTORICAL REASONS
 		if( is_array( $class_name ) ) {
@@ -247,7 +247,7 @@ class DB {
 		$SQL = "$insert INTO {$this->getTable($table_name)} ($SQL_columns) VALUES";
 		for($i=0; $i<$n_rows; $i++) {
 			$SQL .= ($i === 0) ? ' (' : ', (';
-			$SQL_values = array();
+			$SQL_values = [];
 
 			if($n_columns != count($rows[$i])) {
 				DEBUG && error( sprintf(
@@ -525,7 +525,7 @@ class DB {
 	}
 
 	/**
-	 * Return the list of every table name inserted as arguments or as an array()
+	 * Return the list of every table name inserted as arguments or as an []
 	 */
 	public function getTables($args = []) {
 		$tables = '';
@@ -653,8 +653,8 @@ class DB {
 class DynamicQuery {
 	private $db;
 
-	private $selectFields = array();
-	private $tables = array();
+	private $selectFields = [];
+	private $tables = [];
 	private $conditions = null;
 	private $offset;
 	private $rowCount;
@@ -776,11 +776,11 @@ class DynamicQuery {
 		return $sql;
 	}
 
-	public function getResults($class_name = 'DBRow', $params = array() ) {
+	public function getResults($class_name = 'DBRow', $params = [] ) {
 		return $this->db->getResults( $this->getQuery(), $class_name, $params );
 	}
 
-	public function getRow($class_name = 'DBRow', $params = array()) {
+	public function getRow($class_name = 'DBRow', $params = []) {
 		return $this->db->getRow( $this->getQuery(), $class_name, $params );
 	}
 

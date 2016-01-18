@@ -28,7 +28,7 @@
  * @param int $level Level of the menu, used internally. Default 0.
  * @param array $args Arguments
  */
-function print_menu($uid = null, $level = 0, $args = array() ) {
+function print_menu($uid = null, $level = 0, $args = [] ) {
 
 	// Example of custom default args
 	$args = merge_args_defaults( $args, [

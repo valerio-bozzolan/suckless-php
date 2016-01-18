@@ -112,7 +112,7 @@ class Menu {
 	 */
 	public function setParent($uid, $parentUid) {
 		if( ! isset( $this->tree[ $parentUid ] ) || ! is_array( $this->tree[ $parentUid ] ) ) {
-			 $this->tree[ $parentUid ] = array();
+			 $this->tree[ $parentUid ] = [];
 		}
 
 		$this->tree[ $parentUid ][] = $uid;
@@ -148,7 +148,7 @@ class Menu {
 			$parentUid = $this->rootUid;
 		}
 
-		$menuEntries = array();
+		$menuEntries = [];
 
 		if( isset( $this->tree[ $parentUid ] ) ) {
 			foreach($this->tree[ $parentUid ] as $uid) {

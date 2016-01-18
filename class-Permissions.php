@@ -44,7 +44,7 @@ class Permissions {
 
 	public function registerPermissions($role, $permissions) {
 		if( !$this->roleExists($role) ) {
-			$this->rolePermissions[ $role ] = array();
+			$this->rolePermissions[ $role ] = [];
 		}
 
 		if( ! is_array($permissions) ) {
@@ -83,7 +83,7 @@ class Permissions {
 			return false;
 		}
 		if( !$this->roleExists($newRole) ) {
-			$this->rolePermissions[ $newRole ] = array();
+			$this->rolePermissions[ $newRole ] = [];
 		}
 		foreach($this->rolePermissions[ $existingRole ] as $permission) {
 			$this->rolePermissions[ $newRole ][] = $permission;
@@ -103,7 +103,7 @@ class Permissions {
 	}
 
 	public function getPermissions() {
-		$allPermissions = array();
+		$allPermissions = [];
 		foreach($this->rolePermissions as $rolePermission) {
 			foreach($rolePermission as $permission) {
 				$allPermissions[] = $permission->permission;
@@ -113,7 +113,7 @@ class Permissions {
 	}
 
 	public function getRoles() {
-		$roles = array();
+		$roles = [];
 		foreach($this->rolePermissions as $role => $permission) {
 			$roles[] = $role;
 		}
