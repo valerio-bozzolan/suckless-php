@@ -20,6 +20,7 @@ class Permission {
 	public $permission;
 
 	function __construct($permission) {
+		expect('session');
 		$this->permission = $permission;
 	}
 
