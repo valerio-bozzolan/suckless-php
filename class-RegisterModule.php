@@ -26,7 +26,28 @@ class RegisterModule {
 	/**
 	 * Assoc functions to modules
 	 */
-	private $module = array();
+	private $module = [];
+
+	function __construct($defaults = true) {
+		$defaults && $this->loadDefaults();
+	}
+
+	private function loadDefaults() {
+		$this->register('header');
+		$this->register('footer');
+
+		// Append scripts and styles
+		$this->injectFunction('header', function() {
+			expect('css');
+			expect('javascript');
+			$GLOBALS['css']->printAll();
+			$GLOBALS['javascript']->printAll( JS::HEADER );
+		});
+		$this->injectFunction('footer', function() {
+			expect('javascript');
+			$GLOBALS['javascript']->printAll( JS::FOOTER );
+		});
+	}
 
 	/**
 	 * Formally register a module (a place where you can inject functions)
@@ -34,32 +55,28 @@ class RegisterModule {
 	 * @param string $module_uid
 	 */
 	public function register($module_uid) {
-		if(isset($this->module[$module_uid])) {
-			if(DEBUG) {
-				error( sprintf(
-					_('Il modulo <code>%s</code> è già stato registrato.'),
-					esc_html($module_uid)
-				));
-			}
+		if( isset( $this->module[ $module_uid ] ) ) {
+			DEBUG && error( sprintf(
+				_("Il modulo %s è già stato registrato."),
+				"<code>" . esc_html($module_uid) . "</code>"
+			) );
 		}
-		$this->module[$module_uid] = array();
+		$this->module[ $module_uid ] = [];
 	}
 
 	/**
 	 * @param string $module_uid The place name (e.g. 'footer')
 	 * @param string $callback The callback
 	 */
-	public function inject_function($module_uid, $callback) {
-		if(!isset($this->module[$module_uid])) {
+	public function injectFunction($module_uid, $callback) {
+		if( ! isset( $this->module[ $module_uid ] ) ) {
 			$this->module[$module_uid] = array();
-			if(DEBUG) {
-				error( sprintf(
-					_('Il modulo <em>%s</em> non è stato ancora creato. Hai sbagliato a scriverlo?'),
-					esc_html($module_uid)
-				));
-			}
+			DEBUG && error( sprintf(
+				_("Il modulo %s non è stato ancora creato. Hai sbagliato a scriverlo?"),
+				"<em>" . esc_html($module_uid) . "</em>"
+			) );
 		}
-		$this->module[$module_uid][] = $callback;
+		$this->module[ $module_uid ][] = $callback;
 	}
 
 	/**
@@ -67,14 +84,12 @@ class RegisterModule {
 	 *
 	 * @param string $callback
 	 */
-	public function load_module($module_uid) {
-		if(!isset($this->module[$module_uid]) ) {
-			if(DEBUG) {
-				error( sprintf(
-					_('Il modulo <code>%s</code> è già stato registrato.'),
-					esc_html($module_uid)
-				));
-			}
+	public function loadModule($module_uid) {
+		if( ! isset( $this->module[ $module_uid ] ) ) {
+			DEBUG && error( sprintf(
+				_("Il modulo %s è già stato registrato."),
+				"<code>" . esc_html($module_uid) . "</code>"
+			) );
 			return false;
 		}
 
@@ -89,19 +104,17 @@ class RegisterModule {
 				$status = $module[$i]();
 				if(DEBUG && $status === false) {
 					error( sprintf(
-						_('Errore caricando il modulo <em>%s</em> (callback <em>%d</em>°).'),
-						esc_html($module_uuid),
-						$i
-					));
+						_("Errore caricando il modulo %s (callback %s°)."),
+						"<em>" . esc_html($module_uuid) . "</em>",
+						"<em>" . $i . "</em>"
+					) );
 				}
 			} else {
 				$status = false;
-				if(DEBUG) {
-					error( sprintf(
-						_('Il callback richiesto per il modulo <em>%s</em> non esiste.'),
-						esc_html($module_uuid)
-					));
-				}
+				DEBUG && error( sprintf(
+					_("Il callback richiesto per il modulo %s non esiste."),
+					"<em>" . esc_html($module_uuid) . "</em>"
+				) );
 			}
 			$tot_status = $tot_status && $status;
 		}

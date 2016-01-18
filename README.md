@@ -12,6 +12,7 @@ You can create a RDBMS CMS with:
 * No pain with file uploads
 * Very small websites with only what you want in the root of you project
 * Very small framework with a few flat files
+* Resources loaded only when you request them without thinking too much on them (with [spl-autoload-register](http://php.net/manual/en/function.spl-autoload.php) plus a `$GLOBAL` objects orchestrator)
 
 ## Benefits as sysadmin
 * No pain with overweight copy-pasted websites to be hosted with redundant backups and too things to keep updated: The framework is in one place; the websites are in another places; data are in dabasase/databases. Everything it's how it should be done!
@@ -95,8 +96,6 @@ It's normal to have your own custom configuration of this framework. So the `loa
 ```php
 <?php
 // This file is automagically called after load.php
-
-use_session();
 
 // Custom JavaScript and CSS declaration
 register_js('jquery', URL . '/media/jquery-min.js');

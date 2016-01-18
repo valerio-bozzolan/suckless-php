@@ -43,11 +43,11 @@ class MenuEntry {
 	 * Create a menu entry.
 	 */
 	function __construct($uid, $url = null, $name = null, $parentUid = null, $extra = null) {
-		$this->uid = $uid;
-		$this->url = $url;
-		$this->name = $name;
+		$this->uid       = $uid;
+		$this->url       = $url;
+		$this->name      = $name;
 		$this->parentUid = $parentUid;
-		$this->extra = $extra;
+		$this->extra     = $extra;
 	}
 
 	public function getExtra($arg, $default = null) {
@@ -66,8 +66,8 @@ class MenuEntry {
  * Handle a menu tree.
  */
 class Menu {
-	private $menuEntries = array();
-	private $tree = array();
+	private $menuEntries = [];
+	private $tree = [];
 	private $rootUid;
 
 	/**

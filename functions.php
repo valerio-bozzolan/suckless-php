@@ -17,8 +17,13 @@
  */
 
 /*
- * General functions.
+ * Be sure that a global object exists.
+ *
+ * @param string $global_var The $GLOBAL[''] arg you are asking for.
  */
+function expect($global_var) {
+	$GLOBALS['G']->expect($global_var);
+}
 
 /**
  * Merge user defined arguments into defaults array.
@@ -57,7 +62,7 @@ function merge_args_defaults($args, $defaults) {
  * @return String containing either just a URL or a complete image tag
  * @source http://gravatar.com/site/implement/images/php/
  */
-function get_gravatar($email, $s = 80, $d = 'mm', $r = 'g', $img = false, $atts = array() ) {
+function get_gravatar($email, $s = 80, $d = 'mm', $r = 'g', $img = false, $atts = [] ) {
 	$url = '//www.gravatar.com/avatar/';
 	$url .= md5( strtolower( trim( $email ) ) );
 	$url .= "?s=$s&amp;d=$d&amp;r=$r";
@@ -119,6 +124,7 @@ function enfatize_substr($s, $q, $pre = "<b>", $post = "</b>") {
  * SQL escape
  */
 function esc_sql($str) {
+	expect('db');
 	return $GLOBALS['db']->escapeString($str);
 }
 
@@ -154,67 +160,82 @@ function _esc_attr($s) {
  * Friendly symlinks
  */
 function register_mimetypes($category, $mimetypes) {
+	expect('mimeTypes');
 	$GLOBALS['mimeTypes']->registerMimetypes($category, $mimetypes);
 }
 function get_mimetypes($category = null) {
+	expect('mimeTypes');
 	return $GLOBALS['mimeTypes']->getMimetypes($category);
 }
 function register_permissions($role, $permissions) {
+	expect('permissions');
 	$GLOBALS['permissions']->registerPermissions($role, $permissions);
 }
 function inherit_permissions($role_to, $role_from) {
+	expect('permissions');
 	$GLOBALS['permissions']->inheritPermissions($role_to, $role_from);
 }
-function register_js($javascript_uid, $url, $position = JavascriptLib::HEADER) {
+function register_js($javascript_uid, $url, $position = JS::HEADER) {
+	expect('javascript');
 	return $GLOBALS['javascript']->register( $javascript_uid, $url, $position );
 }
-function enqueue_javascript($javascript_uid, $position = JavascriptLib::HEADER) {
-	return $GLOBALS['javascript']->enqueue( $javascript_uid, $position );
-}
-function enqueue_js($javascript_uid, $position = JavascriptLib::HEADER) {
+function enqueue_js($javascript_uid, $position = JS::HEADER) {
+	expect('javascript');
 	return $GLOBALS['javascript']->enqueue( $javascript_uid, $position );
 }
 function register_css($css_uid, $url) {
+	expect('css');
 	return $GLOBALS['css']->register($css_uid, $url);
 }
 function enqueue_css($css_uid) {
+	expect('css');
 	return $GLOBALS['css']->enqueue($css_uid);
 }
 function add_menu_entries($menuEntries) {
 	$GLOBALS['menu']->add($menuEntries);
 }
 function get_menu_entry($uid) {
+	expect('menu');
 	return $GLOBALS['menu']->getMenuEntry($uid);
 }
 function get_children_menu_entries($parentUid) {
+	expect('menu');
 	return $GLOBALS['menu']->getChildrenMenuEntries($parentUid);
 }
 function register_module($module_uid) {
+	expect('module');
 	return $GLOBALS['module']->register($module_uid);
 }
 function inject_in_module($module_uid, $callback) {
-	return $GLOBALS['module']->inject_function($module_uid, $callback);
+	expect('module');
+	return $GLOBALS['module']->injectFunction($module_uid, $callback);
 }
 function load_module($module_uid) {
-	return $GLOBALS['module']->load_module($module_uid);
+	expect('module');
+	return $GLOBALS['module']->loadModule($module_uid);
 }
 function get_table_prefix() {
+	expect('db');
 	return $GLOBALS['db']->getPrefix();
 }
 function register_option($option_name) {
+	expect('db');
 	return $GLOBALS['db']->registerOption($option_name);
 }
 function get_option($option_name, $default_value = '') {
+	expect('db');
 	return $GLOBALS['db']->getOption($option_name, $default_value);
 }
 function set_option($option_name, $option_value, $option_autoload = true) {
+	expect('db');
 	return $GLOBALS['db']->setOption($option_name, $option_value, $option_autoload);
 }
 function remove_option($option_name) {
+
 	return $GLOBALS['db']->removeOption($option_name);
 }
 function get_user($property = null) {
-	use_session();
+	expect('session');
 	$user = $GLOBALS['session']->getUser();
 	if( $property === null ) {
 		return $user;
@@ -230,6 +251,7 @@ function get_user($property = null) {
 }
 
 function get_num_queries() {
+	expect('db');
 	return $GLOBALS['db']->getNumQueries();
 }
 
@@ -243,24 +265,13 @@ function get_human_datetime($datetime, $format = 'd/m/Y H:i') {
 
 define('DEFAULT_USER_ROLE', 'UNREGISTERED');
 
-
-/**
- * Istantiate a session on demand
- */
-function use_session() {
-	if( ! isset( $GLOBALS['session'] ) ) {
-		$GLOBALS['session'] = new Session(  $GLOBALS['db'] );
-	}
-	return $GLOBALS['session'];
-}
-
 function is_logged() {
-	use_session();
+	expect('session');
 	return $GLOBALS['session']->isLogged();
 }
 
 function has_permission($permission) {
-	use_session();
+	expect('session');
 
 	$user = $GLOBALS['session']->getUser();
 	$user_role = false;
@@ -326,12 +337,8 @@ function double_quotes($s) {
 	return '"' . $s . '"';
 }
 
-function get_this_folder() {
+function this_folder() {
 	return dirname( $_SERVER['PHP_SELF'] );
-}
-
-function get_URL_folder() {
-	return DOMAIN . $_SERVER['REQUEST_URI'];
 }
 
 /**
@@ -410,7 +417,7 @@ function is_https() {
  * Get the protocol of the request
  * (Please use PROTOCOL)
  */
-function get_protocol() {
+function URL_protocol() {
 	return ( is_https() ) ? 'https://' : 'http://';
 }
 
@@ -418,14 +425,22 @@ function get_protocol() {
  * Get the domain of the request
  * (Please use PROTOCOL)
  */
-function get_domain() {
+function URL_domain() {
 	return ( empty( $_SERVER['SERVER_NAME'] ) ) ? 'localhost' : $_SERVER['SERVER_NAME'];
 }
 
+function URL_root() {
+	$root = this_folder();
+	if( $root === _ ) {
+		return '';
+	}
+	return $root;
+}
+
 /**
- * Absolute http root
+ * Hardcoded URL
  */
-function get_site_root() {
+function URL() {
 	return PROTOCOL . DOMAIN . ROOT;
 }
 
@@ -572,6 +587,7 @@ function get_mimetype($filepath, $pure = false) {
  * @return mixed FALSE if not
  */
 function is_file_in_category($filepath, $category) {
+	expect('mimeTypes');
 	$mime = get_mimetype($filepath);
 	return $GLOBALS['mimeTypes']->isMimetypeInCategory($mime , $category);
 }
@@ -580,35 +596,41 @@ function is_file_in_category($filepath, $category) {
  * Get the file extension
  */
 function get_file_extension_from_expectations($filename, $category) {
+	expect('mimeTypes');
 	return $GLOBALS['mimeTypes']->getFileExtensionFromExpectations($filename, $category);
 }
 
 function is_image($filepath) {
+	expect('mimeTypes');
 	return is_file_in_category($filepath, 'image');
 }
 
 function is_audio($filepath) {
+	expect('mimeTypes');
 	return is_file_in_category($filepath, 'audio');
 }
 
 function is_video($filepath) {
+	expect('mimeTypes');
 	return is_file_in_category($filepath, 'video');
 }
 
 function is_document($filepath) {
+	expect('mimeTypes');
 	return is_file_in_category($filepath, 'document');
 }
 
 function is_closure($t) {
+	expect('mimeTypes');
 	return is_object($t) && ($t instanceof Closure);
 }
 
 /*
  * From http://php.net/manual/en/features.file-upload.php#88591
  */
-function get_human_filesize($filesize, $separator = ' '){
-	if(!is_numeric($filesize)) {
-		return _('NaN');
+function human_filesize($filesize, $separator = ' '){
+	if( ! is_numeric($filesize) ) {
+		return _("NaN");
 	}
 	$decr = 1024;
 	$step = 0;
@@ -723,40 +745,29 @@ function luser_input($s, $max) {
 	return str_truncate( trim( $s ) , $max );
 }
 
-/*
- * DEPRECATION ZONE
- */
-
-/**
- * @deprecated
- */
-function register_permission($role, $permissions) {
-	$GLOBALS['permissions']->registerPermissions($role, $permissions);
-}
-/**
- * @deprecated
- */
-function register_javascript($javascript_uid, $url, $position = JavascriptLib::HEADER) {
-	return $GLOBALS['javascript']->register( $javascript_uid, $url, $position );
-}
-
 /**
  * Do it on your own!
+ *
  * @deprecated
  */
-function require_permission($permission, $redirect = 'login.php?redirect=', $preFunction = '', $postFunction = '') {
-	use_session();
+if( ! function_exists('require_permission') {
 
-	if( ! has_permission($permission) ) :
-		if( is_logged() ) :
-			echo HTML::tag('p', _("Non hai permessi a sufficienza.") );
-		else :
-			http_redirect( site_page(
-				$redirect . urlencode( site_page( $_SERVER['REQUEST_URI'] ) )
-			) );
+	/**
+	 * Do it on your own!
+	 * @deprecated
+	 */
+	function require_permission($permission, $redirect = 'login.php?redirect=', $preFunction = '', $postFunction = '') {
+		if( ! has_permission($permission) ) :
+			if( is_logged() ) :
+				echo HTML::tag('p', _("Non hai permessi a sufficienza.") );
+			else :
+				http_redirect( site_page(
+					$redirect . urlencode( site_page( $_SERVER['REQUEST_URI'] ) )
+				) );
+			endif;
+
+			get_footer();
+			exit; // Yes!
 		endif;
-
-		get_footer();
-		exit; // Yes!
-	endif;
+	}
 }

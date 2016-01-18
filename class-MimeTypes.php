@@ -36,6 +36,10 @@ class MimeTypes {
 	 */
 	private $mimeTypes;
 
+	function __construct($defaults = true) {
+		$defaults && $this->loadDefaults();
+	}
+
 	/**
 	 *
 	 * @param string $category Category e.g. 'audio'
@@ -67,6 +71,44 @@ class MimeTypes {
 				$filetypes
 			);
 		}
+	}
+
+	/**
+	 * Load default MIME types
+	 */
+	private function loadDefaults() {
+		$this->registerMimetypes('image', [
+			'image/jpeg' => ['jpg', 'jpeg'],
+			'image/png' => 'png',
+			'image/gif' => 'gif'
+		] );
+		$this->registerMimetypes('audio', [
+			'audio/x-flac' => 'flac',
+			'audio/ogg' => 'ogg',
+			'audio/vorbis' => 'ogg',
+			'audio/vorbis-config' => 'ogg',
+			'audio/mpeg' => 'mp3',
+			'audio/MPA' => 'mp4',
+			'audio/mpa-robust' => 'mp4'
+		] );
+		$this->registerMimetypes('video', [
+			'video/mp4' => 'mp4',
+			'application/ogg' => 'ogg'
+		] );
+		$this->registerMimetypes('document', [
+			'application/pdf' => 'pdf',
+			'application/x-pdf' => 'pdf',
+			'application/x-bzpdf' => 'pdf',
+			'application/x-gzpdf' => 'pdf',
+			'application/vnd.oasis.opendocument.text' => 'odt',
+			'application/vnd.oasis.opendocument.presentation' => 'odp',
+			'application/vnd.oasis.opendocument.spreadsheet' => 'ods',
+			'application/vnd.oasis.opendocument.graphics' => 'odg',
+			'application/msword' => 'doc',
+			'application/vnd.ms-excel' => 'xls',
+			'application/vnd.ms-powerpoint' => 'ppt',
+			'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => ['docx', 'xlsx', 'pptx']
+		] );
 	}
 
 	/**

@@ -33,28 +33,10 @@ class DB {
 	private $mysqli;
 
 	/**
-	 * Database username.
-	 * @var string
-	 */
-	private $dbUsername;
-
-	/**
-	 * Database location.
-	 * @var string
-	 */
-	private $dbLocation;
-
-	/**
-	 * Database name.
-	 * @var string
-	 */
-	private $dbName;
-
-	/**
 	 * Table prefix.
 	 * @var string
 	 */
-	private $tablePrefix;
+	private $prefix;
 
 	/**
 	 * Number of executed queries.
@@ -72,40 +54,46 @@ class DB {
 	 * Cached options
 	 * @var array
 	 */
-	private $options_cache = array();
+	private $optionsCache = [];
 
 	/**
 	 * List of formally registered options.
 	 * @var array
 	*/
-	private $options_used = array();
+	private $optionsUsed = [];
 
 	/**
 	 * Prepare the DB object.
 	 *
-	 * @param type $dbUsername Database username
-	 * @param type $dbPassword Database password
-	 * @param type $dbLocation Database location
-	 * @param type $dbName Database name
-	 * @param type $tablePrefix Table Prefix
+	 * @param type $username Database username
+	 * @param type $password Database password
+	 * @param type $location Database location
+	 * @param type $database Database name
+	 * @param type $prefix Table Prefix
 	 */
-	function __construct($dbUsername, $dbPassword, $dbLocation, $dbName, $tablePrefix) {
-		$this->dbUsername = $dbUsername;
-		$this->dbLocation = $dbLocation;
-		$this->dbName = $dbName;
-		$this->tablePrefix = $tablePrefix;
-		@$this->mysqli = new mysqli($dbLocation, $dbUsername, $dbPassword, $dbName);
+	function __construct($username = null, $password = null, $location = null, $database = null, $prefix = '') {
+		if( func_get_args() === 0 ) {
+			$username  = @$GLOBALS['username'];
+			$password  = @$GLOBALS['password'];
+			$location  = @$GLOBALS['location'];
+			$database  = @$GLOBALS['database'];
+			$prefix    = @$GLOBALS['prefix'];
+		}
+
+		$this->prefix = $prefix;
+
+		@$this->mysqli = new mysqli($location, $username, $password, $database);
 		if( $this->errorConnection() ) {
 			if(DEBUG) {
 				error_die( sprintf(
 					_("Impossibile connettersi al database '%s' tramite l'utente '%s' e password (%s) sul server MySQL/MariaDB '%s'. Specifica correttamente queste informazioni nel file di configurazione del tuo progetto (usualmente '%s')."),
-					$dbName,
-					$dbUsername,
-					($dbPassword === '') ? _("nessuna") : sprintf(
+					$database,
+					$username,
+					($password === '') ? _("nessuna") : sprintf(
 						_("di %d caratteri"),
-						strlen( $dbPassword )
+						strlen( $password )
 					),
-					$dbLocation,
+					$location,
 					'load.php'
 				) );
 			} else {
@@ -139,16 +127,20 @@ class DB {
 		// @$this->lastResult->close();
 		@$this->lastResult = $this->mysqli->query($SQL);
 		if( ! $this->lastResult ) {
-			DEBUG && error_die( $this->get_SQL_error_message($SQL) );
+			DEBUG && error_die( $this->getQueryErrorMessage($SQL) );
 			return false;
 		} elseif(DEBUG && SHOW_EVERY_SQL) {
-			echo HTML::tag('p', sprintf(
-				_("Query numero %d: <pre>%s</pre>"),
-				$this->numQueries,
-				$SQL
-			) );
+			$this->showSQL($SQL);
 		}
 		return $this->lastResult;
+	}
+
+	private function showSQL($SQL) {
+		echo HTML::tag('p', sprintf(
+			_("Query numero %d: <pre>%s</pre>"),
+			$this->numQueries,
+			$SQL
+		) );
 	}
 
 	public function getRow($query, $class_name = 'DBRow', $params = array() ) {
@@ -206,7 +198,7 @@ class DB {
 			if($i !== 0) {
 				$values .= ', ';
 			}
-			$values .= $this->force_type($dbCols[$i]->value, $dbCols[$i]->forceType);
+			$values .= $this->forceType($dbCols[$i]->value, $dbCols[$i]->forceType);
 		}
 		return $this->query("INSERT INTO {$this->getTable($table_name)} ($SQL_columns) VALUES ($values)");
 	}
@@ -268,7 +260,7 @@ class DB {
 
 			$j = 0;
 			foreach($columns as $column => $type) {
-				$SQL_values[] = $this->force_type($rows[$i][$j], $type);
+				$SQL_values[] = $this->forceType($rows[$i][$j], $type);
 				$j++;
 			}
 
@@ -280,7 +272,7 @@ class DB {
 	/**
 	 * To execute update queries.
 	 */
-	public function update($table_name, $dbCols, $conditions) {
+	public function update($table_name, $dbCols, $conditions, $after = '') {
 		$SQL = "UPDATE {$this->getTable($table_name)} SET ";
 		if( ! is_array($dbCols) ) {
 			$dbCols = array($dbCols);
@@ -290,12 +282,13 @@ class DB {
 			if($i !== 0) {
 				$SQL .= ', ';
 			}
-			$val = $this->force_type($dbCols[$i]->value, $dbCols[$i]->forceType);
+			$val = $this->forceType($dbCols[$i]->value, $dbCols[$i]->forceType);
 			$SQL .= "{$dbCols[$i]->column} = $val";
 		}
-		if($conditions !== null) {
-			$SQL .= " WHERE $conditions";
+		if($after !== '') {
+			$after = " $after";
 		}
+		$SQL .= " WHERE {$conditions}{$after}";
 		return $this->query($SQL);
 	}
 
@@ -320,7 +313,7 @@ class DB {
 		}
 		$n = count($options);
 		for($i=0; $i<$n; $i++) {
-			$this->options_cache[ $options[$i]->option_name ] = $options[$i]->option_value;
+			$this->optionsCache[ $options[$i]->option_name ] = $options[$i]->option_value;
 		}
 	}
 
@@ -334,17 +327,17 @@ class DB {
 	 * @return bool Successfully or not.
 	 */
 	public function registerOption($option_name, $wildcard = false) {
-		if(in_array($option_name, $this->options_used)) {
+		if( in_array($option_name, $this->optionsUsed, true) ) {
 			DEBUG && error( sprintf(
 				_("Errore registrando l'opzione '%s' poichè risulta già registrata!"),
 				esc_html($option_name)
 			) );
 			return false;
 		}
-		$this->options_used[] = $option_name;
 		if($wildcard) {
-			$this->option_used[] .= '*';
+			$option_name .= '*';
 		}
+		$this->optionsUsed[] = $option_name;
 		return true;
 	}
 
@@ -354,7 +347,7 @@ class DB {
 	 *	@return array Options used.
 	*/
 	public function getOptionsUsed() {
-		return $this->options_used;
+		return $this->optionsUsed;
 	}
 
 	/**
@@ -367,18 +360,18 @@ class DB {
 		if( ! USE_DB_OPTIONS ) {
 			return $default_value;
 		}
-		if(isset($this->options_cache[$option_name])) {
-			return (empty($this->options_cache[$option_name])) ? $default_value : $this->options_cache[$option_name];
+		if(isset($this->optionsCache[$option_name])) {
+			return (empty($this->optionsCache[$option_name])) ? $default_value : $this->optionsCache[$option_name];
 		} else {
 			$option = $this->get_row( sprintf(
 				"SELECT * FROM {$this->getTable('option')} WHERE option_name='%s'",
 				$this->escapeString($option_name)
-			));
+			) );
 			if(empty($option->option_value)) {
-				$this->options_cache[ $option_name ] = '';
+				$this->optionsCache[ $option_name ] = '';
 				return $default_value;
 			} else {
-				return $this->options_cache[ $option->option_name ] = $option->option_value;
+				return $this->optionsCache[ $option->option_name ] = $option->option_value;
 			}
 		}
 	}
@@ -389,7 +382,7 @@ class DB {
 	 * @param string $option_value Option value
 	 */
 	public function overrideOption($option_name, $option_value) {
-		$this->options_cache[$option_name] = $option_value;
+		$this->optionsCache[$option_name] = $option_value;
 	}
 
 	/**
@@ -401,18 +394,22 @@ class DB {
 	 */
 	public function setOption($option_name, $option_value, $option_autoload = true) {
 		$option_value = trim($option_value);
-		if(isset($this->options_cache[ $option_name ])) {
-			if($this->options_cache[ $option_name ] != $option_value) {
-				$this->options_cache[$option_name] = $option_value;
+		if(isset($this->optionsCache[ $option_name ])) {
+			if($this->optionsCache[ $option_name ] != $option_value) {
+				$this->optionsCache[$option_name] = $option_value;
 
 				$option_autoload = ($option_autoload) ? 1 : 0;
 
-				return $this->query( sprintf(
-					"UPDATE {$this->getTable('option')} SET option_value='%s', option_autoload='%d' WHERE option_name='%s' LIMIT 1",
-					$this->escapeString($option_value),
-					$option_autoload,
-					$this->escapeString($option_name)
-				) );
+				$db->update(
+					'option', [
+						new DBCol('option_value',   $option_value,   's'),
+						new DBCol('option_autoload', $option_autoload, 'd')
+					],
+					sprintf(
+						"option_name = '%s'",
+						$this->escapeString($option_name)
+					)
+				);
 			}
 		} else {
 			return $this->insertOption($option_name, $option_value, $option_autoload);
@@ -429,7 +426,7 @@ class DB {
 	 * @TODO 'replace-into' => This is not OK
 	 */
 	private function insertOption($option_name, $option_value, $option_autoload = true) {
-		if(isset($this->options_cache[$option_name])) {
+		if(isset($this->optionsCache[$option_name])) {
 			return $this->updateOption($option_name, $option_value);
 		} else {
 			$option_autoload = ($option_autoload) ? 1 : 0;
@@ -460,7 +457,7 @@ class DB {
 				return false;
 			}
 
-			$this->options_cache[$option_name] = $option_value;
+			$this->optionsCache[$option_name] = $option_value;
 			return true;
 		}
 	}
@@ -472,7 +469,7 @@ class DB {
 	 * @return boolean Succesfully or not.
 	 */
 	public function removeOption($option_name) {
-		if(isset($this->options_cache[$option_name])) {
+		if(isset($this->optionsCache[$option_name])) {
 			$this->query( sprintf(
 				"DELETE FROM {$this->getTable('option')} WHERE option_name='%s' LIMIT 1",
 				$this->escapeString($option_name)
@@ -480,7 +477,7 @@ class DB {
 			if(!$this->lastResult) {
 				return false;
 			}
-			unset($this->options_cache[$option_name]);
+			unset($this->optionsCache[$option_name]);
 		}
 		return true;
 	}
@@ -500,7 +497,7 @@ class DB {
 	}
 
 	public function getPrefix() {
-		return $this->tablePrefix;
+		return $this->prefix;
 	}
 
 	/**
@@ -511,10 +508,10 @@ class DB {
 	 * @return string Table $name with the prefix
 	 */
 	public function getTable($name, $as = false) {
-		if($this->tablePrefix === '') {
+		if($this->prefix === '') {
 			$as = false;
 		}
-		$r = "`{$this->tablePrefix}$name`";
+		$r = "`{$this->prefix}$name`";
 		if($as) {
 			$r .= " AS `$name`";
 		}
@@ -561,7 +558,7 @@ class DB {
 	 * @param string $type Type ('d' for integer, 's' for string, 'f' for float, 'null' for autoincrement values or for "don't care" values).
 	 * @return string Forced string
 	 */
-	private function force_type($s, $type) {
+	private function forceType($s, $type) {
 		switch($type) {
 			case 'd':	return (int) $s; // Integer
 			case 'f':	return (float) $s; // Float
@@ -575,7 +572,7 @@ class DB {
 			case 'null':	return 'NULL'; // 'NULL' for indexes
 		}
 		DEBUG && error( sprintf(
-			"Tipo '%s' non concesso in DB::force_type(). Vedi la documentazione (esiste?). Sarà usato l'escape 's'.",
+			"Tipo '%s' non concesso in DB::forceType(). Vedi la documentazione (esiste?). Sarà usato l'escape 's'.",
 			esc_html($type)
 		) );
 		return "'{$this->escapeString($s)}'";
@@ -610,7 +607,7 @@ class DB {
 	 * @param string $SQL SQL query executed during the error.
 	 * @return string Kind message.
 	 */
-	private function get_SQL_error_message($SQL) {
+	private function getQueryErrorMessage($SQL) {
 		return sprintf(
 			_("Errore eseguendo una query SQL: Query n. %d: <blockquote><pre>%s</pre></blockquote><br />Errore: <pre>%s</pre>"),
 			$this->numQueries,

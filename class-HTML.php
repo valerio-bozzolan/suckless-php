@@ -1,6 +1,5 @@
 <?php
 /*
- * Prenota corsi scolastici
  * Copyright (C) 2015 Valerio Bozzolan
  *
  * This program is free software: you can redistribute it and/or modify

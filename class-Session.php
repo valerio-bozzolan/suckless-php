@@ -29,7 +29,8 @@ class Session {
 		session_start();
 
 		if($db === null) {
-			$db = $GLOBALS['db'];
+			expect('db');
+			$db = & $GLOBALS['db'];
 		} else {
 			$this->db = $db;
 		}

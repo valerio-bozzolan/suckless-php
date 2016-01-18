@@ -47,10 +47,11 @@ class FileUploader {
 	 * @param array $args Arguments.
 	 * @see FileUploader::setArgs()
 	 */
-	function __construct($fileEntry, $args = array(), $mimeTypes = null) {
+	function __construct($fileEntry, $args = [], $mimeTypes = null) {
 		$this->fileEntry = $fileEntry;
 		$this->setArgs($args);
 		if($mimeTypes === null) {
+			expect('mimeTypes');
 			$this->mimeTypes = & $GLOBALS['mimeTypes'];
 		} else {
 			$this->mimeTypes = $mimeTypes;
@@ -271,8 +272,8 @@ class FileUploader {
 			case UPLOAD_EXTRA_ERR_OVERSIZE:
 				return sprintf(
 					_("Il file pesa %s. Non può superare %s."),
-					get_human_filesize($_FILES[ $this->fileEntry ]['size']),
-					get_human_filesize( $this->args['max-filesize'] )
+					human_filesize($_FILES[ $this->fileEntry ]['size']),
+					human_filesize( $this->args['max-filesize'] )
 				);
 			case UPLOAD_EXTRA_ERR_CANT_SAVE_FILE:
 				return _("Impossibile salvare il file.");

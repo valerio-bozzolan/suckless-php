@@ -30,11 +30,13 @@ class Permission {
 
 class Permissions {
 	private $db;
-	public $rolePermissions = array();
+
+	public $rolePermissions = [];
 
 	function __construct(& $db = null) {
 		if($db === null) {
-			$this->db = $GLOBALS['db'];
+			expect('db');
+			$this->db = & $GLOBALS['db'];
 		} else {
 			$this->db = $db;
 		}

@@ -22,6 +22,8 @@
  */
 require 'load.php';
 
+expect('db');
+
 /*
  * You can do this:
  */
