@@ -60,6 +60,7 @@ $GLOBALS['G']->add('db',           'DB');
 $GLOBALS['G']->add('mimeTypes',    'MimeTypes');
 $GLOBALS['G']->add('javascript',   'RegisterJS');
 $GLOBALS['G']->add('css',          'RegisterCSS');
+$GLOBALS['G']->add('session',      'Session');
 $GLOBALS['G']->add('permissions',  'Permissions');
 $GLOBALS['G']->add('menu',         'Menu');
 $GLOBALS['G']->add('module',       'RegisterModule');
