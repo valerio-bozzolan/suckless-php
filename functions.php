@@ -19,6 +19,7 @@
 /*
  * Be sure that a global object exists.
  *
+ * @see G class
  * @param string $global_var The $GLOBAL[''] arg you are asking for.
  */
 function expect($global_var) {
@@ -439,22 +440,6 @@ function http_503() {
 }
 
 /**
- * Define constants from options.
- * Used in load.php
- */
-function define_default($constant_name, $option_name, $default_value) {
-	if(!defined($constant_name)) {
-		if(isset($GLOBALS['db'])) {
-			define($constant_name, get_option($option_name, $default_value));
-		} else {
-			define($constant_name, $default_value);
-		}
-	} else if(isset($GLOBALS['db'])) {
-		$GLOBALS['db']->overrideOption($option_name, constant($constant_name));
-	}
-}
-
-/**
  * ă -> a, â -> a, ț -> t and so on.
  */
 function remove_accents($s) {
@@ -489,7 +474,7 @@ function generate_slug($s, $max_length = -1, $glue = '-', & $truncated = false) 
 function error_die($msg) {
 	http_503();
 ?>
-<!doctype HTML>
+<!DOCTYPE html>
 <html>
 <head>
 	<title><?php _e("Errore") ?></title>
