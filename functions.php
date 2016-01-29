@@ -52,6 +52,19 @@ function merge_args_defaults($args, $defaults) {
 }
 
 /**
+ * Force something to be an array.
+ * Useful to manage an option that can be something of a set of them (one of them?).
+ *
+ * @return mixed|array Something
+ * @return array
+ */
+function force_array( & $a ) {
+	if( ! is_array($a) ) {
+		$a = [ $a ];
+	}
+}
+
+/**
  * Get either a Gravatar URL or complete image tag for a specified email address.
  *
  * @param string $email The email address
@@ -253,17 +266,13 @@ function get_user($property = null) {
 }
 
 function get_num_queries() {
-	expect('db');
-	return $GLOBALS['db']->getNumQueries();
+	if( isset( $GLOBALS['db'] ) ) {
+		return $GLOBALS['db']->getNumQueries();
+	}
+
+	return 0;
 }
 
-function get_human_datetime($datetime, $format = 'd/m/Y H:i') {
-	if( ! $datetime ) {
-		return $datetime;
-	}
-	$time = strtotime($datetime);
-	return date($format, $time);
-}
 
 define('DEFAULT_USER_ROLE', 'UNREGISTERED');
 
@@ -340,30 +349,6 @@ function str_truncate($s, $max_length, $blabla = '') {
 		return substr($s, 0, $max_length - strlen($blabla)) . $blabla;
 	}
 	return $s;
-}
-
-/**
- * Return current Unix timestamp with microseconds.
- * It replicate the PHP 5 behaviour.
- *
- * @return float Microtime
- */
-function get_microtime() {
-	list($time, $micro) = explode(' ', microtime());
-	return (float)$time + (float)$micro;
-}
-
-/**
- * Used to know much is the page load
- *
- * @return mixed Execution time
- */
-function get_page_load($decimals = 6) {
-	static $start_microtime = 0; // Please let me take advantage of PHP features
-	if($start_microtime == 0) {
-		$start_microtime = get_microtime();
-	}
-	return substr(get_microtime() - $start_microtime, 0, 2 + $decimals);
 }
 
 /**
@@ -591,7 +576,6 @@ function is_document($filepath) {
 }
 
 function is_closure($t) {
-	expect('mimeTypes');
 	return is_object($t) && ($t instanceof Closure);
 }
 
@@ -604,7 +588,7 @@ function human_filesize($filesize, $separator = ' '){
 	}
 	$decr = 1024;
 	$step = 0;
-	$prefix = array('Byte', 'KB', 'MB', 'GB', 'TB', 'PB');
+	$prefix = ['Byte', 'KB', 'MB', 'GB', 'TB', 'PB'];
 	while(($filesize / $decr) > 0.9) {
 		$filesize /= $decr;
 		$step++;
@@ -740,4 +724,41 @@ if( ! function_exists('require_permission') ) {
 			exit; // Yes!
 		endif;
 	}
+}
+
+/**
+ * Return current Unix timestamp with microseconds.
+ * It replicate the PHP 5 behaviour.
+ *
+ * @return float Microtime
+ * @deprecated
+ */
+function get_microtime() {
+	list($time, $micro) = explode(' ', microtime());
+	return (float)$time + (float)$micro;
+}
+
+/**
+ * Used to know much is the page load
+ *
+ * @return mixed Execution time
+ * @deprecated
+ */
+function get_page_load($decimals = 6) {
+	static $start_microtime = 0; // Please let me take advantage of PHP features
+	if($start_microtime == 0) {
+		$start_microtime = get_microtime();
+	}
+	return substr(get_microtime() - $start_microtime, 0, 2 + $decimals);
+}
+
+/**
+ * @deprecated
+ */
+function get_human_datetime($datetime, $format = 'd/m/Y H:i') {
+	if( ! $datetime ) {
+		return $datetime;
+	}
+	$time = strtotime($datetime);
+	return date($format, $time);
 }

@@ -85,16 +85,13 @@ class Menu {
 	 * @param array|MenuEntry $menuEntries
 	 */
 	public function add($menuEntries) {
-		if( ! array($menuEntries) ) {
-			$menuEntries = array($menuEntries);
-		}
+		force_array($menuEntries);
 
 		foreach($menuEntries as $menuEntry) {
 			$this->menuEntries[ $menuEntry->uid ] = $menuEntry;
 
-			if( ! is_array($menuEntry->parentUid) ) {
-				$menuEntry->parentUid = array($menuEntry->parentUid);
-			}
+			force_array( $menuEntry->parentUid );
+
 			foreach($menuEntry->parentUid as $parentUid) {
 				if( $parentUid === null ) {
 					$parentUid = $this->rootUid;

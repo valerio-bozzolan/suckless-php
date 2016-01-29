@@ -17,17 +17,36 @@
  */
 
 /**
- * Allows you to use something as "$db" for DB classes
+ * Allows you to be sure that a global object exists.
  */
 class G {
+	/**
+	 * Associative array of: expected global variable name => it's class
+	 */
 	private $added = [];
 
+	/**
+	 * Register an expected global variable name to it's class.
+	 *
+	 * If it doesn't exists it will be created as global and istantiated.
+	 */
 	public function add($name, $class) {
 		$this->added[ $name ] = $class;
 	}
 
 	/**
-	 * Be sure that a global var exists.
+	 * Be sure that a global object exists.
+	 *
+	 * This method allows you to use the power of PHP and spl_audoload()
+	 * loading resources only when you request them.
+	 *
+	 * E.g. if you create a database connection using something as
+	 * $GLOBAL['db'] = new DB(), and we do it, you can avoid starting a
+	 * database connection even in pages that don't require database connections
+	 * simply saying that you "expect" an initialized global '$db' object.
+	 * Let's say expect('db').
+	 *
+	 * As you can see, in the best case it's only an isset() away from your code.
 	 *
 	 * @param string $name A global var name.
 	 */
@@ -44,8 +63,8 @@ class G {
 
 		$class = $this->added[ $name ];
 
-		// Die if class don't exists (rember that the spl_autoload_register() is in action)
-		class_exists( $class ) || error_die( sprintf(
+		// You have to know about the second default parameter of class_exists()
+		class_exists($class) || error_die( sprintf(
 			_("La classe '%s' non esiste!"),
 			esc_html($class)
 		) );

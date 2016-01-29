@@ -94,7 +94,7 @@ class FileUploader {
 	 *		Default: true
 	 */
 	public function setArgs($args) {
-		$this->args = merge_args_defaults($args, array(
+		$this->args = merge_args_defaults($args, [
 			'slug' => true,
 			'override-filename' => null,
 			'pre-filename' => '',
@@ -105,7 +105,7 @@ class FileUploader {
 			'min-length-filename' => 2,
 			'max-length-filename' => 200,
 			'dont-overwrite' => true
-		) );
+		] );
 	}
 
 	/**

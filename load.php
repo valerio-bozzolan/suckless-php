@@ -46,7 +46,7 @@ defined('PASSWD_HASH_ALGO')         || define('PASSWD_HASH_ALGO', 'sha1'); // Ju
 defined('PASSWD_HASH_SALT')         || define('PASSWD_HASH_SALT', 'drGth'); // Just something
 defined('PASSWD_HASH_PEPP')         || define('PASSWD_HASH_PEPP', 'pw72kP'); // Just something
 
-// On demand requests class-$php
+// On demand requests class-$php ... it's f****** amazing!
 spl_autoload_register( function($c) {
 	$path = BOZ_PHP . _ . "class-$c.php";
 	if( is_file( $path ) ) {
@@ -56,18 +56,18 @@ spl_autoload_register( function($c) {
 
 // This is a really stupid thing but it's f****** amazing!
 $GLOBALS['G'] = new G();
-$GLOBALS['G']->add('db',           'DB');
-$GLOBALS['G']->add('mimeTypes',    'MimeTypes');
-$GLOBALS['G']->add('javascript',   'RegisterJS');
-$GLOBALS['G']->add('css',          'RegisterCSS');
-$GLOBALS['G']->add('session',      'Session');
-$GLOBALS['G']->add('permissions',  'Permissions');
-$GLOBALS['G']->add('menu',         'Menu');
-$GLOBALS['G']->add('module',       'RegisterModule');
+$GLOBALS['G']->add('db',          'DB');
+$GLOBALS['G']->add('mimeTypes',   'MimeTypes');
+$GLOBALS['G']->add('javascript',  'RegisterJS');
+$GLOBALS['G']->add('css',         'RegisterCSS');
+$GLOBALS['G']->add('session',     'Session');
+$GLOBALS['G']->add('permissions', 'Permissions');
+$GLOBALS['G']->add('menu',        'Menu');
+$GLOBALS['G']->add('module',      'RegisterModule');
 
 // Callback
 if( REQUIRE_LOAD_POST ) {
-	defined('ABSPATH') || die( _("Devi definire la costante ABSPATH.") );
+	defined('ABSPATH') || die( _("Devi definire la costante ABSPATH. Oppure disabilita REQUIRE_LOAD_POST.") );
 
-	require ABSPATH . '/load-post.php';
+	require ABSPATH . _ . 'load-post.php';
 }

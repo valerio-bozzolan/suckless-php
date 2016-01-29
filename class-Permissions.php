@@ -48,9 +48,7 @@ class Permissions {
 			$this->rolePermissions[ $role ] = [];
 		}
 
-		if( ! is_array($permissions) ) {
-			$permissions = array($permissions);
-		}
+		force_array($permissions);
 
 		$n = count($permissions);
 		for($i=0; $i<$n; $i++) {

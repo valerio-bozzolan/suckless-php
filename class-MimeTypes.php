@@ -24,13 +24,13 @@
 class MimeTypes {
 
 	/**
-	 * array(
-	 * 	'category-1' => array(
-	 * 		'mime' => array('filetype1', 'filetype2'),
+	 * [
+	 * 	'category-1' => [
+	 * 		'mime' => ['filetype1', 'filetype2'],
 	 *		...
-	 * 	),
+	 * 	],
 	 * 	...
-	 * )
+	 * ]
 	 *
 	 * @var array
 	 */
@@ -45,11 +45,11 @@ class MimeTypes {
 	 * @param string $category Category e.g. 'audio'
 	 * @param mixed $mimeTypes Array of MIME => file types.
 	 * 	E.g.:
-	 * 	array(
+	 * 	[
 	 *		'image/png' => 'png',
-	 *		'image/jpeg' => array('jpg', 'jpeg'),
+	 *		'image/jpeg' => array['jpg', 'jpeg'],
 	 *		...
-	 *	)
+	 *	]
 	 */
 	public function registerMimetypes($category, $mimeTypes) {
 		// Register category if not exists
@@ -57,9 +57,7 @@ class MimeTypes {
 			$this->mimeTypes[ $category ] = [];
 		}
 		foreach($mimeTypes as $mime => $filetypes) {
-			if( ! is_array( $filetypes ) ) {
-				$filetypes = array($filetypes);
-			}
+			force_array( $filetypes );
 
 			if( ! isset( $this->mimeTypes[ $category ][ $mime ] ) ) {
 				$this->mimeTypes[ $category ][ $mime ] = $filetypes;
@@ -128,9 +126,7 @@ class MimeTypes {
 				}
 			}
 		} else {
-			if( ! is_array($categories) ) {
-				$categories = array($categories);
-			}
+			force_array( $categories );
 
 			// MIME types from selected categories
 			foreach($categories as $category) {
@@ -160,11 +156,7 @@ class MimeTypes {
 	 * @return bool
 	 */
 	public function isMimetypeInCategory($mimetype, $category = null ) {
-		return in_array(
-			$mimetype,
-			$this->getMimetypes($category),
-			true // strict
-		);
+		return in_array($mimetype, $this->getMimetypes($category), true);
 	}
 
 	/**
@@ -188,9 +180,7 @@ class MimeTypes {
 				}
 			}
 		} else {
-			if( ! is_array($categories) ) {
-				$categories = array($categories);
-			}
+			force_array( $categories );
 
 			// Search *that* category if exists
 			foreach($categories as $category) {

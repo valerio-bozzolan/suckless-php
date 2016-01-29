@@ -17,7 +17,7 @@
  */
 
 /*
- * Use: esc_html(), error_die(), DEBUG, merge_args_defaults()
+ * Use: esc_html(), error_die(), DEBUG, merge_args_defaults(), force_array()
  */
 
 /**
@@ -87,14 +87,16 @@ class DB {
 		@$this->mysqli = new mysqli($location, $username, $password, $database);
 		if( $this->errorConnection() ) {
 			if(DEBUG) {
+				$password_shown = ($password === '') ? _("nessuna") : sprintf(
+					_("di %d caratteri"),
+					strlen( $password )
+				);
+
 				error_die( sprintf(
 					_("Impossibile connettersi al database '%s' tramite l'utente '%s' e password (%s) sul server MySQL/MariaDB '%s'. Specifica correttamente queste informazioni nel file di configurazione del tuo progetto (usualmente '%s')."),
 					$database,
 					$username,
-					($password === '') ? _("nessuna") : sprintf(
-						_("di %d caratteri"),
-						strlen( $password )
-					),
+					$password_shown,
 					$location,
 					'load.php'
 				) );
@@ -138,11 +140,11 @@ class DB {
 	}
 
 	private function showSQL($SQL) {
-		echo HTML::tag('p', sprintf(
+		echo "<p>" . sprintf(
 			_("Query numero %d: <pre>%s</pre>"),
 			$this->numQueries,
 			$SQL
-		) );
+		) . "</p>\n";
 	}
 
 	public function getRow($query, $class_name = 'DBRow', $params = [] ) {
@@ -169,11 +171,11 @@ class DB {
 		}
 		$res = [];
 
-		// FOR HISTORICAL REASONS
+		// SHIT FOR HISTORICAL REASONS
 		if( is_array( $class_name ) ) {
 			$class_name = 'DBRow';
 		}
-		// FOR HISTORICAL REASONS
+		// SHIT FOR HISTORICAL REASONS
 
 		while( $row = $this->lastResult->fetch_object($class_name, $params) ) {
 			$res[] = $row;
@@ -183,7 +185,8 @@ class DB {
 	}
 
 	/**
-	 * To insert a single row
+	 * To insert a single row.
+	 * I have not time to check if $dbCols are DBRows.
 	 */
 	public function insertRow($table_name, $dbCols) {
 		$SQL_columns = '';
@@ -206,7 +209,7 @@ class DB {
 	}
 
 	/**
-	 * To execute insert queries.
+	 * To execute clean insert SQL queries.
 	 *
 	 * @param string $table_name Table Name without prefix
 	 * @param array $columns Assoc array of types ('ID' => 'null', 'name' => 's', ..)
@@ -214,19 +217,14 @@ class DB {
 	 * @param array $args Extra arguments
 	 */
 	public function insert($table_name, $columns, $rows, $args = []) {
-		$args = merge_args_defaults(
-			$args,
-			array(
-				'replace-into' => false
-                        )
-                );
+		$args = merge_args_defaults($args, [
+			'replace-into' => false
+		] );
 
-		if( ! is_array($rows) ) {
-			$rows = array($rows); // 'value col 1' => array_columns('value col 1')
-		}
+		force_array($rows);
 
 		if( ! @is_array($rows[0]) ) {
-			$rows = array($rows); // array_columns('value col 1', '..') => array_rows( array_columns( 'value col 1', ..) )
+			$rows = [ $rows ]; // array_columns('value col 1', '..') => array_rows( array_columns( 'value col 1', ..) )
 		}
 
 		$n_columns = count($columns);
@@ -275,10 +273,9 @@ class DB {
 	 * To execute update queries.
 	 */
 	public function update($table_name, $dbCols, $conditions, $after = '') {
+		force_array($dbCols);
+
 		$SQL = "UPDATE {$this->getTable($table_name)} SET ";
-		if( ! is_array($dbCols) ) {
-			$dbCols = array($dbCols);
-		}
 		$n_cols = count($dbCols);
 		for($i=0; $i<$n_cols; $i++) {
 			if($i !== 0) {
@@ -442,18 +439,17 @@ class DB {
 			*/
 
 			$this->insert(
-				'option',
-				array(
+				'option', [
 					'option_name' => 's',
 					'option_value' => 's',
 					'option_autoload' => 's' // Enum
-				), array(
+				], [
 					$option_name,
 					$option_value,
 					$option_autoload
-				), array(
+				], [
 					'replace-into' => true
-				)
+				]
 			);
 			if( ! $this->lastResult ) {
 				return false;
@@ -558,26 +554,44 @@ class DB {
 	 *
 	 * @param string $s String to be forced.
 	 * @param string $type Type ('d' for integer, 's' for string, 'f' for float, 'null' for autoincrement values or for "don't care" values).
+	 * @see http://news.php.net/php.bugs/195815
 	 * @return string Forced string
 	 */
 	private function forceType($s, $type) {
-		switch($type) {
-			case 'd':	return (int) $s; // Integer
-			case 'f':	return (float) $s; // Float
-			case 'dnull':   return ($s === null) ? 'NULL' : (int) $s; // Integer - or NULL
-			case 'fnull':	return ($s === null) ? 'NULL' : (float) $s; // Float - or NULL
-			case 's':	return "'{$this->escapeString($s)}'"; // String escaped
-			case 'snull':	return ($s === null) ? 'NULL' : "'{$this->escapeString($s)}'"; // String escaped - or NULL
-			case 'f':	return (float) $s; // Float value
-			case '-':	return $s; // For SQL Functions ONLY
-			case null:
-			case 'null':	return 'NULL'; // 'NULL' for indexes
-		}
+
+		if( $type === 'd' )
+			return (int) $s; // Integer
+
+		if( $type === 'f' )
+			return (float) $s; // Float
+
+		if( $type === 'dnull' )
+			return ($s === null) ? 'NULL' : (int) $s; // Integer - or NULL
+
+		if( $type === 'fnull' )
+			return ($s === null) ? 'NULL' : (float) $s; // Float - or NULL
+
+		if( $type === 's' )
+			return "'{$this->escapeString($s)}'"; // String escaped
+
+		if( $type === 'snull' )
+			return ($s === null) ? 'NULL' : "'{$this->escapeString($s)}'"; // String escaped - or NULL
+
+		if( $type === 'f' )
+			return (float) $s; // Float value
+
+		if( $type === '-' )
+			return $s; // Float value
+
+		if( $type === null || $type === 'null' )
+			return 'NULL'; // 'NULL' literally for indexes
+
 		DEBUG && error( sprintf(
 			"Tipo '%s' non concesso in DB::forceType(). Vedi la documentazione (esiste?). Sarà usato l'escape 's'.",
 			esc_html($type)
 		) );
-		return "'{$this->escapeString($s)}'";
+
+		return $this->forceType($s, 's');
 	}
 
 	/**
@@ -729,9 +743,8 @@ class DynamicQuery {
 	}
 
 	private function appendInArray($values, & $array) {
-		if(!is_array($values)) {
-			$values = array($values);
-		}
+		force_array($values);
+
 		foreach($values as $value) {
 			if(!in_array($value, $array)) {
 				$array[] = $value;
