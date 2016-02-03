@@ -25,15 +25,7 @@ class Session {
 
 	private $db;
 
-	function __construct($db = null) {
-		session_start();
-
-		if($db === null) {
-			expect('db');
-			$db = & $GLOBALS['db'];
-		}
-
-		$this->db = $db;
+	function __construct() {
 		$this->isLogged();
 	}
 
@@ -57,7 +49,7 @@ class Session {
 			$user_password = @$_POST[ 'user_password' ];
 		}
 
-		$user_uid = trim( $user_uid );
+		$user_uid      = trim( $user_uid );
 		$user_password = trim( $user_password );
 
 		if(empty($user_uid)) {
@@ -72,14 +64,14 @@ class Session {
 			$status = self::TOO_LONG_USER_UID;
 			return false;
 		}
-		if(strlen($user_password) > 64) { // @Todo parametrize as arg
+		if(strlen($user_password) > 128) { // @Todo parametrize as arg
 			$status = self::TOO_LONG_USER_PASSWORD;
 			return false;
 		}
 
-		$user = $this->db->getRow(
+		$user = query_row(
 			sprintf(
-				"SELECT * FROM {$this->db->getTable('user')} WHERE user_uid = '%s' AND user_password = '%s'",
+				"SELECT * FROM {$GLOBALS[T]('user')} WHERE user_uid = '%s' AND user_password = '%s'",
 				esc_sql($user_uid),
 				esc_sql($this->encryptUserPassword( $user_password) )
 			),
@@ -98,17 +90,14 @@ class Session {
 
 		$this->loginVerified = true;
 
-		unset( $user->user_password );
-
 		$this->user = $user;
 
-		$_SESSION['user_ID'] = $user->user_ID;
-		if( isset( $_SERVER['REMOTE_ADDR'] ) ) {
-			$_SESSION['ip'] = $_SERVER['REMOTE_ADDR'];
-		}
-		if( isset( $_SERVER['HTTP_USER_AGENT'] ) ) {
-			$_SESSION['user_agent'] = $_SERVER['HTTP_USER_AGENT'];
-		}
+		$time     = time();
+		$duration = $time + SESSION_DURATION;
+
+		setcookie('user_uid',   $user->user_uid,              $duration);
+		setcookie('token',      $user->generateCookieToken(), $duration);
+		setcookie('login_time', $time,                        $duration);
 
 		$status = self::OK;
 		return true;
@@ -118,14 +107,15 @@ class Session {
 		if($this->loginVerified === true) {
 			return true;
 		}
-		if( !isset($_SESSION['user_ID']) ) {
+
+		if( ! isset( $_COOKIE['user_uid'], $_COOKIE['token'] ) ) {
 			return false;
 		}
 
-		$user = $this->db->getRow(
+		$user = query_row(
 			sprintf(
-				"SELECT * FROM {$this->db->getTable('user')} WHERE user_ID = '%d'",
-				$_SESSION['user_ID']
+				"SELECT * FROM {$GLOBALS[T]('user')} WHERE user_uid = '%s'",
+				esc_sql( str_truncate( $_COOKIE['user_uid'], 400 ) )
 			),
 			$this->userClass
 		);
@@ -137,23 +127,15 @@ class Session {
 			return false;
 		}
 
-		unset( $user->user_password );
-
 		if( ! $user->isActive() ) {
 			return false;
 		}
 
-		// Aggressive browser additional restriction
-		if( isset( $_SERVER['REMOTE_ADDR'] ) ) {
-			if( @$_SESSION['ip'] !== $_SERVER['REMOTE_ADDR'] ) {
-				return false;
-			}
+		if( $_COOKIE['token'] !== $user->generateCookieToken() ) {
+			return false;
 		}
-		if( isset( $_SERVER['HTTP_USER_AGENT'] ) ) {
-			if( @$_SESSION['user_agent'] !== $_SERVER['HTTP_USER_AGENT'] ) {
-				return false;
-			}
-		}
+
+		// @TODO check also $_COOKIE['login_time']
 
 		$this->user = $user;
 
@@ -172,27 +154,35 @@ class Session {
 	}
 
 	public function destroy() {
-		session_unset();
-		session_destroy();
+		$invalidate = time() - 8000;
+
+		setcookie('user_uid',   'lol', $invalidate);
+		setcookie('token',      'lol', $invalidate);
+		setcookie('login_time', 'lol', $invalidate);
+
 		$this->loginVerified = true;
 		$this->user = null;
 	}
 
 	public static function encryptUserPassword($password) {
-		return hash(
-			PASSWD_HASH_ALGO,
-			PASSWD_HASH_SALT . $password . PASSWD_HASH_PEPP
-		);
+		return hash(PASSWD_HASH_ALGO, PASSWD_HASH_SALT . $password . PASSWD_HASH_PEPP);
 	}
 }
 
 class SessionUser {
 	function __construct() {
+		isset($this->user_ID, $this->user_active, $this->user_password)
+			|| error_die( _("Tabella utente non completa?") );
+
 		$this->user_ID = (int) $this->user_ID;
 		$this->user_active = (bool) (int) $this->user_active;
 	}
 
 	function isActive() {
 		return $this->user_active;
+	}
+
+	function generateCookieToken() {
+		return hash(COOKIE_HASH_ALGO, COOKIE_HASH_SALT . $this->user_password . COOKIE_HASH_PEPP);
 	}
 }

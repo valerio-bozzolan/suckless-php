@@ -126,15 +126,15 @@ class DB {
 	 * @param string $SQL The SQL query to execute
 	 * @param boolean $tagReplace Use tag sobstitution, or no
 	 */
-	public function query($SQL) {
+	public function query($query) {
 		$this->numQueries++;
 		// @$this->lastResult->close();
-		@$this->lastResult = $this->mysqli->query($SQL);
+		@$this->lastResult = $this->mysqli->query($query);
 		if( ! $this->lastResult ) {
-			DEBUG && error_die( $this->getQueryErrorMessage($SQL) );
+			DEBUG && error_die( $this->getQueryErrorMessage($query) );
 			return false;
 		} elseif(DEBUG && SHOW_EVERY_SQL) {
-			$this->showSQL($SQL);
+			$this->showSQL($query);
 		}
 		return $this->lastResult;
 	}
@@ -147,12 +147,18 @@ class DB {
 		) . "</p>\n";
 	}
 
-	public function getRow($query, $class_name = 'DBRow', $params = [] ) {
+	/**
+	 * Select only a row from the database
+	 */
+	public function getRow($query, $class_name = null, $params = [] ) {
 		$results = $this->getResults($query, $class_name, $params);
 		return @$results[0];
 	}
 
-	public function getValue($SQL, $column_name, $class_name = 'DBRow', $params = [] ) {
+	/**
+	 * Select only a column from a single row
+	 */
+	public function getValue($SQL, $column_name, $class_name = null, $params = [] ) {
 		$row = $this->getRow($SQL, $class_name, $params);
 		return @$row->{$column_name};
 	}
@@ -165,18 +171,18 @@ class DB {
 	 * @param array $params Optional data for the $class_name constructor.
 	 * @See http://php.net/manual/en/mysqli-result.fetch-object.php
 	 */
-	public function getResults($query, $class_name = 'DBRow', $params = [] ) {
+	public function getResults($query, $class_name = null, $params = [] ) {
 		if( ! $this->query($query) ) {
 			return false;
 		}
-		$res = [];
 
-		// SHIT FOR HISTORICAL REASONS
-		if( is_array( $class_name ) ) {
+		// IS_ARRAY() IS SHIT FOR HISTORICAL REASONS
+		if( $class_name === null || is_array( $class_name ) ) {
 			$class_name = 'DBRow';
 		}
-		// SHIT FOR HISTORICAL REASONS
+		// IS_ARRAY() IS SHIT FOR HISTORICAL REASONS
 
+		$res = [];
 		while( $row = $this->lastResult->fetch_object($class_name, $params) ) {
 			$res[] = $row;
 		}
@@ -186,24 +192,27 @@ class DB {
 
 	/**
 	 * To insert a single row.
-	 * I have not time to check if $dbCols are DBRows.
+	 * I have not time to check if $dbCols are DBCol objects.
+	 *
+	 * @param string $table_name
+	 * @param DBCol[] $cols
 	 */
-	public function insertRow($table_name, $dbCols) {
+	public function insertRow($table_name, $cols) {
 		$SQL_columns = '';
-		$n_cols = count($dbCols);
-		for($i=0; $i<$n_cols; $i++) {
+		$n = count($cols);
+		for($i=0; $i<$n; $i++) {
 			if($i !== 0) {
 				$SQL_columns .= ', ';
 			}
-			$SQL_columns .= "`{$dbCols[$i]->column}`";
+			$SQL_columns .= "`{$cols[$i]->column}`";
 		}
 
 		$values = '';
-		for($i=0; $i<$n_cols; $i++) {
+		for($i=0; $i<$n; $i++) {
 			if($i !== 0) {
 				$values .= ', ';
 			}
-			$values .= $this->forceType($dbCols[$i]->value, $dbCols[$i]->forceType);
+			$values .= $this->forceType($cols[$i]->value, $cols[$i]->forceType);
 		}
 		return $this->query("INSERT INTO {$this->getTable($table_name)} ($SQL_columns) VALUES ($values)");
 	}

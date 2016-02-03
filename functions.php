@@ -135,7 +135,8 @@ function enfatize_substr($s, $q, $pre = "<b>", $post = "</b>") {
  */
 
 /**
- * SQL escape
+ * SQL query escape string
+ * @see DB#escapeString()
  */
 function esc_sql($str) {
 	expect('db');
@@ -143,7 +144,7 @@ function esc_sql($str) {
 }
 
 /**
- * Escape a LIKE = '' SQL
+ * Escape a LIKE SQL query
  */
 function esc_sql_like($s) {
 	$s = str_replace('%', '', $s);
@@ -158,6 +159,56 @@ function esc_html($s) {
 }
 function _esc_html($s) {
 	echo htmlentities($s);
+}
+
+/**
+ * Execute a query and return an array of objects.
+ * @see DB#getResults()
+*/
+function query_results($query, $class = null, $args = [] ) {
+	expect('db');
+	return $GLOBALS['db']->getResults($query, $class, $args);
+}
+
+/**
+ * Execute a query and return an object.
+ * @see DB#getRow()
+ */
+function query_row($query, $class = null, $args = [] ) {
+	expect('db');
+	return $GLOBALS['db']->getRow($query, $class, $args);
+}
+
+/**
+ * Execute a query and return a single value.
+ * @see DB#getValue()
+ */
+function query_value($query, $value, $class = null) {
+	expect('db');
+	return $GLOBALS['db']->getValue($query, $value, $class);
+}
+
+define('T', 'T');
+define('JOIN', 'JOIN');
+// Very helpful shurtcut in a string context
+$GLOBALS[T] = function($t, $as = false) {
+	expect('db');
+	return $GLOBALS['db']->getTable($t, $as);
+};
+
+// Very helpful shortcut in a string context for listing tables
+$GLOBALS[JOIN] = function($t) {
+	expect('db');
+	return $GLOBALS['db']->getTables( func_get_args() );
+};
+
+/**
+ * Insert a row in the specified database table.
+ * @see DB#insertRow()
+ */
+function insert_row($table, $cols) {
+	expect('db');
+	return $GLOBALS['db']->insertRow($table, $cols);
 }
 
 /**

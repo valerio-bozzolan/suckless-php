@@ -59,10 +59,7 @@ And now create your first file e.g. `index.php`:
 <?php
 require 'load.php';
 
-// OK. Do you want a working global DB? That's it.
-expect('db');
-
-$row = $db->getRow("SELECT NOW() as time");
+$row = query_row("SELECT NOW() as time");
 
 echo $row->time;
 
@@ -136,7 +133,9 @@ has_permission('do-wonderful-things') && add_menu_entries( [
 ] );
 
 // Use of custom associative options
-set_option('visits', get_option('visits', 0) + 1);
+$visits = get_option('visits', 0);
+
+set_option('visits', ++$visits);
 ```
 Now remove the declaration of `REQUIRE_LOAD_POST` in your `load.php`.
 
