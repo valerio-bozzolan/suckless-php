@@ -221,6 +221,18 @@ function insert_row($table, $cols) {
 }
 
 /**
+ * If the table has an AUTOINCREMENT you can get the last inserted index
+ * after an insert_row().
+ * @see DB#getLastInsertedID()
+ */
+function last_inserted_ID() {
+	isset( $GLOBALS['db'] )
+		|| error_die( _("Manca la connessione al database. Come ottenere l'ultimo indice?") );
+
+	return $GLOBALS['db']->getLastInsertedID();
+}
+
+/**
  * Insert multiple values in the specified database table
  * @see DB#insert()
  */
