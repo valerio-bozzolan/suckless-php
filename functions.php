@@ -221,6 +221,15 @@ function insert_row($table, $cols) {
 }
 
 /**
+ * Insert multiple values in the specified database table
+ * @see DB#insert()
+ */
+function insert_values($tables, $cols, $values) {
+	expect('db');
+	return $GLOBALS['db']->insert($tables, $cols, $values);
+}
+
+/**
  * Escape form attributes
  */
 function esc_attr($s) {
