@@ -162,9 +162,18 @@ function _esc_html($s) {
 }
 
 /**
+ * Execute a simple query.
+ * @see DB#getResults()
+ */
+function query($query) {
+	expect('db');
+	$GLOBALS['db']->query($query);
+}
+
+/**
  * Execute a query and return an array of objects.
  * @see DB#getResults()
-*/
+ */
 function query_results($query, $class = null, $args = [] ) {
 	expect('db');
 	return $GLOBALS['db']->getResults($query, $class, $args);
