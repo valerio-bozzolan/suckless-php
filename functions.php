@@ -65,32 +65,6 @@ function force_array( & $a ) {
 }
 
 /**
- * Get either a Gravatar URL or complete image tag for a specified email address.
- *
- * @param string $email The email address
- * @param string $s Size in pixels, defaults to 80px [ 1 - 2048 ]
- * @param string $d Default imageset to use [ 404 | mm | identicon | monsterid | wavatar ]
- * @param string $r Maximum rating (inclusive) [ g | pg | r | x ]
- * @param boole $img True to return a complete IMG tag False for just the URL
- * @param array $atts Optional, additional key/value attributes to include in the IMG tag
- * @return String containing either just a URL or a complete image tag
- * @source http://gravatar.com/site/implement/images/php/
- */
-function get_gravatar($email, $s = 80, $d = 'mm', $r = 'g', $img = false, $atts = [] ) {
-	$url = '//www.gravatar.com/avatar/';
-	$url .= md5( strtolower( trim( $email ) ) );
-	$url .= "?s=$s&amp;d=$d&amp;r=$r";
-	if($img) {
-		$url = '<img src="' . $url . '"';
-		foreach($atts as $key => $val) {
-			$url .= ' ' . $key . '="' . $val . '"';
-		}
-		$url .= ' />';
-	}
-	return $url;
-}
-
-/**
  * This extremely-stupid function does not use preg_replace()
  * and so it's sooooooooooooooooooooooooooooooo fast.
  *
@@ -239,6 +213,15 @@ function last_inserted_ID() {
 function insert_values($tables, $cols, $values) {
 	expect('db');
 	return $GLOBALS['db']->insert($tables, $cols, $values);
+}
+
+/**
+ * Update rows in the specified database table
+ * @see DB#update()
+ */
+function query_update($table_name, $dbCols, $conditions, $after = '') {
+	expect('db');
+	$GLOBALS['db']->update($table_name, $dbCols, $conditions, $after);
 }
 
 /**
@@ -804,6 +787,38 @@ if( ! function_exists('require_permission') ) {
 			get_footer();
 			exit; // Yes!
 		endif;
+	}
+}
+
+/**
+ * Do it on your own!
+ */
+if( ! function_exists('get_gravatar') ) {
+	/**
+	 * Get either a Gravatar URL or complete image tag for a specified email address.
+	 *
+	 * @param string $email The email address
+	 * @param string $s Size in pixels, defaults to 80px [ 1 - 2048 ]
+	 * @param string $d Default imageset to use [ 404 | mm | identicon | monsterid | wavatar ]
+	 * @param string $r Maximum rating (inclusive) [ g | pg | r | x ]
+	 * @param boole $img True to return a complete IMG tag False for just the URL
+	 * @param array $atts Optional, additional key/value attributes to include in the IMG tag
+	 * @return String containing either just a URL or a complete image tag
+	 * @source http://gravatar.com/site/implement/images/php/
+	 * @deprecated
+	 */
+	function get_gravatar($email, $s = 80, $d = 'mm', $r = 'g', $img = false, $atts = [] ) {
+		$url = '//www.gravatar.com/avatar/';
+		$url .= md5( strtolower( trim( $email ) ) );
+		$url .= "?s=$s&amp;d=$d&amp;r=$r";
+		if($img) {
+			$url = '<img src="' . $url . '"';
+			foreach($atts as $key => $val) {
+				$url .= ' ' . $key . '="' . $val . '"';
+			}
+			$url .= ' />';
+		}
+		return $url;
 	}
 }
 
