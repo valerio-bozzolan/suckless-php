@@ -43,13 +43,8 @@ $location = 'localhost';
 // Table prefix, if any!
 $prefix = 'blog_';
 
-define('ABSPATH', __DIR__);
-
 // We can wait for this feature..
 define('REQUIRE_LOAD_POST', false);
-
-// We can wait for this feature..
-define('DB_USE_OPTIONS', false);
 
 // That's it! This will load the framework with the above configurations
 require '/usr/share/boz-php-another-php-framework/load.php';
@@ -67,7 +62,7 @@ echo "If you see the datetime, the database works!";
 ```
 
 ## Database installation
-You can add support for user *autentication* / user *permissions* and *associative options* importing the database schema into your database. To do it you should have received a file called `example-schema.sql` in the `examples` framework folder. Import it into your database. Actually there are only two tables. When you have done it, remember to remove the `DB_USE_OPTIONS` declarations in your config file (`load.php`), or obviously set that constant to `true`.
+You can add support for user *autentication* / user *permissions* and *associative options* importing the database schema into your database. To do it you should have received a file called `example-schema.sql` in the `examples` framework folder. Import it into your database. Actually there are only two tables.
 
 ## Stuff in `load.php`
 Have to specify these:
@@ -83,7 +78,6 @@ Definibles (as  (`type`) `default`):
 * `DEBUG` (`bool`) `false`: Enable verbose debugging.
 * `SHOW_EVERY_SQL` (`bool`) `false`: It does what you think. Only if `DEBUG`.
 * `REQUIRE_LOAD_POST` (`bool`) `true`: To require your `ABSPATH . '/load-post.php`.
-* `USE_DB_OPTIONS` (`bool`) `true`: To enable associative database options.
 * `PROTOCOL` (`string`): Default is the protocol of the request (`http://` / `https://`). It builds the `URL` constant.
 * `DOMAIN` (`string`): Default is your domain name. You can override it. It builds the `URL` constant.
 * `URL` (`string`): Default is `PROTOCOL . DOMAIN . ROOT`.

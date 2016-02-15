@@ -54,7 +54,7 @@ class DB {
 	 * Cached options
 	 * @var array
 	 */
-	private $optionsCache = [];
+	private $optionsCache = null;
 
 	/**
 	 * List of formally registered options.
@@ -71,7 +71,7 @@ class DB {
 	 * @param type $database Database name
 	 * @param type $prefix Table Prefix
 	 */
-	function __construct($username = null, $password = null, $location = null, $database = null, $prefix = '') {
+	function __construct($username = null, $password = null, $location = null, $database = null, $prefix = '', $charset = 'utf8') {
 		if( func_num_args() === 0 ) {
 			$username  = @$GLOBALS['username'];
 			$password  = @$GLOBALS['password'];
@@ -93,20 +93,23 @@ class DB {
 				);
 
 				error_die( sprintf(
-					_("Impossibile connettersi al database '%s' tramite l'utente '%s' e password (%s) sul server MySQL/MariaDB '%s'. Specifica correttamente queste informazioni nel file di configurazione del tuo progetto (usualmente '%s')."),
+					_("Impossibile connettersi al database '%s' tramite l'utente '%s' e password (%s) sul server MySQL/MariaDB '%s'. Specifica correttamente queste informazioni nel file di configurazione del tuo progetto (usualmente '%s'). %s."),
 					$database,
 					$username,
 					$password_shown,
 					$location,
-					'load.php'
+					'load.php',
+					HTML::a(
+						'https://github.com/valerio-bozzolan/boz-php-another-php-framework/blob/master/README.md#use-it',
+						_("Documentazione")
+					)
 				) );
 			} else {
 				error_die( _("Errore nello stabilire una connessione al database.") );
 			}
 		}
-		@$this->mysqli->set_charset('utf8');
 
-		USE_DB_OPTIONS && $this->loadAutoloadOptions();
+		@$this->mysqli->set_charset($charset);
 	}
 
 	function __destruct() {
@@ -158,8 +161,8 @@ class DB {
 	/**
 	 * Select only a column from a single row
 	 */
-	public function getValue($SQL, $column_name, $class_name = null, $params = [] ) {
-		$row = $this->getRow($SQL, $class_name, $params);
+	public function getValue($query, $column_name, $class_name = null, $params = [] ) {
+		$row = $this->getRow($query, $class_name, $params);
 		return @$row->{$column_name};
 	}
 
@@ -178,7 +181,7 @@ class DB {
 
 		// IS_ARRAY() IS SHIT FOR HISTORICAL REASONS
 		if( $class_name === null || is_array( $class_name ) ) {
-			$class_name = 'DBRow';
+			$class_name = 'EhmStdClass';
 		}
 		// IS_ARRAY() IS SHIT FOR HISTORICAL REASONS
 
@@ -308,7 +311,7 @@ class DB {
 	 * Load options with autoload.
 	 */
 	public function loadAutoloadOptions() {
-		$options = $this->getResults("SELECT option_name, option_value FROM {$this->getTable('option')} WHERE option_autoload = '1'");
+		$options = $this->getResults("SELECT option_name, option_value FROM {$this->getTable('option')} WHERE option_autoload = 1");
 		if($options === false) {
 			if(DEBUG) {
 				error_die( _("Errore caricando le opzioni dal database") );
@@ -323,6 +326,8 @@ class DB {
 		for($i=0; $i<$n; $i++) {
 			$this->optionsCache[ $options[$i]->option_name ] = $options[$i]->option_value;
 		}
+
+		return $n;
 	}
 
 	/**
@@ -365,9 +370,10 @@ class DB {
 	 * @param string $defalut_value Default value if this option does not exist.
 	 */
 	public function getOption($option_name, $default_value = '') {
-		if( ! USE_DB_OPTIONS ) {
-			return $default_value;
+		if( $this->optionsCache === null ) {
+			$this->loadAutoloadOptions();
 		}
+
 		if(isset($this->optionsCache[$option_name])) {
 			return (empty($this->optionsCache[$option_name])) ? $default_value : $this->optionsCache[$option_name];
 		} else {
@@ -408,15 +414,11 @@ class DB {
 
 				$option_autoload = ($option_autoload) ? 1 : 0;
 
-				$db->update(
-					'option', [
-						new DBCol('option_value',   $option_value,   's'),
+				$db->update('option', [
+						new DBCol('option_value',    $option_value,    's'),
 						new DBCol('option_autoload', $option_autoload, 'd')
 					],
-					sprintf(
-						"option_name = '%s'",
-						$this->escapeString($option_name)
-					)
+					"option_name = '{$this->escapeString($option_name)}'"
 				);
 			}
 		} else {
@@ -434,8 +436,12 @@ class DB {
 	 * @TODO 'replace-into' => This is not OK
 	 */
 	private function insertOption($option_name, $option_value, $option_autoload = true) {
+		if( $this->optionsCache === null ) {
+			$this->loadAutoloadOptions();
+		}
+
 		if(isset($this->optionsCache[$option_name])) {
-			return $this->updateOption($option_name, $option_value);
+			return $this->setOption($option_name, $option_value);
 		} else {
 			$option_autoload = ($option_autoload) ? 1 : 0;
 
@@ -476,17 +482,14 @@ class DB {
 	 * @return boolean Succesfully or not.
 	 */
 	public function removeOption($option_name) {
-		if(isset($this->optionsCache[$option_name])) {
-			$this->query( sprintf(
-				"DELETE FROM {$this->getTable('option')} WHERE option_name='%s' LIMIT 1",
-				$this->escapeString($option_name)
-			));
-			if(!$this->lastResult) {
-				return false;
-			}
+		$this->query( sprintf(
+			"DELETE FROM {$this->getTable('option')} WHERE option_name = '%s' LIMIT 1",
+			$this->escapeString($option_name)
+		));
+
+		if( $this->optionsCache !== null ) {
 			unset($this->optionsCache[$option_name]);
 		}
-		return true;
 	}
 
 	/**
@@ -525,10 +528,6 @@ class DB {
 		return $r;
 	}
 
-	public function get_table($name, $as = false) {
-		return $this->getTable($name, $as);
-	}
-
 	/**
 	 * Return the list of every table name inserted as arguments or as an []
 	 */
@@ -546,16 +545,6 @@ class DB {
 			}
 		}
 		return $tables;
-	}
-
-	/**
-	 * @deprecated
-	 */
-	public function get_tables($args = []) {
-		if( ! is_array($args) ) {
-			$args = func_get_args();
-		}
-		return $this->getTables($args);
 	}
 
 	/**
@@ -670,6 +659,23 @@ class DB {
  	 */
 	public function get_last_inserted_id() {
 		return $this->mysqli->insert_id;
+	}
+
+	/**
+	 *@deprecated
+	 */
+	public function get_table($name, $as = false) {
+		return $this->getTable($name, $as);
+	}
+
+	/**
+	 * @deprecated
+	 */
+	public function get_tables($args = []) {
+		if( ! is_array($args) ) {
+			$args = func_get_args();
+		}
+		return $this->getTables($args);
 	}
 }
 
@@ -798,11 +804,11 @@ class DynamicQuery {
 		return $sql;
 	}
 
-	public function getResults($class_name = 'DBRow', $params = [] ) {
+	public function getResults($class_name = null, $params = [] ) {
 		return $this->db->getResults( $this->getQuery(), $class_name, $params );
 	}
 
-	public function getRow($class_name = 'DBRow', $params = []) {
+	public function getRow($class_name = null, $params = []) {
 		return $this->db->getRow( $this->getQuery(), $class_name, $params );
 	}
 
@@ -828,7 +834,7 @@ class DBCol {
  *
  * @See http://php.net/manual/en/mysqli-result.fetch-object.php
  */
-class DBRow {
+class EhmStdClass {
 	function __construct() {
 	}
 }

@@ -473,13 +473,6 @@ function URL_root() {
 }
 
 /**
- * Hardcoded URL
- */
-function URL() {
-	return PROTOCOL . DOMAIN . ROOT;
-}
-
-/**
  * HTTP 503 header
  */
 function http_503() {
@@ -823,18 +816,6 @@ if( ! function_exists('get_gravatar') ) {
 }
 
 /**
- * Return current Unix timestamp with microseconds.
- * It replicate the PHP 5 behaviour.
- *
- * @return float Microtime
- * @deprecated
- */
-function get_microtime() {
-	list($time, $micro) = explode(' ', microtime());
-	return (float)$time + (float)$micro;
-}
-
-/**
  * Used to know much is the page load
  *
  * @return mixed Execution time
@@ -843,9 +824,9 @@ function get_microtime() {
 function get_page_load($decimals = 6) {
 	static $start_microtime = 0; // Please let me take advantage of PHP features
 	if($start_microtime == 0) {
-		$start_microtime = get_microtime();
+		$start_microtime = microtime(true);
 	}
-	return substr(get_microtime() - $start_microtime, 0, 2 + $decimals);
+	return substr(microtime(true) - $start_microtime, 0, 2 + $decimals);
 }
 
 /**

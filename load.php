@@ -34,9 +34,8 @@ defined('DEBUG')                    || define('DEBUG', false);
 defined('PROTOCOL')                 || define('PROTOCOL', URL_protocol() );
 defined('DOMAIN')                   || define('DOMAIN', URL_domain() );
 defined('ROOT')                     || define('ROOT', URL_root() );
-defined('URL')                      || define('URL', URL() );
+defined('URL')                      || define('URL', PROTOCOL . DOMAIN . ROOT );
 defined('SHOW_EVERY_SQL')           || define('SHOW_EVERY_SQL', false);
-defined('USE_DB_OPTIONS')           || define('USE_DB_OPTIONS', true);
 defined('REQUIRE_LOAD_POST')        || define('REQUIRE_LOAD_POST', true);
 defined('CHMOD_WRITABLE_DIRECTORY') || define('CHMOD_WRITABLE_DIRECTORY', 0777);
 defined('CHMOD_WRITABLE_FILE')      || define('CHMOD_WRITABLE_FILE', 0666);
@@ -52,6 +51,11 @@ defined('SESSION_DURATION')         || define('SESSION_DURATION', 604800);   // 
 
 // On demand requests class-$php ... it's f****** amazing!
 spl_autoload_register( function($c) {
+	// Little fix
+	if($c === 'DBRow') {
+		$c = 'DB';
+	}
+
 	$path = BOZ_PHP . _ . "class-$c.php";
 	if( is_file( $path ) ) {
 		require $path;
