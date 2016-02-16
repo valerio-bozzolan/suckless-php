@@ -23,9 +23,6 @@ define('ROOT', '/first-steps');
 define('DEBUG', true);
 
 // In the example I don't use this
-define('USE_DB_OPTIONS', false);
-
-// In the example I don't use this
 define('REQUIRE_LOAD_POST', false);
 
 // Where is the framework? It should be always there:

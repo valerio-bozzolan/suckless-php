@@ -22,22 +22,16 @@
  */
 require 'load.php';
 
-expect('db');
-
-/*
- * You can do this:
- */
-$row = $db->getRow('SELECT NOW() AS miao');
+// You can do this:
+$row = query_row('SELECT NOW() AS miao');
 printf(
 	"The database says that now it's '%s'. What's wrong with this? That it's a stupid string... boring to change!\n",
 	$row->miao
 );
 
-/*
- * ... or you can define a custom class and do this:
- */
+// or you can define a custom class and do this:
 require 'MyClass.php';
-$row = $db->getRow('SELECT NOW() AS miao', 'MyClass');
+$row = query_row('SELECT NOW() AS miao', 'MyClass');
 printf(
 	"The database says that now it's the year <b>%d</b> and the day is <b>%d</b>! Time: %s. That's a clean PHP DateTime object retrieved with one line query!",
 	$row->miao->format('Y'),  // Year

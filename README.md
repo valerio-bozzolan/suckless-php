@@ -4,6 +4,7 @@ To be clear I use to twist this framework very often deprecating and killing stu
 ## Benefits as developer
 You can create a RDBMS CMS with:
 
+* Resources loaded only when you request them without thinking too much on them (with [spl-autoload-register](http://php.net/manual/en/function.spl-autoload-register.php) plus a `$GLOBAL` objects orchestrator)
 * No pain with DB table prefixes
 * No pain with DB associative options
 * No pain with login and user capabilities
@@ -12,7 +13,6 @@ You can create a RDBMS CMS with:
 * No pain with file uploads
 * Very small websites with only what you want in the root of your project
 * Very small framework with a few flat files
-* Resources loaded only when you request them without thinking too much on them (with [spl-autoload-register](http://php.net/manual/en/function.spl-autoload-register.php) plus a `$GLOBAL` objects orchestrator)
 
 ## Benefits as sysadmin
 * No pain with overweight copy-pasted websites to be hosted with redundant backups and too things to keep updated: The framework is in one place; the websites are in another places; data are in dabasase/databases. Everything it's how it should be done!
