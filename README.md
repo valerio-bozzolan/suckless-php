@@ -4,7 +4,7 @@ To be clear I use to twist this framework very often deprecating and killing stu
 ## Benefits as developer
 You can create a RDBMS CMS with:
 
-* Resources loaded only when you request them without thinking too much on them (with [spl-autoload-register](http://php.net/manual/en/function.spl-autoload-register.php) plus a `$GLOBAL` objects orchestrator)
+* Resources loaded only when you request them without thinking too much on them (with [spl-autoload-register](http://php.net/manual/en/function.spl-autoload-register.php) plus a `$GLOBALS` objects orchestrator)
 * No pain with DB table prefixes
 * No pain with DB associative options
 * No pain with login and user capabilities
