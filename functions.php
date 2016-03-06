@@ -139,7 +139,7 @@ function _esc_html($s) {
  */
 function query($query) {
 	expect('db');
-	$GLOBALS['db']->query($query);
+	return $GLOBALS['db']->query($query);
 }
 
 /**

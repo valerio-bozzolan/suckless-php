@@ -50,7 +50,7 @@ defined('SESSION_DURATION')         || define('SESSION_DURATION', 604800);   // 
 // On demand requests class-$php ... it's f****** amazing!
 spl_autoload_register( function($c) {
 	// Little fix
-	if($c === 'DBRow') {
+	if($c === 'DBCol') {
 		$c = 'DB';
 	}
 
