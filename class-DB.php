@@ -46,7 +46,7 @@ class DB {
 	 * Last query result.
 	 * @var query-result
 	 */
-	private $lastResult;
+	private $lastResult = false;
 
 	/**
 	 * Cached options
@@ -127,11 +127,12 @@ class DB {
 	 */
 	public function query($query) {
 		$this->numQueries++;
-		// @$this->lastResult->close();
-		@$this->lastResult = $this->mysqli->query($query);
+		if( $this->lastResult !== false && $this->lastResult !== true) {
+			$this->lastResult->free();
+		}
+		$this->lastResult = $this->mysqli->query($query);
 		if( ! $this->lastResult ) {
-			DEBUG && error_die( $this->getQueryErrorMessage($query) );
-			return false;
+			error_die( $this->getQueryErrorMessage($query) );
 		} elseif(DEBUG && SHOW_EVERY_SQL) {
 			$this->showSQL($query);
 		}
