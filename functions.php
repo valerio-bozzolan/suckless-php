@@ -326,6 +326,14 @@ function get_user($property = null) {
 	}
 	return $user->{$property};
 }
+function register_language($code, $aliases = [], $encode = null) {
+	expect('registerLanguage');
+	return $GLOBALS['registerLanguage']->registerLanguage($code, $aliases, $encode);
+}
+function apply_language($language_alias = null) {
+	expect('registerLanguage');
+	return $GLOBALS['registerLanguage']->applyLanguage($language_alias);
+}
 
 function get_num_queries() {
 	if( isset( $GLOBALS['db'] ) ) {

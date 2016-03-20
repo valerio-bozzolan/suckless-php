@@ -172,15 +172,13 @@ class DB {
 	 * @See http://php.net/manual/en/mysqli-result.fetch-object.php
 	 */
 	public function getResults($query, $class_name = null, $params = [] ) {
-		if( ! $this->query($query) ) {
-			return false;
-		}
-
 		// IS_ARRAY() IS SHIT FOR HISTORICAL REASONS
 		if( $class_name === null || is_array( $class_name ) ) {
 			$class_name = 'EhmStdClass';
 		}
 		// IS_ARRAY() IS SHIT FOR HISTORICAL REASONS
+
+		$this->query($query);
 
 		$res = [];
 		while( $row = $this->lastResult->fetch_object($class_name, $params) ) {

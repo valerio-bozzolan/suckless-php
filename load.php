@@ -70,10 +70,11 @@ $GLOBALS['G']->add('session',     'Session');
 $GLOBALS['G']->add('permissions', 'Permissions');
 $GLOBALS['G']->add('menu',        'Menu');
 $GLOBALS['G']->add('module',      'RegisterModule');
+$GLOBALS['G']->add('registerLanguage', 'RegisterLanguage');
 
 // Callback
 if( REQUIRE_LOAD_POST ) {
-	defined('ABSPATH') || die( _("Devi definire la costante ABSPATH. Oppure disabilita REQUIRE_LOAD_POST.") );
+	defined('ABSPATH') || error_die( _("Devi definire la costante ABSPATH. Oppure disabilita REQUIRE_LOAD_POST.") );
 
 	require ABSPATH . _ . 'load-post.php';
 }

@@ -33,11 +33,11 @@ class DynamicQuery {
 	}
 
 	public function useTable($t) {
-		$this->appendInArray($t, $this->tables);
+		self::appendInArray($t, $this->tables);
 	}
 
 	public function selectField($f) {
-		$this->appendInArray($f, $this->selectFields);
+		self::appendInArray($f, $this->selectFields);
 	}
 
 	public function appendCondition($c, $glue = 'AND') {
@@ -79,11 +79,11 @@ class DynamicQuery {
 		$this->appendConditionSomethingIn($heystack, $needles, $glue, true); // See true
 	}
 
-	private function appendInArray($values, & $array) {
+	private static function appendInArray($values, & $array) {
 		force_array($values);
 
 		foreach($values as $value) {
-			if(!in_array($value, $array)) {
+			if( ! in_array($value, $array, true) ) {
 				$array[] = $value;
 			}
 		}
