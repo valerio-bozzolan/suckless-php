@@ -28,18 +28,7 @@ class Permission {
 }
 
 class Permissions {
-	private $db;
-
 	public $rolePermissions = [];
-
-	function __construct(& $db = null) {
-		if($db === null) {
-			expect('db');
-			$this->db = & $GLOBALS['db'];
-		} else {
-			$this->db = $db;
-		}
-	}
 
 	public function registerPermissions($role, $permissions) {
 		if( !$this->roleExists($role) ) {

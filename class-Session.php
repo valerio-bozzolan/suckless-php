@@ -19,11 +19,10 @@ class Session {
 
 	private $user = null;
 
-	private $userClass = 'SessionUser';
-
-	private $db;
+	private $userClass;
 
 	function __construct() {
+		$this->userClass = SESSIONUSER_CLASS;
 		$this->isLogged();
 	}
 
@@ -32,8 +31,8 @@ class Session {
 	const ALREADY_LOGGED = 2;
 	const EMPTY_USER_UID = 4;
 	const EMPTY_USER_PASSWORD = 8;
-	const TOO_LONG_USER_UID = 16;
-	const TOO_LONG_USER_PASSWORD = 32;
+	const TOO_LONG_USER_UID = 16; // Deprecated
+	const TOO_LONG_USER_PASSWORD = 32; // Deprecated
 	const USER_DISABLED = 64;
 	public function login(& $status = null, $user_uid = null, $user_password = null) {
 		if( $this->isLogged() ) {
@@ -41,47 +40,36 @@ class Session {
 			return true;
 		}
 		if($user_uid === null) {
-			$user_uid = @$_POST[ 'user_uid' ];
+			$user_uid = @$_POST['user_uid'];
 		}
 		if($user_password === null) {
-			$user_password = @$_POST[ 'user_password' ];
+			$user_password = @$_POST['user_password'];
 		}
 
-		$user_uid      = trim( $user_uid );
-		$user_password = trim( $user_password );
+		/// Silently short user input
+		$user_uid      = luser_input( $user_uid,      100 );
+		$user_password = luser_input( $user_password, 100 );
 
-		if(empty($user_uid)) {
+		if( empty($user_uid) ) {
 			$status = self::EMPTY_USER_UID;
 			return false;
 		}
-		if(empty($user_password)) {
+		if( empty($user_password) ) {
 			$status = self::EMPTY_USER_PASSWORD;
 			return false;
 		}
-		if(strlen($user_uid) > 32) { // Todo parametrize as arg
-			$status = self::TOO_LONG_USER_UID;
-			return false;
-		}
-		if(strlen($user_password) > 128) { // @Todo parametrize as arg
-			$status = self::TOO_LONG_USER_PASSWORD;
-			return false;
-		}
 
-		$user = query_row(
-			sprintf(
-				"SELECT * FROM {$GLOBALS[T]('user')} WHERE user_uid = '%s' AND user_password = '%s'",
-				esc_sql($user_uid),
-				esc_sql($this->encryptUserPassword( $user_password) )
-			),
-			$this->userClass
-		);
+		// PHP bug
+		$userClass = $this->userClass;
+		$user = $userClass::querySessionuserFromLogin($user_uid, $user_password);
 
 		if( ! $user ) {
 			$status = self::LOGIN_FAILED;
+			error_log( sprintf( "Login failed for %s", str_truncate($user_uid, 8, '..') ) );
 			return false;
 		}
 
-		if( ! $user->isActive() ) {
+		if( ! $user->isSessionuserActive() ) {
 			$status = self::USER_DISABLED;
 			return false;
 		}
@@ -110,13 +98,9 @@ class Session {
 			return false;
 		}
 
-		$user = query_row(
-			sprintf(
-				"SELECT * FROM {$GLOBALS[T]('user')} WHERE user_uid = '%s'",
-				esc_sql( str_truncate( $_COOKIE['user_uid'], 400 ) )
-			),
-			$this->userClass
-		);
+		// PHP Bug
+		$userClass = $this->userClass;
+		$user = $userClass::querySessionuserFromUid( str_truncate( $_COOKIE['user_uid'], 400 ) );
 
 		$this->loginVerified = true;
 
@@ -125,7 +109,7 @@ class Session {
 			return false;
 		}
 
-		if( ! $user->isActive() ) {
+		if( ! $user->isSessionuserActive() ) {
 			return false;
 		}
 
@@ -164,23 +148,5 @@ class Session {
 
 	public static function encryptUserPassword($password) {
 		return hash(PASSWD_HASH_ALGO, PASSWD_HASH_SALT . $password . PASSWD_HASH_PEPP);
-	}
-}
-
-class SessionUser {
-	function __construct() {
-		isset($this->user_ID, $this->user_active, $this->user_password)
-			|| error_die( _("Tabella utente non completa?") );
-
-		$this->user_ID = (int) $this->user_ID;
-		$this->user_active = (bool) (int) $this->user_active;
-	}
-
-	function isActive() {
-		return $this->user_active;
-	}
-
-	function generateCookieToken() {
-		return hash(COOKIE_HASH_ALGO, COOKIE_HASH_SALT . $this->user_password . COOKIE_HASH_PEPP);
 	}
 }

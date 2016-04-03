@@ -53,13 +53,18 @@ class DynamicQuery {
 	}
 
 	public function appendConditionSomethingIn($heystack, $needles, $glue = 'AND', $not_in = false) {
-		if( ! is_array( $needles ) ) {
-			$needles = single_quotes( esc_sql( $needles ) );
-			$this->appendCondition("$heystack = $needles", $glue);
+		force_array($needles);
+
+		$n_needles = count($needles);
+		if( $n_needles === 1 ) {
+			$this->appendCondition(
+				sprintf("$heystack = '%s'", esc_sql( $needles[0] ) ),
+				$glue
+			);
 			return;
 		}
+
 		$values = '';
-		$n_needles = count($needles);
 		for($i=0; $i<$n_needles; $i++) {
 			if($i != 0) {
 				$values .= ', ';

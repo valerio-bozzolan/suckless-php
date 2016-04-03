@@ -46,6 +46,7 @@ defined('COOKIE_HASH_ALGO')         || define('COOKIE_HASH_ALGO', 'sha256'); // 
 defined('COOKIE_HASH_SALT')         || define('COOKIE_HASH_SALT', 'daiads'); // Just something
 defined('COOKIE_HASH_PEPP')         || define('COOKIE_HASH_PEPP', '30s3-f'); // Just something
 defined('SESSION_DURATION')         || define('SESSION_DURATION', 604800);   // Just something 60s * 60m * 24h * 7d
+defined('SESSIONUSER_CLASS')        || define('SESSIONUSER_CLASS', 'Sessionuser');
 
 // On demand requests class-$php ... it's f****** amazing!
 spl_autoload_register( function($c) {
