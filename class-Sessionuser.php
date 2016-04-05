@@ -14,6 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * @use SESSIONUSER_CLASS
+ */
 trait SessionuserTrait {
 	private static function prepareSessionuser(& $u) {
 		if( ! isset($u->user_ID, $u->user_uid, $u->user_active, $u->user_password, $u->user_role) ) {
@@ -53,7 +56,7 @@ trait SessionuserTrait {
 				"SELECT * FROM {$GLOBALS[T]('user')} WHERE user_uid = '%s'",
 				esc_sql( $uid )
 			),
-			'Sessionuser'
+			SESSIONUSER_CLASS
 		);
 	}
 
@@ -64,7 +67,7 @@ trait SessionuserTrait {
 				esc_sql( $user_uid ),
 				esc_sql( self::encryptSessionuserPassword( $user_password ) )
 			),
-			'Sessionuser'
+			SESSIONUSER_CLASS
 		);
 	}
 
