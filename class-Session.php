@@ -22,6 +22,15 @@ class Session {
 	private $userClass;
 
 	function __construct() {
+		defined('PASSWD_HASH_ALGO')  || define('PASSWD_HASH_ALGO', 'sha1');   // Just something
+		defined('PASSWD_HASH_SALT')  || define('PASSWD_HASH_SALT', 'drGth');  // Just something
+		defined('PASSWD_HASH_PEPP')  || define('PASSWD_HASH_PEPP', 'pw72kP'); // Just something
+		defined('COOKIE_HASH_ALGO')  || define('COOKIE_HASH_ALGO', 'sha256'); // Just something
+		defined('COOKIE_HASH_SALT')  || define('COOKIE_HASH_SALT', 'daiads'); // Just something
+		defined('COOKIE_HASH_PEPP')  || define('COOKIE_HASH_PEPP', '30s3-f'); // Just something
+		defined('SESSION_DURATION')  || define('SESSION_DURATION', 604800);   // Just something 60s * 60m * 24h * 7d
+		defined('SESSIONUSER_CLASS') || define('SESSIONUSER_CLASS', 'Sessionuser');
+
 		$this->userClass = SESSIONUSER_CLASS;
 		$this->isLogged();
 	}
