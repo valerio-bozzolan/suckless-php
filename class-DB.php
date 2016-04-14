@@ -289,7 +289,7 @@ class DB {
 				$SQL .= ', ';
 			}
 			$val = $this->forceType($dbCols[$i]->value, $dbCols[$i]->forceType);
-			$SQL .= "{$dbCols[$i]->column} = $val";
+			$SQL .= "`{$dbCols[$i]->column}` = $val";
 		}
 		if($after !== '') {
 			$after = " $after";

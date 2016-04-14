@@ -57,8 +57,9 @@ class DynamicQuery {
 
 		$n_needles = count($needles);
 		if( $n_needles === 1 ) {
+			$symbol = ($not_in) ? '!=' : '=';
 			$this->appendCondition(
-				sprintf("$heystack = '%s'", esc_sql( $needles[0] ) ),
+				sprintf("$heystack $symbol '%s'", esc_sql( $needles[0] ) ),
 				$glue
 			);
 			return;
