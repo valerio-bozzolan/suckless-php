@@ -326,6 +326,14 @@ function get_user($property = null) {
 	}
 	return $user->{$property};
 }
+function login(& $status = null, $user_uid = null, $user_password = null) {
+	expect('session');
+	return $GLOBALS['session']->login($status, $user_uid, $user_password);
+}
+function logout() {
+	expect('session');
+	return $GLOBALS['session']->destroy();
+}
 function register_language($code, $aliases = [], $encode = null) {
 	expect('registerLanguage');
 	return $GLOBALS['registerLanguage']->registerLanguage($code, $aliases, $encode);

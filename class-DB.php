@@ -306,7 +306,7 @@ class DB {
 	 * Load options with autoload.
 	 */
 	public function loadAutoloadOptions() {
-		$options = $this->getResults("SELECT option_name, option_value FROM {$this->getTable('option')} WHERE option_autoload = 1");
+		$options = $this->getResults("SELECT option_name, option_value FROM {$this->getTable('option')} WHERE option_autoload != 0");
 		if($options === false) {
 			if(DEBUG) {
 				error_die( _("Errore caricando le opzioni dal database") );
@@ -317,6 +317,7 @@ class DB {
 				) );
 			}
 		}
+
 		$n = count($options);
 		for($i=0; $i<$n; $i++) {
 			$this->optionsCache[ $options[$i]->option_name ] = $options[$i]->option_value;
@@ -409,7 +410,7 @@ class DB {
 
 				$option_autoload = ($option_autoload) ? 1 : 0;
 
-				$db->update('option', [
+				$this->update('option', [
 						new DBCol('option_value',    $option_value,    's'),
 						new DBCol('option_autoload', $option_autoload, 'd')
 					],
@@ -439,14 +440,6 @@ class DB {
 			return $this->setOption($option_name, $option_value);
 		} else {
 			$option_autoload = ($option_autoload) ? 1 : 0;
-
-			/*
-			$db->insertRow('option', [
-				new DBCol('option_name', $option_name, 's'),
-				new DBCol('option_value', $option_value, 's'),
-				new DBCol('option_autoload', $option_autoload, 's')
-			]);
-			*/
 
 			$this->insert(
 				'option', [
