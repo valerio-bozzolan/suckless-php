@@ -100,6 +100,9 @@ class DynamicQuery {
 	}
 
 	public function getSelectFields() {
+		if( count( $this->selectFields ) === 0 ) {
+			return '*';
+		}
 		return implode(', ', $this->selectFields);
 	}
 
