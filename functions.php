@@ -24,6 +24,10 @@ function expect($global_var) {
 	$GLOBALS['G']->expect($global_var);
 }
 
+function register_expected($name, $class) {
+	$GLOBALS['G']->add($name, $class);
+}
+
 /**
  * Merge user defined arguments into defaults array.
  * It's used in a lot of functions.
