@@ -34,10 +34,17 @@ class DynamicQuery {
 
 	public function useTable($t) {
 		self::appendInArray($t, $this->tables);
+		return $this;
+	}
+
+	public function uniqueTables() {
+		$this->tables = array_unique($this->tables);
+		return $this;
 	}
 
 	public function selectField($f) {
 		self::appendInArray($f, $this->selectFields);
+		return $this;
 	}
 
 	public function appendCondition($c, $glue = 'AND') {
@@ -45,11 +52,13 @@ class DynamicQuery {
 			$this->conditions .= " $glue ";
 		}
 		$this->conditions .= $c;
+		return $this;
 	}
 
 	public function setLimit($row_count, $offset = null) {
 		$this->rowCount = $row_count;
 		$this->offset = $offset;
+		return $this;
 	}
 
 	public function appendConditionSomethingIn($heystack, $needles, $glue = 'AND', $not_in = false) {
@@ -62,7 +71,7 @@ class DynamicQuery {
 				sprintf("$heystack $symbol '%s'", esc_sql( $needles[0] ) ),
 				$glue
 			);
-			return;
+			return $this;
 		}
 
 		$values = '';
@@ -79,10 +88,12 @@ class DynamicQuery {
 				$this->appendCondition("$heystack IN ($values)", $glue);
 			}
 		}
+		return $this;
 	}
 
 	public function appendConditionSomethingNotIn($heystack, $needles, $glue = 'AND') {
 		$this->appendConditionSomethingIn($heystack, $needles, $glue, true); // See true
+		return $this;
 	}
 
 	private static function appendInArray($values, & $array) {
@@ -115,6 +126,7 @@ class DynamicQuery {
 			$this->orders .= ', ';
 		}
 		$this->orders .= $order_by;
+		return $this;
 	}
 
 	public function getQuery() {
