@@ -151,7 +151,7 @@ class Session {
 		}
 		if($user_email === null) {
 			if(@$_POST['user_email'] != null)
-			$user_password = @$_POST['user_email'];
+			$user_email = @$_POST['user_email'];
 		}
 
 		/// Silently short user input
