@@ -151,7 +151,9 @@ class Session {
 		}
 		if($user_email === null) {
 			if(@$_POST['user_email'] != null)
-			$user_email = @$_POST['user_email'];
+				$user_email = @$_POST['user_email'];
+			else 
+				$noemail = true;
 		}
 
 		/// Silently short user input
@@ -172,7 +174,10 @@ class Session {
 
 		// PHP bug
 		$userClass = $this->userClass;
-		$user = $userClass::querySessionuserInsert($user_uid, $user_password, $user_email);
+		if(!$noemail)
+			$user = $userClass::querySessionuserInsert($user_uid, $user_password, $user_email);
+		else 
+			$user = $userClass::querySessionuserInsertNoMail($user_uid, $user_password);
 
 		if( ! $user ) {
 			$registred = self::REGISTER_FAILED;
@@ -180,6 +185,7 @@ class Session {
 			return false;
 		}
 
+		$registred = self::OK;
 		return true;
 	}
 

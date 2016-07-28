@@ -60,7 +60,15 @@ trait SessionuserTrait {
 		);
 	}
 
-	function querySessionuserInsert($uid, $upass, $uemail = null) {
+	function querySessionuserInsertNoMail($uid, $upass) {
+		return insert_row( 
+			'user' , [
+    		new DBCol( 'user_uid' , $uid , 's'),
+    		new DBCol('user_password', $upass, 's')
+		] ); 
+	}
+
+	function querySessionuserInsert($uid, $upass, $uemail) {
 		return insert_row( 
 			'user' , [
     		new DBCol( 'user_uid' , $uid , 's'),
