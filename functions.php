@@ -173,15 +173,19 @@ function query_value($query, $value, $class = null) {
 	return $GLOBALS['db']->getValue($query, $value, $class);
 }
 
-define('T', 'T');
-define('JOIN', 'JOIN');
-// Very helpful shurtcut in a string context
-$GLOBALS[T] = function($t, $as = false) {
+function T($t, $as = false) {
 	expect('db');
 	return $GLOBALS['db']->getTable($t, $as);
+}
+
+define('T', 'T');
+define('JOIN', 'JOIN');
+// Stupid shurtcut for string context
+$GLOBALS[T] = function($t, $as = false) {
+	return T($t, $as = false);
 };
 
-// Very helpful shortcut in a string context for listing tables
+// Stupid shortcut for string context for listing tables
 $GLOBALS[JOIN] = function($t) {
 	expect('db');
 	return $GLOBALS['db']->getTables( func_get_args() );
