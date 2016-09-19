@@ -399,13 +399,22 @@ function append_dir($base_URL, $dir = _ ) {
 /**
  * Full URL or folder from ROOT.
  */
-function site_page($page) {
-	if( @$page[0] === '#' ) {
-		return $page;
+function site_page($page, $url, $base = null) {
+	$first = @$page[0];
+	if( $first === '#' ) return $page;
+	if( $first === '/' ) {
+		if($base === null) {
+			$base = PROTOCOL . DOMAIN;
+		}
+		return $base . $page;
 	}
+
 	$sub = substr($page, 0, 6);
 	if( $sub === 'http:/' || $sub === 'https:' ) {
 		return $page;
+	}
+	if( $url === null ) {
+		$url = URL;
 	}
 	return append_dir(URL, $page);
 }

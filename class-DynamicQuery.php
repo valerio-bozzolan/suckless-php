@@ -147,8 +147,8 @@ class DynamicQuery {
 		return $sql;
 	}
 
-	public function query($query) {
-		return $this->db->query( $this->getQuery($query) );
+	public function query() {
+		return $this->db->query( $this->getQuery() );
 	}
 
 	public function getResults($class_name = null, $params = [] ) {
