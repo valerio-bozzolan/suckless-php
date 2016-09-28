@@ -50,7 +50,7 @@ class HTML {
 		return self::tag('a', $text, self::property('href', $href) . self::property('title', $title) . self::property('class', $class) . self::spaced($intag) );
 	}
 
-	public static function img($src, $title = null, $alt = null, $intag = null) {
+	public static function img($src, $alt = null, $title = null, $intag = null) {
 		return self::tagc('img', self::property('src', $src) . self::property('title', $title) . self::property('alt', $alt) . self::spaced($intag) );
 	}
 
