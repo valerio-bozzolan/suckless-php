@@ -100,7 +100,7 @@ class DynamicQuery {
 		force_array($values);
 
 		foreach($values as $value) {
-			if( ! in_array($value, $array, true) ) {
+			if( $value && ! in_array($value, $array, true) ) {
 				$array[] = $value;
 			}
 		}
