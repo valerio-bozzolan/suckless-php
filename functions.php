@@ -342,13 +342,17 @@ function logout() {
 	expect('session');
 	return $GLOBALS['session']->destroy();
 }
-function register_language($code, $aliases = [], $encode = null) {
+function register_language($code, $aliases = [], $encode = null, $iso = null) {
 	expect('registerLanguage');
-	return $GLOBALS['registerLanguage']->registerLanguage($code, $aliases, $encode);
+	return $GLOBALS['registerLanguage']->registerLanguage($code, $aliases, $encode, $iso);
 }
 function apply_language($language_alias = null) {
 	expect('registerLanguage');
 	return $GLOBALS['registerLanguage']->applyLanguage($language_alias);
+}
+function latest_language() {
+	expect('registerLanguage');
+	return $GLOBALS['registerLanguage']->getLatestLanguageApplied();
 }
 
 function get_num_queries() {
