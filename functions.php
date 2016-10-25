@@ -338,6 +338,10 @@ function login(& $status = null, $user_uid = null, $user_password = null) {
 	expect('session');
 	return $GLOBALS['session']->login($status, $user_uid, $user_password);
 }
+function register_user(& $registred = null, $user_uid = null, $user_password = null, $user_email = null) {
+	expect('session');
+	return $GLOBALS['session']->RegisterUser($registred, $user_uid, $user_password, $user_email);
+}
 function logout() {
 	expect('session');
 	return $GLOBALS['session']->destroy();

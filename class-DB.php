@@ -82,27 +82,32 @@ class DB {
 
 		@$this->mysqli = new mysqli($location, $username, $password, $database);
 		if( $this->errorConnection() ) {
-			if(DEBUG) {
-				$password_shown = ($password === '') ? _("nessuna") : sprintf(
-					_("di %d caratteri"),
-					strlen( $password )
-				);
 
-				error_die( sprintf(
-					_("Impossibile connettersi al database '%s' tramite l'utente '%s' e password (%s) sul server MySQL/MariaDB '%s'. Specifica correttamente queste informazioni nel file di configurazione del tuo progetto (usualmente '%s'). %s."),
-					$database,
-					$username,
-					$password_shown,
-					$location,
-					'load.php',
-					HTML::a(
-						'https://github.com/valerio-bozzolan/boz-php-another-php-framework/blob/master/README.md#use-it',
-						_("Documentazione")
-					)
-				) );
-			} else {
-				error_die( _("Errore nello stabilire una connessione al database.") );
-			}
+			@$this->mysqli = new mysqli($location, $username, $password);
+
+			
+				if (!@$this->mysqli->query("CREATE DATABASE ".$database)) {
+					
+					if(DEBUG) {
+					$password_shown = ($password === '') ? _("nessuna") : sprintf(
+						_("di %d caratteri"),
+						strlen( $password )
+					);
+
+					error_die( sprintf(
+						_("Impossibile connettersi al database '%s'(esistente!) tramite l'utente '%s' e password (%s) sul server MySQL/MariaDB '%s'.
+							 Specifica correttamente queste informazioni nel file di configurazione del tuo progetto (usualmente '%s'), facendo attenzione a user e password. %s."),
+						$database, $username, $password_shown, $location, 'load.php', 
+							HTML::a('https://github.com/valerio-bozzolan/boz-php-another-php-framework/blob/master/README.md#use-it', _("Documentazione") ) ) );
+
+					} else {
+					error_die( _("Errore nello stabilire una connessione al database.") );
+					}
+    				
+				} else {
+					header("Refresh:1");
+					error_die( _("Il database non esisteva ed è stato creato riprovare la connessione!"));					
+				}
 		}
 
 		@$this->mysqli->set_charset($charset);

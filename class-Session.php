@@ -43,6 +43,7 @@ class Session {
 	const TOO_LONG_USER_UID = 16; // Deprecated
 	const TOO_LONG_USER_PASSWORD = 32; // Deprecated
 	const USER_DISABLED = 64;
+	const REGISTER_FAIL = 128;
 	public function login(& $status = null, $user_uid = null, $user_password = null) {
 		if( $this->isLogged() ) {
 			$status = self::ALREADY_LOGGED;
@@ -138,6 +139,54 @@ class Session {
 			$this->validate();
 		}
 		return $this->user;
+	}
+
+	public function RegisterUser(& $registred = null, $user_uid = null, $user_password = null, $user_email = null) {
+		
+		if($user_uid === null) {
+			$user_uid = @$_POST['user_uid'];
+		}
+		if($user_password === null) {
+			$user_password = @$_POST['user_password'];
+		}
+		if($user_email === null) {
+			if(@$_POST['user_email'] != null)
+				$user_email = @$_POST['user_email'];
+			else 
+				$noemail = true;
+		}
+
+		/// Silently short user input
+		$user_uid      = luser_input( $user_uid,      100 );
+		$user_password = luser_input( $user_password, 100 );		
+		$user_email = 	 luser_input( $user_email,	  100 );
+		
+		if( empty($user_uid) ) {
+			$registred = self::EMPTY_USER_UID;
+			return false;
+		}
+		if( empty($user_password) ) {
+			$registred = self::EMPTY_USER_PASSWORD;
+			return false;
+		}
+
+		$user_password = $this->encryptUserPassword($user_password);
+
+		// PHP bug
+		$userClass = $this->userClass;
+		if(!$noemail)
+			$user = $userClass::querySessionuserInsert($user_uid, $user_password, $user_email);
+		else 
+			$user = $userClass::querySessionuserInsertNoMail($user_uid, $user_password);
+
+		if( ! $user ) {
+			$registred = self::REGISTER_FAILED;
+			error_log( sprintf( "Register failed for %s", str_truncate($user_uid, 8, '..') ) );
+			return false;
+		}
+
+		$registred = self::OK;
+		return true;
 	}
 
 	public function isLogged() {

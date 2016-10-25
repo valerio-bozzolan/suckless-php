@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 4.2.6deb1
+-- version 4.5.1
 -- http://www.phpmyadmin.net
 --
--- Host: localhost
--- Generation Time: Sep 18, 2015 at 05:55 PM
--- Server version: 5.5.44-0ubuntu0.14.10.1
--- PHP Version: 5.5.12-2ubuntu4.6
+-- Host: 127.0.0.1
+-- Generation Time: Jul 28, 2016 at 01:59 AM
+-- Server version: 10.1.13-MariaDB
+-- PHP Version: 5.6.23
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -14,7 +14,7 @@ SET time_zone = "+00:00";
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8 */;
+/*!40101 SET NAMES utf8mb4 */;
 
 --
 -- Database: `test`
@@ -26,11 +26,11 @@ SET time_zone = "+00:00";
 -- Table structure for table `option`
 --
 
-CREATE TABLE IF NOT EXISTS `option` (
+CREATE TABLE `option` (
   `option_name` varchar(32) NOT NULL,
   `option_value` text NOT NULL,
   `option_autoload` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0 or 1'
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='Associative informations';
+) COMMENT='To speed up filtering by autoload';
 
 -- --------------------------------------------------------
 
@@ -38,13 +38,14 @@ CREATE TABLE IF NOT EXISTS `option` (
 -- Table structure for table `user`
 --
 
-CREATE TABLE IF NOT EXISTS `user` (
-`user_ID` int(10) unsigned NOT NULL,
+CREATE TABLE `user` (
+  `user_ID` int(10) UNSIGNED NOT NULL,
   `user_role` enum('REGISTERED') NOT NULL COMMENT 'Example roles',
   `user_uid` varchar(64) NOT NULL COMMENT 'User ID for the login',
-  `user_email` varchar(128) NOT NULL,
-  `user_password` varchar(40) NOT NULL COMMENT 'Encrypted as Session::encryptUserPassword() so change length as needed'
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+  `user_email` varchar(128) DEFAULT NULL,
+  `user_password` varchar(40) NOT NULL COMMENT 'Encrypted as Session::encryptUserPassword() so change length as needed',
+  `user_active` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Indexes for dumped tables
@@ -54,13 +55,16 @@ CREATE TABLE IF NOT EXISTS `user` (
 -- Indexes for table `option`
 --
 ALTER TABLE `option`
- ADD PRIMARY KEY (`option_name`), ADD KEY `option_autoload` (`option_autoload`) COMMENT 'To speed up filtering by autoload';
+  ADD PRIMARY KEY (`option_name`),
+  ADD KEY `option_autoload` (`option_autoload`);
 
 --
 -- Indexes for table `user`
 --
 ALTER TABLE `user`
- ADD PRIMARY KEY (`user_ID`), ADD UNIQUE KEY `user_login` (`user_uid`), ADD UNIQUE KEY `user_email` (`user_email`);
+  ADD PRIMARY KEY (`user_ID`),
+  ADD UNIQUE KEY `user_login` (`user_uid`),
+  ADD UNIQUE KEY `user_email` (`user_email`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -70,7 +74,7 @@ ALTER TABLE `user`
 -- AUTO_INCREMENT for table `user`
 --
 ALTER TABLE `user`
-MODIFY `user_ID` int(10) unsigned NOT NULL AUTO_INCREMENT;
+  MODIFY `user_ID` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

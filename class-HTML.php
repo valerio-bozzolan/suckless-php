@@ -95,26 +95,55 @@ class Table extends HTML {
 
 class Form extends HTML {
 
-	public static function start($action = '', $method = '', $intag = '') {
+	public static function open($action = '', $method = '', $intag = '') {
 		if($method != '' && $method != 'get' && $method != 'post') {
 			throw new Exception("Param method must be get or post.");
 		}
 		return '<form' . self::property('action', $action) . self::property('method', $method) . self::spaced($intag) . '>';
 	}
 
-	public static function stop() {
+	public static function close() {
 		return '</form>';
+	}
+
+	public static function tg($tg, $name, $value = '', $intag = '', $type = 'text')
+	{
+		switch($tg) {
+			case 'input':
+				return self::input($type, $name, $value, $intag);
+			break;
+			case 'select':
+				return self::select($type, $name, $value, $intag);
+			break;
+			case 'label':
+				return self::label($name,$value,$intag);
+			break;
+			case 'area':
+				return self::area($name,$value,$intag);
+			break;
+			default:
+				return $name;
+		}
 	}
 
 	public static function input($type, $name, $value = '', $intag = '') {
 		return '<input type="' . $type . '"' . self::property('name', $name) . self::property('value', $value) . self::spaced($intag) . '>';
 	}
 
+	public static function area($name, $value, $intag) {
+		return "<textarea " . self::property('name', $name) . self::spaced($intag) .">" . $value . "</textarea></br>";
+	}
+
 	public static function select($type, $name, $value = '', $intag = '') {
-		$tag = '<select' . self::property('name', $name) . self::spaced($intag);
+		$tag = '<select' . self::property('name', $name) . self::spaced($intag).'>';
 		$opt = '';
+		$i = 0;
 		foreach($value as $key=>$val) {
-			$opt .= '<option value="' . $key . '">' . $val . ' </option>';
+			$i++;
+			if($i == $type)
+				$opt .= '<option value="' . $key . '" selected>' . $val . ' </option>';
+			else
+				$opt .= '<option value="' . $key . '">' . $val . ' </option>';
 		}
 		return $tag . $opt . '</select>';
 	}
