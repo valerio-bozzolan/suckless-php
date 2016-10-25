@@ -1,5 +1,5 @@
 <?php
-# Copyright (C) 2015 Valerio Bozzolan
+# Copyright (C) 2015, 2016 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -173,15 +173,19 @@ function query_value($query, $value, $class = null) {
 	return $GLOBALS['db']->getValue($query, $value, $class);
 }
 
-define('T', 'T');
-define('JOIN', 'JOIN');
-// Very helpful shurtcut in a string context
-$GLOBALS[T] = function($t, $as = false) {
+function T($t, $as = false) {
 	expect('db');
 	return $GLOBALS['db']->getTable($t, $as);
+}
+
+define('T', 'T');
+define('JOIN', 'JOIN');
+// Stupid shurtcut for string context
+$GLOBALS[T] = function($t, $as = false) {
+	return T($t, $as = false);
 };
 
-// Very helpful shortcut in a string context for listing tables
+// Stupid shortcut for string context for listing tables
 $GLOBALS[JOIN] = function($t) {
 	expect('db');
 	return $GLOBALS['db']->getTables( func_get_args() );
@@ -342,13 +346,17 @@ function logout() {
 	expect('session');
 	return $GLOBALS['session']->destroy();
 }
-function register_language($code, $aliases = [], $encode = null) {
+function register_language($code, $aliases = [], $encode = null, $iso = null) {
 	expect('registerLanguage');
-	return $GLOBALS['registerLanguage']->registerLanguage($code, $aliases, $encode);
+	return $GLOBALS['registerLanguage']->registerLanguage($code, $aliases, $encode, $iso);
 }
 function apply_language($language_alias = null) {
 	expect('registerLanguage');
 	return $GLOBALS['registerLanguage']->applyLanguage($language_alias);
+}
+function latest_language() {
+	expect('registerLanguage');
+	return $GLOBALS['registerLanguage']->getLatestLanguageApplied();
 }
 
 function get_num_queries() {
@@ -399,13 +407,22 @@ function append_dir($base_URL, $dir = _ ) {
 /**
  * Full URL or folder from ROOT.
  */
-function site_page($page) {
-	if( @$page[0] === '#' ) {
-		return $page;
+function site_page($page, $url, $base = null) {
+	$first = @$page[0];
+	if( $first === '#' ) return $page;
+	if( $first === '/' ) {
+		if($base === null) {
+			$base = PROTOCOL . DOMAIN;
+		}
+		return $base . $page;
 	}
+
 	$sub = substr($page, 0, 6);
 	if( $sub === 'http:/' || $sub === 'https:' ) {
 		return $page;
+	}
+	if( $url === null ) {
+		$url = URL;
 	}
 	return append_dir(URL, $page);
 }

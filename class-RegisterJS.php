@@ -96,7 +96,10 @@ class RegisterJS {
 				if($position === JS::HEADER) {
 					echo "\t";
 				}
-				echo "<script type=\"text/javascript\" src=\"$javascript->url\" rel=\"$javascript_uid\"></script>";
+				echo "<script type=\"text/javascript\" src=\"$javascript->url\"></script>";
+				if(DEBUG) {
+					echo "<!-- $javascript_uid -->";
+				}
 			}
 		}
 		$this->generated[(int) $position] = true;

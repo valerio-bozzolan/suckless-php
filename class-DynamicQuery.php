@@ -100,7 +100,7 @@ class DynamicQuery {
 		force_array($values);
 
 		foreach($values as $value) {
-			if( ! in_array($value, $array, true) ) {
+			if( $value && ! in_array($value, $array, true) ) {
 				$array[] = $value;
 			}
 		}
@@ -147,8 +147,8 @@ class DynamicQuery {
 		return $sql;
 	}
 
-	public function query($query) {
-		return $this->db->query( $this->getQuery($query) );
+	public function query() {
+		return $this->db->query( $this->getQuery() );
 	}
 
 	public function getResults($class_name = null, $params = [] ) {

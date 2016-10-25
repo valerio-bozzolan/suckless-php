@@ -1,5 +1,5 @@
 <?php
-# Copyright (C) 2015 Valerio Bozzolan
+# Copyright (C) 2015, 2016 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -31,6 +31,11 @@ class RegisterLanguage {
 	var $gettextDomain;
 	var $gettextDirectory;
 	var $gettextDefaultEncode;
+
+	/**
+	 * Latest language applied
+	 */
+	var $latest = null;
 
 	/**
 	 * @param string $domain GNU Gettext domain
@@ -66,7 +71,7 @@ class RegisterLanguage {
 	 * @string array $aliases You can specify language aliases (in lower case)
 	 * @string string $encode Override the default GNU Gettext language encode
 	 */
-	function registerLanguage($code, $aliases = [], $encode = null) {
+	function registerLanguage($code, $aliases = [], $encode = null, $iso = null) {
 		if( $encode === null ) {
 			$encode = $this->gettextDefaultEncode;
 		}
@@ -80,7 +85,7 @@ class RegisterLanguage {
 			return false;
 		}
 
-		$this->languages[ ++$this->i ] = new BozPHPLanguage($code, $encode);
+		$this->languages[ ++$this->i ] = new BozPHPLanguage($code, $encode, $iso);
 
 		// Yes, the language code it's an alias to itself. That's a lazy hack!
 		$this->aliases[ strtolower($code) ] = $this->i;
@@ -124,7 +129,16 @@ class RegisterLanguage {
 			return false;
 		}
 
+		$this->latest = $language;
+
 		return self::GNUGettextEnvironment($language->code, $language->encode, $this->gettextDomain, $this->gettextDirectory);
+	}
+
+	/**
+	 * @return falsy of BozPHPLanguage
+	 */
+	function getLatestLanguageApplied() {
+		return $this->latest;
 	}
 
 	/**
@@ -189,9 +203,47 @@ class RegisterLanguage {
 class BozPHPLanguage {
 	var $code;
 	var $encode;
+	var $iso;
 
-	function __construct($code, $encode) {
-		$this->code = $code;
+	function __construct($code, $encode, $iso) {
+		$this->code   = $code;
 		$this->encode = $encode;
+		$this->iso    = $iso;
+	}
+
+	function getCode() {
+		return $this->code;
+	}
+
+	function getEncode() {
+		return $this->encode;
+	}
+
+	function getISO() {
+		if($this->iso === null) {
+			$this->iso = self::guessISO($this->iso);
+		}
+		return $this->iso;
+	}
+
+	/**
+	 * Gets 'it' from 'it_IT', 'it_IT.utf8' etc.
+	 *
+	 * Can be called statically
+	 */
+	function guessISO($code = null, $fallback = 'en') {
+		if($code === null) {
+			$code = $this->code;
+		}
+		$p = strpos($code, '_');
+		if($p === false) {
+			DEBUG && error( sprintf(
+				_("Can't guess the ISO language from language code '%s'. Falling on default '%s'."),
+				esc_html($code),
+				$fallback
+			) );
+			return $fallback;
+		}
+		return substr($code, 0, $p);
 	}
 }
