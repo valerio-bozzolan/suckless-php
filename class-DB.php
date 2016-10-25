@@ -106,7 +106,7 @@ class DB {
     				
 				} else {
 					header("Refresh:1");
-					error_die( _("Potrebbe non esistere il database, tentativo di creazione............    Database creato correttamente!"));					
+					error_die( _("Il database non esisteva ed è stato creato riprovare la connessione!"));					
 				}
 		}
 
