@@ -83,7 +83,7 @@ class TreeResults {
 			$this->queryEntryUidQuery->appendCondition("`{$this->column_uid}` = '%s'");
 			$this->queryEntryUidQuery = $this->queryEntryUidQuery->getQuery();
 		}
-		return get_row(
+		return query_row(
 			sprintf(
 				$this->queryEntryUidQuery,
 				esc_sql($entry_identifier)
@@ -99,7 +99,7 @@ class TreeResults {
 			$this->queryEntryIDQuery->appendCondition("`{$this->column_ID}` = '%d'");
 			$this->queryEntryIDQuery = $this->queryEntryIDQuery->getQuery();
 		}
-		return get_row(
+		return query_row(
 			sprintf(
 				$this->queryEntryIDQuery,
 				(int) $entry_ID
