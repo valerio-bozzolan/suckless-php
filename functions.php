@@ -412,9 +412,7 @@ function site_page($page, $url, $base = null) {
 		}
 		return $base . $page;
 	}
-
-	$sub = substr($page, 0, 6);
-	if( $sub === 'http:/' || $sub === 'https:' ) {
+	if( preg_match('#^[a-z]+://#', $page) === 1 ) {
 		return $page;
 	}
 	if( $url === null ) {
