@@ -407,6 +407,9 @@ function site_page($page, $url, $base = null) {
 	$first = @$page[0];
 	if( $first === '#' ) return $page;
 	if( $first === '/' ) {
+		if( @$page[1] === '/' ) {
+			return $page;
+		}
 		if($base === null) {
 			$base = PROTOCOL . DOMAIN;
 		}
