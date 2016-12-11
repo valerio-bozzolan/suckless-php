@@ -56,6 +56,7 @@ class TreeResults {
 			'parent'    => "{$table}_parent",
 			'order'     => "{$table}_order",
 			'select'    => [],
+			'from'      => $table,
 			'condition' => null
 		] );
 
@@ -68,7 +69,7 @@ class TreeResults {
 		$this->columns_select = $args['select'];
 
 		$this->parentQuery = new DynamicQuery();
-		$this->parentQuery->useTable( $table );
+		$this->parentQuery->useTable( $args['from'] );
 		$this->parentQuery->selectField( $this->columns_select );
 
 		if( $args['condition'] ) {
