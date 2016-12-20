@@ -123,7 +123,7 @@ function esc_sql($str) {
  * Escape a LIKE SQL query
  */
 function esc_sql_like($s) {
-	$s = str_replace('%', '', $s);
+	$s = str_replace('%', '\%', $s);
 	return esc_sql($s);
 }
 
@@ -583,8 +583,11 @@ function _e($s) {
 	echo _($s);
 }
 
-function http_json_header() {
-	header('Content-Type: application/json');
+function http_json_header($charset = null) {
+	if( $charset === null ) {
+		$charset = CHARSET;
+	}
+	header('Content-Type: application/json; charset=' . $charset);
 }
 
 /**
