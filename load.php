@@ -18,11 +18,14 @@
  * Start the framework
  */
 
-// Unix-like pathname slash and URL
+// URL slash
 defined('_')  || define('_', '/');
 
+// Directory separator
+defined('__') || define('__', DIRECTORY_SEPARATOR);
+
 define('BOZ_PHP', __DIR__ ); // Here
-require BOZ_PHP . _ . 'functions.php'; // Some functions
+require BOZ_PHP . __ . 'functions.php'; // Some functions
 
 // Start stopwatch
 get_page_load();
@@ -47,7 +50,7 @@ spl_autoload_register( function($c) {
 		$c = 'DB';
 	}
 
-	$path = BOZ_PHP . _ . "class-$c.php";
+	$path = BOZ_PHP . __ . "class-$c.php";
 	if( is_file( $path ) ) {
 		require $path;
 	}
@@ -69,5 +72,5 @@ $GLOBALS['G']->add('registerLanguage', 'RegisterLanguage');
 if( REQUIRE_LOAD_POST ) {
 	defined('ABSPATH') || error_die( _("Devi definire la costante ABSPATH. Oppure disabilita REQUIRE_LOAD_POST.") );
 
-	require ABSPATH . _ . 'load-post.php';
+	require ABSPATH . __ . 'load-post.php';
 }
