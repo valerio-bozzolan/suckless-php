@@ -544,6 +544,14 @@ function generate_slug($s, $max_length = -1, $glue = '-', & $truncated = false) 
 	return rtrim($s, $glue);
 }
 
+function http_build_get_query($url, $data) {
+	$data = http_build_query($data);
+	if( $data ) {
+		return "$url?$data";
+	}
+	return $url;
+}
+
 /**
  * It scares the user with an error message.
  *
