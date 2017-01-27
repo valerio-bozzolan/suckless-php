@@ -371,10 +371,18 @@ function is_logged() {
 	return $GLOBALS['session']->isLogged();
 }
 
-function has_permission($permission) {
+/**
+ * @param string $permission Permission uid
+ * @param User|null $user Specified user
+ * @return bool
+ */
+function has_permission($permission, $user = null) {
 	expect('session');
 
-	$user = $GLOBALS['session']->getUser();
+	if( $user === null ) {
+		$user = $GLOBALS['session']->getUser();
+	}
+
 	$user_role = false;
 	if($user) {
 		$user_role = $user->user_role;
