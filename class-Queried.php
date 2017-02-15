@@ -23,7 +23,7 @@ class Queried {
 	 *
 	 * @param string $property
 	 */
-	function nullable($property) {
+	function get($property) {
 		if( property_exists($this, $property) ) {
 			return $this->$property;
 		}
@@ -53,25 +53,25 @@ class Queried {
 	}
 
 	function integers(...$properties) {
-		foreach($properties as $property) {
-			isset( $this->$property ) and
-				$this->$property = (int) $this->$property;
+		foreach($properties as $p) {
+			isset( $this->$p ) and
+				$this->$p = (int) $this->$p;
 		}
 		return $this;
 	}
 
 	function booleans(...$properties) {
-		foreach($properties as $property) {
-			isset( $this->$property ) and
-				$this->$property = (bool) (int) $this->$property;
+		foreach($properties as $p) {
+			isset( $this->$p ) and
+				$this->$p = (bool) (int) $this->$p;
 		}
 		return $this;
 	}
 
 	function datetimes(...$properties) {
-		foreach($properties as $property) {
-			isset( $this->$property ) and
-				$this->$property = DateTime::createFromFormat('Y-m-d H:i:s', $s);
+		foreach($properties as $p) {
+			isset( $this->$p ) and
+				$this->$p = DateTime::createFromFormat('Y-m-d H:i:s', $this->$p);
 		}
 		return $this;
 	}

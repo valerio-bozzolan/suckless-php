@@ -1,5 +1,5 @@
 <?php
-# Copyright (C) 2015, 2016 Valerio Bozzolan
+# Copyright (C) 2015, 2016, 2017 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -296,14 +296,14 @@ function get_user($property = null) {
 	if( $property === null ) {
 		return $user;
 	}
-	if( is_logged() && ! isset( $user->{$property} ) ) {
+	if( is_logged() && ! isset( $user->$property ) ) {
 		DEBUG && error( sprintf(
 			_("Colonna utente '%s' mancante!"),
 			esc_html( $property )
 		) );
 		return null;
 	}
-	return $user->{$property};
+	return $user->$property;
 }
 function login(& $status = null, $user_uid = null, $user_password = null) {
 	return expect('session')->login($status, $user_uid, $user_password);
