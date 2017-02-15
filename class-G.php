@@ -1,5 +1,5 @@
 <?php
-# Copyright (C) 2015 Valerio Bozzolan
+# Copyright (C) 2015, 2017 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -49,23 +49,23 @@ class G {
 	 * @param string $name A global var name.
 	 */
 	public function expect($name) {
-		if( isset( $GLOBALS[ $name ] ) ) {
-			return;
+		if( ! isset( $GLOBALS[ $name ] ) ) {
+			// Die if class was not registered
+			isset( $this->added[ $name ] ) || error_die( sprintf(
+				_("Variabile globale '%s' attesa ma mai registrata. L'hai scritta correttamente?"),
+				esc_html($name)
+			) );
+
+			$class_name = $this->added[ $name ];
+
+			class_exists($class_name, true) || error_die( sprintf(
+				_("La classe '%s' non esiste!"),
+				esc_html($class_name)
+			) );
+
+			$GLOBALS[ $name ] = new $class_name();
 		}
 
-		// Die if class was not registered
-		isset( $this->added[ $name ] ) || error_die( sprintf(
-			_("Variabile globale '%s' attesa ma mai registrata. L'hai scritta correttamente?"),
-			esc_html($name)
-		) );
-
-		$class_name = $this->added[ $name ];
-
-		class_exists($class_name, true) || error_die( sprintf(
-			_("La classe '%s' non esiste!"),
-			esc_html($class_name)
-		) );
-
-		$GLOBALS[ $name ] = new $class_name();
+		return $GLOBALS[ $name ];
 	}
 }

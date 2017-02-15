@@ -21,7 +21,7 @@
  * @param string $global_var The $GLOBAL[''] arg you are asking for.
  */
 function expect($global_var) {
-	$GLOBALS['G']->expect($global_var);
+	return $GLOBALS['G']->expect($global_var);
 }
 
 function register_expected($name, $class) {
@@ -115,8 +115,7 @@ function enfatize_substr($s, $q, $pre = "<b>", $post = "</b>") {
  * @see DB#escapeString()
  */
 function esc_sql($str) {
-	expect('db');
-	return $GLOBALS['db']->escapeString($str);
+	return expect('db')->escapeString($str);
 }
 
 /**
@@ -142,8 +141,7 @@ function _esc_html($s) {
  * @see DB#getResults()
  */
 function query($query) {
-	expect('db');
-	return $GLOBALS['db']->query($query);
+	return expect('db')->query($query);
 }
 
 /**
@@ -151,8 +149,7 @@ function query($query) {
  * @see DB#getResults()
  */
 function query_results($query, $class = null, $args = [] ) {
-	expect('db');
-	return $GLOBALS['db']->getResults($query, $class, $args);
+	return expect('db')->getResults($query, $class, $args);
 }
 
 /**
@@ -160,8 +157,7 @@ function query_results($query, $class = null, $args = [] ) {
  * @see DB#getRow()
  */
 function query_row($query, $class = null, $args = [] ) {
-	expect('db');
-	return $GLOBALS['db']->getRow($query, $class, $args);
+	return expect('db')->getRow($query, $class, $args);
 }
 
 /**
@@ -169,13 +165,11 @@ function query_row($query, $class = null, $args = [] ) {
  * @see DB#getValue()
  */
 function query_value($query, $value, $class = null) {
-	expect('db');
-	return $GLOBALS['db']->getValue($query, $value, $class);
+	return expect('db')->getValue($query, $value, $class);
 }
 
 function T($t, $as = false) {
-	expect('db');
-	return $GLOBALS['db']->getTable($t, $as);
+	return expect('db')->getTable($t, $as);
 }
 
 define('T', 'T');
@@ -187,8 +181,7 @@ $GLOBALS[T] = function($t, $as = false) {
 
 // Stupid shortcut for string context for listing tables
 $GLOBALS[JOIN] = function($t) {
-	expect('db');
-	return $GLOBALS['db']->getTables( func_get_args() );
+	return expect('db')->getTables( func_get_args() );
 };
 
 /**
@@ -196,8 +189,7 @@ $GLOBALS[JOIN] = function($t) {
  * @see DB#insertRow()
  */
 function insert_row($table, $cols) {
-	expect('db');
-	return $GLOBALS['db']->insertRow($table, $cols);
+	return expect('db')->insertRow($table, $cols);
 }
 
 /**
@@ -209,7 +201,7 @@ function last_inserted_ID() {
 	isset( $GLOBALS['db'] )
 		|| error_die( _("Manca la connessione al database. Come ottenere l'ultimo indice?") );
 
-	return $GLOBALS['db']->getLastInsertedID();
+	return expect('db')->getLastInsertedID();
 }
 
 /**
@@ -217,8 +209,7 @@ function last_inserted_ID() {
  * @see DB#insert()
  */
 function insert_values($tables, $cols, $values) {
-	expect('db');
-	return $GLOBALS['db']->insert($tables, $cols, $values);
+	return expect('db')->insert($tables, $cols, $values);
 }
 
 /**
@@ -226,8 +217,7 @@ function insert_values($tables, $cols, $values) {
  * @see DB#update()
  */
 function query_update($table_name, $dbCols, $conditions, $after = '') {
-	expect('db');
-	$GLOBALS['db']->update($table_name, $dbCols, $conditions, $after);
+	expect('db')->update($table_name, $dbCols, $conditions, $after);
 }
 
 /**
@@ -244,84 +234,65 @@ function _esc_attr($s) {
  * Friendly symlinks
  */
 function register_mimetypes($category, $mimetypes) {
-	expect('mimeTypes');
-	$GLOBALS['mimeTypes']->registerMimetypes($category, $mimetypes);
+	expect('mimeTypes')->registerMimetypes($category, $mimetypes);
 }
 function get_mimetypes($category = null) {
-	expect('mimeTypes');
-	return $GLOBALS['mimeTypes']->getMimetypes($category);
+	return expect('mimeTypes')->getMimetypes($category);
 }
 function register_permissions($role, $permissions) {
-	expect('permissions');
-	$GLOBALS['permissions']->registerPermissions($role, $permissions);
+	expect('permissions')->registerPermissions($role, $permissions);
 }
 function inherit_permissions($role_to, $role_from) {
-	expect('permissions');
-	$GLOBALS['permissions']->inheritPermissions($role_to, $role_from);
+	expect('permissions')->inheritPermissions($role_to, $role_from);
 }
 function register_js($javascript_uid, $url, $position = null) {
-	expect('javascript');
-	return $GLOBALS['javascript']->register( $javascript_uid, $url, $position );
+	return expect('javascript')->register( $javascript_uid, $url, $position );
 }
 function enqueue_js($javascript_uid, $position = null) {
 	expect('javascript');
 	return $GLOBALS['javascript']->enqueue( $javascript_uid, $position );
 }
 function register_css($css_uid, $url) {
-	expect('css');
-	return $GLOBALS['css']->register($css_uid, $url);
+	return expect('css')->register($css_uid, $url);
 }
 function enqueue_css($css_uid) {
-	expect('css');
-	return $GLOBALS['css']->enqueue($css_uid);
+	return expect('css')->enqueue($css_uid);
 }
 function add_menu_entries($menuEntries) {
-	expect('menu');
-	$GLOBALS['menu']->add($menuEntries);
+	expect('menu')->add($menuEntries);
 }
 function get_menu_entry($uid) {
-	expect('menu');
-	return $GLOBALS['menu']->getMenuEntry($uid);
+	return expect('menu')->getMenuEntry($uid);
 }
 function get_children_menu_entries($parentUid) {
-	expect('menu');
-	return $GLOBALS['menu']->getChildrenMenuEntries($parentUid);
+	return expect('menu')->getChildrenMenuEntries($parentUid);
 }
 function register_module($module_uid) {
-	expect('module');
-	return $GLOBALS['module']->register($module_uid);
+	return expect('module')->register($module_uid);
 }
 function inject_in_module($module_uid, $callback) {
-	expect('module');
-	return $GLOBALS['module']->injectFunction($module_uid, $callback);
+	return expect('module')->injectFunction($module_uid, $callback);
 }
 function load_module($module_uid) {
-	expect('module');
-	return $GLOBALS['module']->loadModule($module_uid);
+	return expect('module')->loadModule($module_uid);
 }
 function get_table_prefix() {
-	expect('db');
-	return $GLOBALS['db']->getPrefix();
+	return expect('db')->getPrefix();
 }
 function register_option($option_name) {
-	expect('db');
-	return $GLOBALS['db']->registerOption($option_name);
+	return expect('db')->registerOption($option_name);
 }
 function get_option($option_name, $default_value = '') {
-	expect('db');
-	return $GLOBALS['db']->getOption($option_name, $default_value);
+	return expect('db')->getOption($option_name, $default_value);
 }
 function set_option($option_name, $option_value, $option_autoload = true) {
-	expect('db');
-	return $GLOBALS['db']->setOption($option_name, $option_value, $option_autoload);
+	return expect('db')->setOption($option_name, $option_value, $option_autoload);
 }
 function remove_option($option_name) {
-	expect('db');
-	return $GLOBALS['db']->removeOption($option_name);
+	return expect('db')->removeOption($option_name);
 }
 function get_user($property = null) {
-	expect('session');
-	$user = $GLOBALS['session']->getUser();
+	$user = expect('session')->getUser();
 	if( $property === null ) {
 		return $user;
 	}
@@ -335,41 +306,33 @@ function get_user($property = null) {
 	return $user->{$property};
 }
 function login(& $status = null, $user_uid = null, $user_password = null) {
-	expect('session');
-	return $GLOBALS['session']->login($status, $user_uid, $user_password);
+	return expect('session')->login($status, $user_uid, $user_password);
 }
 function logout() {
-	expect('session');
-	return $GLOBALS['session']->destroy();
+	return expect('session')->destroy();
 }
 function register_language($code, $aliases = [], $encode = null, $iso = null) {
-	expect('registerLanguage');
-	return $GLOBALS['registerLanguage']->registerLanguage($code, $aliases, $encode, $iso);
+	return expect('registerLanguage')->registerLanguage($code, $aliases, $encode, $iso);
 }
 function apply_language($language_alias = null) {
-	expect('registerLanguage');
-	return $GLOBALS['registerLanguage']->applyLanguage($language_alias);
+	return expect('registerLanguage')->applyLanguage($language_alias);
 }
 function latest_language() {
-	expect('registerLanguage');
-	return $GLOBALS['registerLanguage']->getLatestLanguageApplied();
+	return expect('registerLanguage')->getLatestLanguageApplied();
 }
 
 function get_num_queries() {
 	if( isset( $GLOBALS['db'] ) ) {
 		return $GLOBALS['db']->getNumQueries();
 	}
-
 	return 0;
 }
-
-
-define('DEFAULT_USER_ROLE', 'UNREGISTERED');
-
 function is_logged() {
-	expect('session');
-	return $GLOBALS['session']->isLogged();
+	return expect('session')->isLogged();
 }
+
+defined('DEFAULT_USER_ROLE', 'UNREGISTERED')
+	or define('DEFAULT_USER_ROLE', 'UNREGISTERED');
 
 /**
  * @param string $permission Permission uid
@@ -377,10 +340,10 @@ function is_logged() {
  * @return bool
  */
 function has_permission($permission, $user = null) {
-	expect('session');
+	$session = expect('session');
 
 	if( $user === null ) {
-		$user = $GLOBALS['session']->getUser();
+		$user = $session->getUser();
 	}
 
 	$user_role = false;
@@ -390,7 +353,7 @@ function has_permission($permission, $user = null) {
 	if( ! $user_role ) {
 		$user_role = DEFAULT_USER_ROLE;
 	}
-	return $GLOBALS['permissions']->hasPermission($user_role, $permission);
+	return expect('permissions')->hasPermission($user_role, $permission);
 }
 
 /**
@@ -654,36 +617,30 @@ function get_mimetype($filepath, $pure = false) {
  * @return mixed FALSE if not
  */
 function is_file_in_category($filepath, $category) {
-	expect('mimeTypes');
 	$mime = get_mimetype($filepath);
-	return $GLOBALS['mimeTypes']->isMimetypeInCategory($mime , $category);
+	return expect('mimeTypes')->isMimetypeInCategory($mime , $category);
 }
 
 /**
  * Get the file extension
  */
 function get_file_extension_from_expectations($filename, $category) {
-	expect('mimeTypes');
-	return $GLOBALS['mimeTypes']->getFileExtensionFromExpectations($filename, $category);
+	return expect('mimeTypes')->getFileExtensionFromExpectations($filename, $category);
 }
 
 function is_image($filepath) {
-	expect('mimeTypes');
 	return is_file_in_category($filepath, 'image');
 }
 
 function is_audio($filepath) {
-	expect('mimeTypes');
 	return is_file_in_category($filepath, 'audio');
 }
 
 function is_video($filepath) {
-	expect('mimeTypes');
 	return is_file_in_category($filepath, 'video');
 }
 
 function is_document($filepath) {
-	expect('mimeTypes');
 	return is_file_in_category($filepath, 'document');
 }
 

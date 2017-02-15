@@ -1,36 +1,34 @@
 <?php
-# Copyright (C) 2015 Valerio Bozzolan
+# Copyright (C) 2015, 2017 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
+# it under the terms of the GNU General License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# GNU General License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU General License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class Permission {
-	public $permission;
-
 	function __construct($permission) {
 		expect('session');
 		$this->permission = $permission;
 	}
 
-	public function __toString() {
+	function __toString() {
 		return $this->permission;
 	}
 }
 
 class Permissions {
-	public $rolePermissions = [];
+	var $rolePermissions = [];
 
-	public function registerPermissions($role, $permissions) {
+	function registerPermissions($role, $permissions) {
 		if( !$this->roleExists($role) ) {
 			$this->rolePermissions[ $role ] = [];
 		}
@@ -46,11 +44,11 @@ class Permissions {
 	/**
 	 * @deprecated
 	 */
-	public function registerPermission($role, $permissions) {
+	function registerPermission($role, $permissions) {
 		$this->registerPermissions($role, $permissions);
 	}
 
-	public function hasPermission($role, $permission) {
+	function hasPermission($role, $permission) {
 		if( !$this->roleExists($role) ) {
 			return false;
 		}
@@ -63,7 +61,7 @@ class Permissions {
 		return false;
 	}
 
-	public function inheritPermissions($newRole, $existingRole) {
+	function inheritPermissions($newRole, $existingRole) {
 		if( !$this->roleExists($existingRole) ) {
 			$this->errorRole($existingRole);
 			return false;
@@ -77,7 +75,7 @@ class Permissions {
 		return true;
 	}
 
-	public function roleExists($role) {
+	function roleExists($role) {
 		return @is_array( $this->rolePermissions[ $role ] );
 	}
 
@@ -88,7 +86,7 @@ class Permissions {
 		) );
 	}
 
-	public function getPermissions() {
+	function getPermissions() {
 		$allPermissions = [];
 		foreach($this->rolePermissions as $rolePermission) {
 			foreach($rolePermission as $permission) {
@@ -98,7 +96,7 @@ class Permissions {
 		return array_unique($allPermissions);
 	}
 
-	public function getRoles() {
+	function getRoles() {
 		$roles = [];
 		foreach($this->rolePermissions as $role => $permission) {
 			$roles[] = $role;
@@ -106,10 +104,9 @@ class Permissions {
 		return array_unique($roles);
 	}
 
-	public function clean() {
+	function clean() {
 		foreach( $this->rolePermissions as $role=>$permissions ) {
 			$this->rolePermissions[ $role ] = array_unique( $permissions );
 		}
 	}
 }
-?>
