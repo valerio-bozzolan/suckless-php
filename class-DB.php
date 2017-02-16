@@ -174,7 +174,7 @@ class DB {
 	public function getResults($query, $class_name = null, $params = [] ) {
 		// IS_ARRAY() IS SHIT FOR HISTORICAL REASONS
 		if( $class_name === null || is_array( $class_name ) ) {
-			$class_name = 'EhmStdClass';
+			$class_name = 'Queried';
 		}
 		// IS_ARRAY() IS SHIT FOR HISTORICAL REASONS
 

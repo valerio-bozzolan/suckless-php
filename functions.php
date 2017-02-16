@@ -18,6 +18,29 @@
 define('DOT',  '.');
 define('STAR', '*');
 
+function selected($helper, $current) {
+	return checked($helper, $current, 'selected');
+}
+
+function _checked($helper, $current) {
+	echo checked($helper, $current);
+}
+
+function _selected($helper, $current) {
+	echo selected($helper, $current);
+}
+
+function checked($helper, $current, $type = null) {
+	$result = '';
+	if( (string) $helper === (string) $current ) {
+		if( ! $type ) {
+			$type = 'checked';
+		}
+		$result = " $type='$type'";
+	}
+	return $result;
+}
+
 /**
  * Retrieve a required global object.
  *

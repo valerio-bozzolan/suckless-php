@@ -18,6 +18,8 @@
  * This class is intended to be extended by injectable classes.
  */
 class Queried {
+	function __construct () {}
+
 	/**
 	 * Obtain a property that can be null (but can't be undefined).
 	 *
