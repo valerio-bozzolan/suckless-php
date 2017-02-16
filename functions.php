@@ -476,7 +476,7 @@ function append_dir($base_URL, $dir = _ ) {
 /**
  * Full URL or folder from ROOT.
  */
-function site_page($page, $url, $base = null) {
+function site_page($page, $url = null, $base = null) {
 	$first = @$page[0];
 	if( $first === '#' ) return $page;
 	if( $first === '/' ) {
