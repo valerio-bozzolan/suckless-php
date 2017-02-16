@@ -406,7 +406,7 @@ function is_logged() {
 	return expect('session')->isLogged();
 }
 
-defined('DEFAULT_USER_ROLE', 'UNREGISTERED')
+defined('DEFAULT_USER_ROLE')
 	or define('DEFAULT_USER_ROLE', 'UNREGISTERED');
 
 /**
