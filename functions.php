@@ -14,16 +14,23 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-/*
- * Be sure that a global object exists.
+/**
+ * Retrieve a required global object.
  *
- * @see G class
- * @param string $global_var The $GLOBAL[''] arg you are asking for.
+ * @param string $global_var Global variable name
+ * @return Object
+ * @see G#expect()
  */
 function expect($global_var) {
 	return $GLOBALS['G']->expect($global_var);
 }
 
+/**
+ * Register a required global object.
+ *
+ * @param string Global variable name
+ * @param string Class name
+ */
 function register_expected($name, $class) {
 	$GLOBALS['G']->add($name, $class);
 }
@@ -55,9 +62,8 @@ function merge_args_defaults($args, $defaults) {
 
 /**
  * Force something to be an array.
- * Useful to manage an option that can be something of a set of them (one of them?).
  *
- * @return mixed|array Something
+ * @return mixed|array
  * @return array
  */
 function force_array( & $a ) {
@@ -67,14 +73,14 @@ function force_array( & $a ) {
 }
 
 /**
- * This extremely-stupid function does not use preg_replace()
- * and so it's sooooooooooooooooooooooooooooooo fast.
+ * Enfatize a substring.
  *
  * @param $s string Heystack
  * @param $q string Needle
  * @param $pre string HTML before query (bold tag as default)
  * @param $post string HTML after query (bold tag as default)
  * @return string Enfatized string
+ * @todo Move in it's own class
  */
 function enfatize_substr($s, $q, $pre = "<b>", $post = "</b>") {
 	$s_length = strlen($s);
@@ -112,14 +118,20 @@ function enfatize_substr($s, $q, $pre = "<b>", $post = "</b>") {
 
 /**
  * SQL query escape string
+ *
+ * @param string $str
+ * @return string
  * @see DB#escapeString()
  */
-function esc_sql($str) {
-	return expect('db')->escapeString($str);
+function esc_sql($s) {
+	return expect('db')->escapeString($s);
 }
 
 /**
- * Escape a LIKE SQL query
+ * Same as esc_sql() but also avoid '%'s.
+ *
+ * @param string $s
+ * @return string
  */
 function esc_sql_like($s) {
 	$s = str_replace('%', '\%', $s);
@@ -128,16 +140,28 @@ function esc_sql_like($s) {
 
 /**
  * HTML escape
+ *
+ * @param string $s
+ * @return string
  */
 function esc_html($s) {
 	return htmlentities($s);
 }
+
+/**
+ * HTML escape print
+ *
+ * @param string
+ * @return void
+ */
 function _esc_html($s) {
 	echo htmlentities($s);
 }
 
 /**
  * Execute a simple query.
+ *
+ * @param string $query SQL query
  * @see DB#getResults()
  */
 function query($query) {
@@ -146,6 +170,10 @@ function query($query) {
 
 /**
  * Execute a query and return an array of objects.
+ *
+ * @param string $query SQL query
+ * @param string $class Class name to encapsulate the result set
+ * @return array
  * @see DB#getResults()
  */
 function query_results($query, $class = null, $args = [] ) {
@@ -154,6 +182,10 @@ function query_results($query, $class = null, $args = [] ) {
 
 /**
  * Execute a query and return an object.
+ *
+ * @param string $query SQL query
+ * @param string $class Class name to encapsulate the result set
+ * @return null|Object
  * @see DB#getRow()
  */
 function query_row($query, $class = null, $args = [] ) {
@@ -168,6 +200,13 @@ function query_value($query, $value, $class = null) {
 	return expect('db')->getValue($query, $value, $class);
 }
 
+/**
+ * Database table full with prefix.
+ *
+ * @param string $t Table name (as 'test')
+ * @return string Table name with prefix (as '`site01_test`')
+ * @see DB#getTable()
+ */
 function T($t, $as = false) {
 	return expect('db')->getTable($t, $as);
 }
@@ -186,6 +225,8 @@ $GLOBALS[JOIN] = function($t) {
 
 /**
  * Insert a row in the specified database table.
+ * @param string $table
+ * @param DBCols[]
  * @see DB#insertRow()
  */
 function insert_row($table, $cols) {
@@ -195,6 +236,7 @@ function insert_row($table, $cols) {
 /**
  * If the table has an AUTOINCREMENT you can get the last inserted index
  * after an insert_row().
+ * @return int
  * @see DB#getLastInsertedID()
  */
 function last_inserted_ID() {
@@ -206,26 +248,39 @@ function last_inserted_ID() {
 
 /**
  * Insert multiple values in the specified database table
+ * @param string $table
+ * @param array $cols
+ * @param array $values
  * @see DB#insert()
  */
-function insert_values($tables, $cols, $values) {
-	return expect('db')->insert($tables, $cols, $values);
+function insert_values($table, $cols, $values) {
+	return expect('db')->insert($table, $cols, $values);
 }
 
 /**
  * Update rows in the specified database table
+ * @param string $table
+ * @param DBCol[] $cols
+ * @param string $condition
  * @see DB#update()
  */
-function query_update($table_name, $dbCols, $conditions, $after = '') {
-	expect('db')->update($table_name, $dbCols, $conditions, $after);
+function query_update($table, $cols, $condition, $after = '') {
+	expect('db')->update($table, $cols, $condition, $after);
 }
 
 /**
- * Escape form attributes
+ * Alias for htmlspecialchars().
+ * @param string $s
+ * @return string
  */
 function esc_attr($s) {
 	return htmlspecialchars($s);
 }
+
+/**
+ * @param string
+ * @return void
+ */
 function _esc_attr($s) {
 	echo htmlspecialchars($s);
 }
@@ -239,9 +294,17 @@ function register_mimetypes($category, $mimetypes) {
 function get_mimetypes($category = null) {
 	return expect('mimeTypes')->getMimetypes($category);
 }
+/**
+ * @param string $role User role
+ * @param string|string[] $permissions Permissions
+ */
 function register_permissions($role, $permissions) {
 	expect('permissions')->registerPermissions($role, $permissions);
 }
+/**
+ * @param string $role_to New role
+ * @param string $role_from Existing role
+ */
 function inherit_permissions($role_to, $role_from) {
 	expect('permissions')->inheritPermissions($role_to, $role_from);
 }
@@ -291,6 +354,12 @@ function set_option($option_name, $option_value, $option_autoload = true) {
 function remove_option($option_name) {
 	return expect('db')->removeOption($option_name);
 }
+/**
+ * Get the current logged user.
+ *
+ * @param null|string $property Property name
+ * @return mixed|Sessionuser Property, or entire Sessionuser object.
+ */
 function get_user($property = null) {
 	$user = expect('session')->getUser();
 	if( $property === null ) {
@@ -305,6 +374,12 @@ function get_user($property = null) {
 	}
 	return $user->$property;
 }
+/**
+ * Try to login using $_POST['user_uid'] and $_POST['user_password'].
+ *
+ * @param int $status
+ * @see Session::login()
+ */
 function login(& $status = null, $user_uid = null, $user_password = null) {
 	return expect('session')->login($status, $user_uid, $user_password);
 }
