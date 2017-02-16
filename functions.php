@@ -591,30 +591,10 @@ function http_503() {
 }
 
 /**
- * ă -> a, â -> a, ț -> t and so on.
- */
-function remove_accents($s) {
-	return iconv('utf8', 'ascii//TRANSLIT', $s);
-}
-
-/**
  * Get a secured version of a string
  */
 function generate_slug($s, $max_length = -1, $glue = '-', & $truncated = false) {
-	$s = strtolower( remove_accents($s) );
-	if( $glue !== '_' ) {
-		$s = str_replace('_', ' ', $s);
-	}
-	$s = preg_replace("/[^a-z0-9\s\\$glue]/", '', $s);
-	$s = preg_replace("/[\s\\$glue]+/", ' ', $s);
-	$s = trim($s, ' ');
-	if($max_length !== -1) {
-		$len = strlen($s);
-		$s = substr($s, 0, $max_length);
-		$truncated = $len !== strlen($s);
-	}
-	$s = preg_replace('/\s/', $glue, $s);
-	return rtrim($s, $glue);
+	return Slug::get($s, $max_length, $glue, $truncated);
 }
 
 function http_build_get_query($url, $data) {
@@ -952,4 +932,12 @@ function get_human_datetime($datetime, $format = 'd/m/Y H:i') {
 	}
 	$time = strtotime($datetime);
 	return date($format, $time);
+}
+
+/**
+ * ă -> a, â -> a, ț -> t and so on.
+ * @deprecated
+ */
+function remove_accents($s) {
+	return iconv('utf8', 'ascii//TRANSLIT', $s);
 }
