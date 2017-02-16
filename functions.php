@@ -14,8 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-// Useful e.g. in Table::NAME . DOTSTAR query.
-define('_STAR', '.*');
+// Useful e.g. in Table::NAME . DOT . STAR query.
+define('DOT',  '.');
+define('STAR', '*');
 
 /**
  * Retrieve a required global object.
