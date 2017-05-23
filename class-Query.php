@@ -149,7 +149,7 @@ class Query {
 
 		$n_needles = count($needles);
 		if( $n_needles === 1 ) {
-			$this->appendCondition(
+			$this->where(
 				sprintf("%s %s '%s'",
 					$heystack,
 					($not_in) ? '!=' : '=',
