@@ -389,13 +389,18 @@ function logout() {
 function register_language($code, $aliases = [], $encode = null, $iso = null) {
 	return expect('registerLanguage')->registerLanguage($code, $aliases, $encode, $iso);
 }
+function register_default_language($default) {
+	return expect('registerLanguage')->setDefaultLanguage($default);
+}
+function find_language($language_alias) {
+	return expect('registerLanguage')->getLanguage($language_alias);
+}
 function apply_language($language_alias = null) {
 	return expect('registerLanguage')->applyLanguage($language_alias);
 }
 function latest_language() {
 	return expect('registerLanguage')->getLatestLanguageApplied();
 }
-
 function get_num_queries() {
 	if( isset( $GLOBALS['db'] ) ) {
 		return $GLOBALS['db']->getNumQueries();
@@ -489,12 +494,10 @@ function this_folder() {
  * @param string %s Input string
  * @param int $max_length Max string length
  * @param string $blabla Optional. If string length is over $max_length, $blabla it's appended after $string
+ * @deprecated Use mb_strimwidth
  */
 function str_truncate($s, $max_length, $blabla = '') {
-	if(strlen($s) > $max_length) {
-		return substr($s, 0, $max_length - strlen($blabla)) . $blabla;
-	}
-	return $s;
+	return mb_strimwidth($s, 0, $max_length, $blabla);
 }
 
 /**

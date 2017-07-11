@@ -38,6 +38,13 @@ class RegisterLanguage {
 	var $latest = null;
 
 	/**
+	 * Default language (don't apply GNU Gettext in this case).
+	 *
+	 * Index of self#languages[]
+	 */
+	var $default = null;
+
+	/**
 	 * @param string $domain GNU Gettext domain
 	 * @param string $directory GNU Gettext directory
 	 * @param string $default_encode GNU Gettext default language encode
@@ -88,13 +95,30 @@ class RegisterLanguage {
 		$this->languages[ ++$this->i ] = new BozPHPLanguage($code, $encode, $iso);
 
 		// Yes, the language code it's an alias to itself. That's a lazy hack!
-		$this->aliases[ strtolower($code) ] = $this->i;
+		$this->aliases[ self::normalize($code) ] = $this->i;
 
 		// Each alias is associated to it's language code
 		force_array($aliases);
 		foreach($aliases as $alias) {
 			$this->aliases[ $alias ] = $this->i;
 		}
+	}
+
+	/**
+	 * Set the default language.
+	 * A default language allow more GNU Gettext efficiency and less high-level pain.
+	 *
+	 * @param string $default
+	 */
+	function setDefaultLanguage($default) {
+		$code = self::normalize($default);
+		if( ! isset( $this->aliases[ $code ] ) ) {
+			error_die( sprintf(
+				_("Default language '%s' have to be registered previously"),
+				esc_html($default)
+			) );
+		}
+		$this->default = $this->languages[ $this->aliases[ $code ] ];
 	}
 
 	/**
@@ -120,7 +144,7 @@ class RegisterLanguage {
 	 * Set the GNU Gettext environment from a language alias or from browser preferences.
 	 *
 	 * @param string $language_alias Language alias, null for browser preferences
-	 * @return boolean Is language applied?
+	 * @return mixed
 	 */
 	function applyLanguage($language_alias = null) {
 		$language = $this->getLanguage($language_alias);
@@ -131,14 +155,19 @@ class RegisterLanguage {
 
 		$this->latest = $language;
 
+		if( $language === $this->default ) {
+			// Like calling self::GNUGettextEnvironment without any existing language file
+			return '';
+		}
+
 		return self::GNUGettextEnvironment($language->code, $language->encode, $this->gettextDomain, $this->gettextDirectory);
 	}
 
 	/**
-	 * @return falsy of BozPHPLanguage
+	 * @return BozPHPLanguage|null
 	 */
 	function getLatestLanguageApplied() {
-		return $this->latest;
+		return $this->latest ? $this->latest : $this->default;
 	}
 
 	/**
@@ -197,6 +226,10 @@ class RegisterLanguage {
 		}
 
 		return $ok;
+	}
+
+	static function normalize($code) {
+		return strtolower($code);
 	}
 }
 
