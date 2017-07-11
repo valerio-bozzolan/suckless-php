@@ -52,7 +52,7 @@ class Query {
 	 * @param string|array $field
 	 * @return Query
 	 */
-	function select($field) {
+	function select(...$field) {
 		self::appendInArray($field, $this->selectFields);
 		return $this;
 	}
@@ -64,7 +64,7 @@ class Query {
 	 * @note I wanted to use "use()", but it's reserved.
 	 * @return Query
 	 */
-	function from($table) {
+	function from(...$table) {
 		self::appendInArray($table, $this->tables);
 		return $this;
 	}
