@@ -77,4 +77,11 @@ class Queried {
 		}
 		return $this;
 	}
+
+	function floats(...$properties) {
+		foreach($properties as $p) {
+			isset( $this->$p ) and
+				$this->$p = (float) $this->$p;
+		}
+	}
 }
