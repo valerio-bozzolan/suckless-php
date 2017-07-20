@@ -22,6 +22,7 @@ class Query {
 	private $selectFields = [];
 	private $tables = [];
 	private $conditions;
+	private $groups;
 	private $offset;
 	private $rowCount;
 	private $orders;
@@ -66,6 +67,16 @@ class Query {
 	 */
 	function from(...$table) {
 		self::appendInArray($table, $this->tables);
+		return $this;
+	}
+
+	/**
+	 * Group by
+	 * @param string|array $groups Group by
+	 * @return Query
+	 */
+	function groupBy(...$groups) {
+		self::appendInArray($groups, $this->groups);
 		return $this;
 	}
 
@@ -203,6 +214,10 @@ class Query {
 		return $this->conditions;
 	}
 
+	function getGroupBy() {
+		return implode(', ', $this->groups);
+	}
+
 	function orderBy($order_by) {
 		if( isset( $this->orders ) ) {
 			$this->orders .= ', ';
@@ -218,6 +233,9 @@ class Query {
 		$sql = "SELECT {$this->getSelect()} FROM {$this->getFrom()}";
 		if($this->conditions) {
 			$sql .= " WHERE {$this->getWhere()}";
+		}
+		if($this->groups) {
+			$sql .= " GROUP BY {$this->getGroupBy()}";
 		}
 		if($this->orders) {
 			$sql .= " ORDER BY {$this->orders}";
