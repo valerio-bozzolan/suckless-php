@@ -21,8 +21,8 @@ class Query {
 
 	private $selectFields = [];
 	private $tables = [];
+	private $groups = [];
 	private $conditions;
-	private $groups;
 	private $offset;
 	private $rowCount;
 	private $orders;
