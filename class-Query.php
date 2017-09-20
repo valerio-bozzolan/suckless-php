@@ -22,6 +22,7 @@ class Query {
 	private $selectFields = [];
 	private $tables = [];
 	private $groups = [];
+	private $having;
 	private $conditions;
 	private $offset;
 	private $rowCount;
@@ -218,6 +219,11 @@ class Query {
 		return implode(', ', $this->groups);
 	}
 
+	function having( $having ) {
+		$this->having = $having;
+		return $this;
+	}
+
 	function orderBy($order_by) {
 		if( isset( $this->orders ) ) {
 			$this->orders .= ', ';
@@ -236,6 +242,9 @@ class Query {
 		}
 		if($this->groups) {
 			$sql .= " GROUP BY {$this->getGroupBy()}";
+		}
+		if($this->having) {
+			$sql .= " HAVING {$this->having}";
 		}
 		if($this->orders) {
 			$sql .= " ORDER BY {$this->orders}";
