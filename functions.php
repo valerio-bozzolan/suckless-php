@@ -826,7 +826,8 @@ function search_free_filename($filepath, $filename, $ext, $args, $build_filename
  * @param int $max Max length
  */
 function luser_input($s, $max) {
-	return str_truncate( trim( $s ) , $max );
+	$s = trim($s);
+	return mb_strimwidth($s, 0, $max, '');
 }
 
 /**

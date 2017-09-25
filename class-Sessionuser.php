@@ -52,7 +52,7 @@ trait SessionuserTrait {
 		return hash(COOKIE_HASH_ALGO, COOKIE_HASH_SALT . $this->user_password . COOKIE_HASH_PEPP);
 	}
 
-	function querySessionuserFromUid($uid) {
+	static function querySessionuserFromUid($uid) {
 		return query_row(
 			sprintf(
 				"SELECT * FROM {$GLOBALS[T]('user')} WHERE user_uid = '%s'",
