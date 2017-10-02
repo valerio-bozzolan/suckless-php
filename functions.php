@@ -535,7 +535,7 @@ function is_https() {
 
 /**
  * Get the protocol of the request
- * (Please use PROTOCOL)
+ * @see use PROTOCOL
  */
 function URL_protocol() {
 	return ( is_https() ) ? 'https://' : 'http://';
@@ -543,10 +543,19 @@ function URL_protocol() {
 
 /**
  * Get the domain of the request
- * (Please use PROTOCOL)
+ * @see DOMAIN
  */
 function URL_domain() {
 	return ( empty( $_SERVER['SERVER_NAME'] ) ) ? 'localhost' : $_SERVER['SERVER_NAME'];
+}
+
+/**
+ * Get the port of the request
+ * @see PORT
+ */
+function URL_port() {
+	$p = $_SERVER['SERVER_PORT'];
+	return $p === '443' || $p === '80' ? '' : ":$p";
 }
 
 function URL_root() {
