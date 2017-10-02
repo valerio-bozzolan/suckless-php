@@ -462,7 +462,7 @@ function site_page($page, $url = null, $base = null) {
 			return $page;
 		}
 		if($base === null) {
-			$base = PROTOCOL . DOMAIN;
+			$base = PROTOCOL . DOMAIN . PORT;
 		}
 		return $base . $page;
 	}
