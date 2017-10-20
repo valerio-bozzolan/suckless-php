@@ -70,6 +70,13 @@ class Queried {
 		return $this;
 	}
 
+	function dates(...$properties) {
+		foreach($properties as $p) {
+			isset( $this->$p ) and
+				$this->$p = DateTime::createFromFormat('Y-m-d', $this->$p);
+		}
+	}
+
 	function datetimes(...$properties) {
 		foreach($properties as $p) {
 			isset( $this->$p ) and
