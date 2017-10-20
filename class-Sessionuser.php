@@ -62,7 +62,7 @@ trait SessionuserTrait {
 		);
 	}
 
-	function querySessionuserFromLogin($user_uid, $user_password) {
+	static function querySessionuserFromLogin($user_uid, $user_password) {
 		return query_row(
 			sprintf(
 				"SELECT * FROM {$GLOBALS[T]('user')} WHERE user_uid = '%s' AND user_password = '%s'",
