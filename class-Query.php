@@ -181,9 +181,9 @@ class Query {
 		}
 		if( $values !== '') {
 			if($not_in) {
-				$this->appendCondition("$heystack NOT IN ($values)", $glue);
+				$this->where("$heystack NOT IN ($values)", $glue);
 			} else {
-				$this->appendCondition("$heystack IN ($values)", $glue);
+				$this->where("$heystack IN ($values)", $glue);
 			}
 		}
 		return $this;
