@@ -51,24 +51,22 @@ class Query {
 	/**
 	 * Selected fields (SELECT).
 	 *
-	 * @param string|array $field
+	 * @param string|array $fields
 	 * @return Query
 	 */
-	function select(...$field) {
-		self::appendInArray($field, $this->selectFields);
-		return $this;
+	function select() {
+		return self::appendInArray( func_get_args() , $this->selectFields );
 	}
 
 	/**
 	 * Selected tables without prefix.
 	 *
-	 * @param string|array $table Table/tables
+	 * @param string|array $tables Table/tables
 	 * @note I wanted to use "use()", but it's reserved.
 	 * @return Query
 	 */
-	function from(...$table) {
-		self::appendInArray($table, $this->tables);
-		return $this;
+	function from() {
+		return self::appendInArray( func_get_args(), $this->tables );
 	}
 
 	/**
@@ -76,9 +74,8 @@ class Query {
 	 * @param string|array $groups Group by
 	 * @return Query
 	 */
-	function groupBy(...$groups) {
-		self::appendInArray($groups, $this->groups);
-		return $this;
+	function groupBy() {
+		return self::appendInArray( func_get_args(), $this->groups );
 	}
 
 	/**
@@ -312,12 +309,11 @@ class Query {
 	 * @see DB#getValue()
 	 * @return mixed
 	 */
-	function queryValue($column_name) {
+	function queryValue( $column_name ) {
 		return $this->db->getValue( $this->getQuery(), $column_name );
 	}
 
-	private static function appendInArray($values, & $array) {
-
+	private function appendInArray($values, & $array) {
 		// Retrocompatibility patch
 		if( isset( $values[0] ) && is_array( $values[0] ) ) {
 			$values = $values[0];

@@ -54,39 +54,39 @@ class Queried {
 		) );
 	}
 
-	function integers(...$properties) {
-		foreach($properties as $p) {
+	function integers() {
+		foreach( func_get_args() as $p) {
 			isset( $this->$p ) and
 				$this->$p = (int) $this->$p;
 		}
 		return $this;
 	}
 
-	function booleans(...$properties) {
-		foreach($properties as $p) {
+	function booleans() {
+		foreach( func_get_args() as $p) {
 			isset( $this->$p ) and
 				$this->$p = (bool) (int) $this->$p;
 		}
 		return $this;
 	}
 
-	function dates(...$properties) {
-		foreach($properties as $p) {
+	function dates() {
+		foreach( func_get_args() as $p) {
 			isset( $this->$p ) and
 				$this->$p = DateTime::createFromFormat('Y-m-d', $this->$p);
 		}
 	}
 
-	function datetimes(...$properties) {
-		foreach($properties as $p) {
+	function datetimes() {
+		foreach( func_get_args() as $p) {
 			isset( $this->$p ) and
 				$this->$p = DateTime::createFromFormat('Y-m-d H:i:s', $this->$p);
 		}
 		return $this;
 	}
 
-	function floats(...$properties) {
-		foreach($properties as $p) {
+	function floats() {
+		foreach( func_get_args() as $p) {
 			isset( $this->$p ) and
 				$this->$p = (float) $this->$p;
 		}
