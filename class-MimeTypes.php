@@ -1,5 +1,5 @@
 <?php
-# Copyright (C) 2015 Valerio Bozzolan
+# Copyright (C) 2015, 2016, 2017 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -222,6 +222,39 @@ class MimeTypes {
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Get the MIME type from a file.
+	 *
+	 * @param string $filepath The file path.
+	 * @param bool $pure
+	 * 	true for 'image/png; something';
+	 * 	false for 'image/png'.
+	 * @return string|false
+	 */
+	public static function fileMimetype( $filepath, $pure = false ) {
+		$finfo = finfo_open( FILEINFO_MIME, MAGIC_MIME_FILE );
+		if( ! $finfo ) {
+			DEBUG && error( sprintf(
+				_("Errore aprendo il database fileinfo situato in '%s'."),
+				MAGIC_MIME_FILE
+			) );
+			return false;
+		}
+		$mime = finfo_file( $finfo, $filepath );
+		if( ! $mime ) {
+			DEBUG && error( sprintf(
+				_("Impossibile ottenere il MIME del file '%s'."),
+				esc_html( $filepath )
+			) );
+			return false;
+		}
+		if( ! $pure ) {
+			$mime = explode(';', $mime, 2); // Split "; charset"
+			$mime = $mime[0];
+		}
+		return $mime;
 	}
 
 	private static function printErrorUnknownCategory($category) {

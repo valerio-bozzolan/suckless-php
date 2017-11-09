@@ -36,48 +36,18 @@ function _selected($helper = null, $current = null) {
 
 /**
  * Retrieve a required global object.
- *
- * @param string $global_var Global variable name
- * @return Object
- * @see G#expect()
+ * @see G::expect()
  */
-function expect($global_var) {
-	return $GLOBALS['G']->expect($global_var);
+function expect( $global_var ) {
+	return $GLOBALS['G']->expect( $global_var );
 }
 
 /**
  * Register a required global object.
- *
- * @param string Global variable name
- * @param string Class name
+ * @see G::add()
  */
-function register_expected($name, $class) {
-	$GLOBALS['G']->add($name, $class);
-}
-
-/**
- * Merge user defined arguments into defaults array.
- * It's used in a lot of functions.
- *
- * @param array $args Value to merge with $defaults
- * @param array $defaults Array that serves as the defaults
- * @return array Merged user defined values with defaults
- */
-function merge_args_defaults($args, $defaults) {
-        if( ! is_array($args) ) {
-		DEBUG && error( sprintf(
-			_("Errore in %s: l'argomento 1 dovrebbe essere un array."),
-			__FUNCTION__
-		) );
-		return $defaults;
-	}
-	if( ! is_array($defaults) ) {
-		error_die( sprintf(
-			_("Errore in %s: l'argomento 2 deve essere un array."),
-			__FUNCTION__
-		) );
-	}
-	return array_merge($defaults, $args);
+function register_expected( $global_var, $class_name ) {
+	$GLOBALS['G']->add( $global_var, $class_name );
 }
 
 /**
@@ -94,26 +64,14 @@ function force_array( & $a ) {
 
 /**
  * Enfatize a substring.
- *
- * @param $s string Heystack
- * @param $q string Needle
- * @param $pre string HTML before query (bold tag as default)
- * @param $post string HTML after query (bold tag as default)
- * @return string Enfatized string
+ * @see EnfatizeSubstr::get()
  */
-function enfatize_substr($s, $q, $pre = '<b>', $post = '</b>') {
-	return EnfatizeSubstr::get($s, $q, $pre, $post);
+function enfatize_substr($heystack, $needle, $pre = '<b>', $post = '</b>') {
+	return EnfatizeSubstr::get(heystack, $needle, $pre, $post);
 }
-
-/*
- * Anti-tedium shortcuts
- */
 
 /**
  * SQL query escape string
- *
- * @param string $str
- * @return string
  * @see DB#escapeString()
  */
 function esc_sql($s) {
@@ -153,8 +111,6 @@ function _esc_html($s) {
 
 /**
  * Execute a simple query.
- *
- * @param string $query SQL query
  * @see DB#getResults()
  */
 function query($query) {
@@ -531,7 +487,7 @@ function is_https() {
  * @see use PROTOCOL
  */
 function URL_protocol() {
-	return ( is_https() ) ? 'https://' : 'http://';
+	return is_https() ? 'https://' : 'http://';
 }
 
 /**
@@ -539,7 +495,7 @@ function URL_protocol() {
  * @see DOMAIN
  */
 function URL_domain() {
-	return ( empty( $_SERVER['SERVER_NAME'] ) ) ? 'localhost' : $_SERVER['SERVER_NAME'];
+	return empty( $_SERVER['SERVER_NAME'] ) ? 'localhost' : $_SERVER['SERVER_NAME'];
 }
 
 /**
@@ -547,7 +503,7 @@ function URL_domain() {
  * @see PORT
  */
 function URL_port() {
-	$p = $_SERVER['SERVER_PORT'];
+	$p = @ $_SERVER['SERVER_PORT'];
 	return $p === '443' || $p === '80' ? '' : ":$p";
 }
 
@@ -557,17 +513,6 @@ function URL_root() {
 		return '';
 	}
 	return $root;
-}
-
-/**
- * HTTP 503 header
- */
-function http_503() {
-	if( ! headers_sent() ) {
-		header('HTTP/1.1 503 Service Temporarily Unavailable');
-		header('Status: 503 Service Temporarily Unavailable');
-		header('Retry-After: 300');
-	}
 }
 
 /**
@@ -586,36 +531,23 @@ function http_build_get_query($url, $data) {
 }
 
 /**
- * It scares the user with an error message.
- *
- * @param string $msg Error message
+ * HTTP 503 headers.
+ * @see Shit::header503()
  */
-function error_die($msg) {
-	http_503();
-?>
-<!DOCTYPE html>
-<html>
-<head>
-	<title><?php _e("Errore") ?></title>
-	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo CHARSET ?>" />
-	<meta name="robots" content="noindex, nofollow" />
-</head>
-<body>
-	<h1><?php printf(
-		_("Ci dispiace! C'è qualche piccolo problema! <small>(DEBUG: %s)</small>"),
-		DEBUG ? _("sì") : _("no")
-	) ?></h1>
-	<p><?php _e("Si è verificato il seguente errore durante l'avvio del framework:") ?></p>
-	<p>&laquo; <?php echo $msg ?> &raquo;</p>
-	<p><?php _e("Sai che cosa significhi tutto ciò...") ?></p>
-</body>
-</html>
-<?php
-exit; // Yes!
+function http_503() {
+	return Shit::header503();
 }
 
-function error($msg) {
-	echo "\n\n\t<!-- ERROR: -->\n\t<p style='background:red'>Error: $msg</p>\n\n";
+/**
+ * It scares the user with an error message (and dies).
+ * @see Shit::SWOD()
+ */
+function error_die( $msg ) {
+	Shit::WSOD( $msg );
+}
+
+function error( $msg ) {
+	echo Shit::getErrorMessage( $msg );
 }
 
 /**
@@ -633,51 +565,16 @@ function http_json_header($charset = null) {
 }
 
 /**
- * Get the MIME type from a file.
- *
- * @param string $filepath The file path.
- * @param bool $pure
- * 	TRUE for 'image/png; something';
- * 	FALSE for 'image/png'.
- * @return string|false
+ * Get the MIME type of a file.
+ * @see MimeTypes::fileMimetype()
  */
 function get_mimetype($filepath, $pure = false) {
-	$finfo = finfo_open(FILEINFO_MIME, MAGIC_MIME_FILE);
-
-	if( ! $finfo ) {
-		DEBUG && error( sprintf(
-			_("Errore aprendo il database fileinfo situato in '%s'."),
-			MAGIC_MIME_FILE
-		) );
-
-		return false;
-	}
-
-	$mime = finfo_file($finfo, $filepath);
-
-	if( ! $mime ) {
-		DEBUG && error( sprintf(
-			_("Impossibile ottenere il MIME del file '%s'."),
-			esc_html( $filepath )
-		) );
-
-		return false;
-	}
-
-	if( ! $pure ) {
-		$mime = explode(';', $mime, 2); // Split "; charset"
-		$mime = $mime[0];
-	}
-
-	return $mime;
+	return MimeTypes::fileMimetype( $filepath, $pure = false );
 }
 
 /**
  * Know if a file belongs to a certain category
- *
- * @param string $filepath The file path
- * @param string $category The category
- * @return mixed FALSE if not
+ * @see MimeTypes::isMimetypeInCategory()
  */
 function is_file_in_category($filepath, $category) {
 	$mime = get_mimetype($filepath);
@@ -732,93 +629,21 @@ function human_filesize($filesize, $separator = ' '){
  * Create a pathname in the filesystem
  */
 function create_path($path, $chmod = CHMOD_WRITABLE_DIRECTORY) {
-	if( file_exists($path) ) {
+	if( file_exists($path) || mkdir($path, $chmod, true) ) {
 		return true;
 	}
-
-	if( mkdir($path, $chmod, true) ) {
-		return true;
-	}
-
 	DEBUG && error( sprintf(
 		_("Impossibile scrivere il percorso '%s'."),
 		esc_html( $path )
 	) );
-
 	return false;
 }
 
 /**
- * Default mode to build a file name WITHOUT extension.
- * It's called multiple times in search_free_filename().
- *
- * Create your own but NEVER get two equal strings if $i changes.
- *
- * @param string $filename File name without extension
- * @param string $ext File name extension without dot
- * @param array $args Custom stuff
- * @param int $i Received from search_free_filename() as
- *	auto increment if the precedent file name already exists.
- *	To be used to-get (or not-to-get) a suffix.
- *	It's NULL during the first call.
- * @return string File name (with extension)
+ * @see FileUploader::searchFreeFilename()
  */
-function build_filename($filename, $ext, $args, $i = null) {
-	if( ! isset( $args['autoincrement'] ) ) {
-		$args['autoincrement'] = '-%d';
-		DEBUG && error( sprintf(
-			_("Arg [autoincrement] atteso in %s. Assunto '%s'."),
-			__FUNCTION__,
-			'-%d'
-		) );
-	}
-
-	if( ! isset( $args['post-filename']  ) ) {
-		$args['post-filename'] = '';
-		DEBUG && error( sprintf(
-			_("Arg [post-filename] atteso in %s. Assunto vuoto."),
-			__FUNCTION__
-		) );
-	}
-
-	$suffix = ( $i === null ) ? '' : sprintf( $args['autoincrement'], $i );
-
-	return $filename . $suffix . $args['post-filename'];
-}
-
-/**
- * When you want a not-taken file name WITHOUT extension.
- *
- * @param string $filepath Absolute directory with trailing slash
- * @param string $filename 1° arg of $build_filename()
- * @param string $ext 2° arg of $build_filename()
- * @param string $args 3° args of $build_filename()
- * @param null|string $build_filename NULL for 'build_filename'
- */
-function search_free_filename($filepath, $filename, $ext, $args, $build_filename = null) {
-	if($build_filename === null) {
-		$build_filename = 'build_filename';
-	}
-
-	if( ! function_exists( $build_filename ) ) {
-		error_die( sprintf(
-			_("Il 5° argomento di %s dovrebbe essere il nome di una funzione ma non esiste alcuna funzione '%s'."),
-			__FUNCTION__,
-			esc_html( $build_filename )
-		) );
-	}
-
-	$i = null;
-	while( file_exists( $filepath . call_user_func($build_filename, $filename, $ext, $args, $i) . ".$ext" ) ) {
-		// http://php.net/manual/en/language.operators.increment.php
-		// «Decrementing NULL values has no effect too, but incrementing them results in 1.»
-		$i++;
-
-		if($i === 30) {
-			exit;
-		}
-	}
-	return call_user_func($build_filename, $filename, $ext, $args, $i);
+function search_free_filename( $filepath, $filename, $ext, $args, $build_filename = null ) {
+	return FileUploader::searchFreeFilename( $filepath, $filename, $ext, $args, $build_filename = null );
 }
 
 /**
@@ -830,65 +655,6 @@ function search_free_filename($filepath, $filename, $ext, $args, $build_filename
 function luser_input($s, $max) {
 	$s = trim($s);
 	return mb_strimwidth($s, 0, $max, '');
-}
-
-/**
- * Do it on your own!
- *
- * @deprecated
- */
-if( ! function_exists('require_permission') ) {
-
-	/**
-	 * Do it on your own!
-	 * @deprecated
-	 */
-	function require_permission($permission, $redirect = 'login.php?redirect=', $preFunction = '', $postFunction = '') {
-		if( ! has_permission($permission) ) :
-			if( is_logged() ) :
-				echo HTML::tag('p', _("Non hai permessi a sufficienza.") );
-			else :
-				http_redirect( site_page(
-					$redirect . urlencode( site_page( $_SERVER['REQUEST_URI'] ) )
-				) );
-			endif;
-
-			get_footer();
-			exit; // Yes!
-		endif;
-	}
-}
-
-/**
- * Do it on your own!
- */
-if( ! function_exists('get_gravatar') ) {
-	/**
-	 * Get either a Gravatar URL or complete image tag for a specified email address.
-	 *
-	 * @param string $email The email address
-	 * @param string $s Size in pixels, defaults to 80px [ 1 - 2048 ]
-	 * @param string $d Default imageset to use [ 404 | mm | identicon | monsterid | wavatar ]
-	 * @param string $r Maximum rating (inclusive) [ g | pg | r | x ]
-	 * @param boole $img True to return a complete IMG tag False for just the URL
-	 * @param array $atts Optional, additional key/value attributes to include in the IMG tag
-	 * @return String containing either just a URL or a complete image tag
-	 * @source http://gravatar.com/site/implement/images/php/
-	 * @deprecated
-	 */
-	function get_gravatar($email, $s = 80, $d = 'mm', $r = 'g', $img = false, $atts = [] ) {
-		$url = '//www.gravatar.com/avatar/';
-		$url .= md5( strtolower( trim( $email ) ) );
-		$url .= "?s=$s&amp;d=$d&amp;r=$r";
-		if($img) {
-			$url = '<img src="' . $url . '"';
-			foreach($atts as $key => $val) {
-				$url .= ' ' . $key . '="' . $val . '"';
-			}
-			$url .= ' />';
-		}
-		return $url;
-	}
 }
 
 /**
@@ -906,20 +672,27 @@ function get_page_load($decimals = 6) {
 }
 
 /**
+ * Merge user defined arguments into defaults array.
+ * It's used in a lot of functions.
+ *
+ * @param array $args Value to merge with $defaults
+ * @param array $defaults Array that serves as the defaults
+ * @return array Merged user defined values with defaults
  * @deprecated
  */
-function get_human_datetime($datetime, $format = 'd/m/Y H:i') {
-	if( ! $datetime ) {
-		return $datetime;
+function merge_args_defaults($args, $defaults) {
+        if( ! is_array($args) ) {
+		DEBUG && error( sprintf(
+			_("Errore in %s: l'argomento 1 dovrebbe essere un array."),
+			__FUNCTION__
+		) );
+		return $defaults;
 	}
-	$time = strtotime($datetime);
-	return date($format, $time);
-}
-
-/**
- * ă -> a, â -> a, ț -> t and so on.
- * @deprecated
- */
-function remove_accents($s) {
-	return iconv('utf8', 'ascii//TRANSLIT', $s);
+	if( ! is_array($defaults) ) {
+		error_die( sprintf(
+			_("Errore in %s: l'argomento 2 deve essere un array."),
+			__FUNCTION__
+		) );
+	}
+	return array_merge($defaults, $args);
 }
