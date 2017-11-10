@@ -55,7 +55,7 @@ class Query {
 	 * @return Query
 	 */
 	function select() {
-		return self::appendInArray( func_get_args() , $this->selectFields );
+		return $this->appendInArray( func_get_args() , $this->selectFields );
 	}
 
 	/**
@@ -66,7 +66,7 @@ class Query {
 	 * @return Query
 	 */
 	function from() {
-		return self::appendInArray( func_get_args(), $this->tables );
+		return $this->appendInArray( func_get_args(), $this->tables );
 	}
 
 	/**
@@ -75,7 +75,7 @@ class Query {
 	 * @return Query
 	 */
 	function groupBy() {
-		return self::appendInArray( func_get_args(), $this->groups );
+		return $this->appendInArray( func_get_args(), $this->groups );
 	}
 
 	/**
@@ -324,6 +324,7 @@ class Query {
 				$array[] = $value;
 			}
 		}
+		return $this;
 	}
 }
 
