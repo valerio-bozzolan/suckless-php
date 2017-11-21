@@ -158,25 +158,25 @@ class Query {
 
 		$n_needles = count($needles);
 		if( $n_needles === 1 ) {
+			$needle = array_pop( $needles );
 			$this->where(
 				sprintf("%s %s '%s'",
 					$heystack,
-					($not_in) ? '!=' : '=',
-					esc_sql( $needles[0] )
+					$not_in ? '!=' : '=',
+					esc_sql( $needle )
 				),
 				$glue
 			);
 			return $this;
 		}
 
-		$values = '';
-		for($i=0; $i<$n_needles; $i++) {
-			if($i != 0) {
-				$values .= ', ';
-			}
-			$values .= single_quotes( esc_sql($needles[ $i ]) );
+		$escaped_needles = [];
+		foreach( $needles as $needle ) {
+			$escaped_needles[] = single_quotes( esc_sql( $needle ) );
 		}
-		if( $values !== '') {
+
+		if( $escaped_needles ) {
+			$values = implode(', ', $escaped_needles);
 			if($not_in) {
 				$this->where("$heystack NOT IN ($values)", $glue);
 			} else {
