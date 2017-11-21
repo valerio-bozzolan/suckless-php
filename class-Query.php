@@ -246,7 +246,7 @@ class Query {
 		if($this->orders) {
 			$sql .= " ORDER BY {$this->orders}";
 		}
-		if($this->rowCount) {
+		if( null !== $this->rowCount ) {
 			$sql .= ' LIMIT ';
 			if( $this->offset ) {
 				$sql .= "{$this->offset}, ";

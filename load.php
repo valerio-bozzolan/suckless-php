@@ -43,6 +43,7 @@ defined('CHMOD_WRITABLE_DIRECTORY') || define('CHMOD_WRITABLE_DIRECTORY', 0777);
 defined('CHMOD_WRITABLE_FILE')      || define('CHMOD_WRITABLE_FILE', 0666);
 defined('MAGIC_MIME_FILE')          || define('MAGIC_MIME_FILE', null); // Fifo system default
 defined('CHARSET')                  || define('CHARSET', 'utf-8');
+defined('CACHE_BUSTER')             || define('CACHE_BUSTER', '');
 
 // On demand requests class-$php ... it's f****** amazing!
 spl_autoload_register( function($c) {

@@ -1,5 +1,5 @@
 <?php
-# Copyright (C) 2015 Valerio Bozzolan
+# Copyright (C) 2015, 2017 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -66,7 +66,7 @@ class RegisterCSS {
 	public function printAll($force = false) {
 		foreach($this->css as $css_uid=>$css) {
 			if($css->enqueue && !$css->enqueued) {
-				self::link($css->url, $css_uid);
+				self::link($css->url, $css_uid, CACHE_BURSTER);
 				$this->css[$css_uid]->enqueued = true;
 			}
 		}
@@ -75,7 +75,7 @@ class RegisterCSS {
 	/**
 	 * Print the CSS link tag.
 	 */
-	public static function link($url, $css_uid) {
-		echo "\n\t<link rel=\"stylesheet\" type=\"text/css\" media=\"all\" id=\"$css_uid\" href=\"$url\" />";
+	public static function link($url, $css_uid, $burster) {
+		echo "\n\t<link rel=\"stylesheet\" type=\"text/css\" media=\"all\" id=\"$css_uid\" href=\"{$url}{$burster}\" />";
 	}
 }

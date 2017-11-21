@@ -90,13 +90,14 @@ class RegisterJS {
 	}
 
 	public function printAll($position) {
+		$cache_burster = CACHE_BUSTER;
 		foreach($this->javascript as $javascript_uid=>$javascript) {
 			if($javascript->enqueue && $javascript->position === $position) {
 				echo "\n";
 				if($position === JS::HEADER) {
 					echo "\t";
 				}
-				echo "<script type=\"text/javascript\" src=\"$javascript->url\"></script>";
+				echo "<script type=\"text/javascript\" src=\"{$javascript->url}{$cache_burster}\"></script>";
 				if(DEBUG) {
 					echo "<!-- $javascript_uid -->";
 				}
