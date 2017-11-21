@@ -99,7 +99,7 @@ class RegisterJS {
 				}
 				$url = $javascript->url;
 				if( CACHE_BUSTER ) {
-					$url .= false !== strpos('?', $url) ? '&' : '?';
+					$url .= false === strpos($url, '?') ? '?' : '&';
 					$url .= CACHE_BUSTER;
 				}
 				echo "<script type=\"text/javascript\" src=\"$url\"></script>";
