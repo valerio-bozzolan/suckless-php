@@ -8,11 +8,11 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 class CSS {
 	public $url;
@@ -66,7 +66,7 @@ class RegisterCSS {
 	public function printAll($force = false) {
 		foreach($this->css as $css_uid=>$css) {
 			if($css->enqueue && !$css->enqueued) {
-				self::link($css->url, $css_uid, CACHE_BUSTER);
+				self::link($css->url, $css_uid);
 				$this->css[$css_uid]->enqueued = true;
 			}
 		}
@@ -75,7 +75,11 @@ class RegisterCSS {
 	/**
 	 * Print the CSS link tag.
 	 */
-	public static function link($url, $css_uid, $burster) {
-		echo "\n\t<link rel=\"stylesheet\" type=\"text/css\" media=\"all\" id=\"$css_uid\" href=\"{$url}{$burster}\" />";
+	public static function link($url, $css_uid) {
+		if( CACHE_BUSTER ) {
+			$url .= false !== strpos('?', $url) ? '&' : '?';
+			$url .= CACHE_BUSTER;
+		}
+		echo "\n\t<link rel=\"stylesheet\" type=\"text/css\" media=\"all\" id=\"$css_uid\" href=\"$url\" />";
 	}
 }
