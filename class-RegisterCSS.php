@@ -66,7 +66,7 @@ class RegisterCSS {
 	public function printAll($force = false) {
 		foreach($this->css as $css_uid=>$css) {
 			if($css->enqueue && !$css->enqueued) {
-				self::link($css->url, $css_uid, CACHE_BURSTER);
+				self::link($css->url, $css_uid, CACHE_BUSTER);
 				$this->css[$css_uid]->enqueued = true;
 			}
 		}
