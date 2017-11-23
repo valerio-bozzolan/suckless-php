@@ -67,7 +67,7 @@ function force_array( & $a ) {
  * @see EnfatizeSubstr::get()
  */
 function enfatize_substr($heystack, $needle, $pre = '<b>', $post = '</b>') {
-	return EnfatizeSubstr::get(heystack, $needle, $pre, $post);
+	return EnfatizeSubstr::get($heystack, $needle, $pre, $post);
 }
 
 /**
