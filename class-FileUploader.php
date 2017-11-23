@@ -324,7 +324,7 @@ class FileUploader {
 			$build_filename = 'FileUploader::buildFilename';
 		}
 
-		if( ! function_exists( $build_filename ) ) {
+		if( ! is_callable( $build_filename ) ) {
 			error_die( sprintf(
 				_("Il 5° argomento di %s dovrebbe essere il nome di una funzione ma non esiste alcuna funzione '%s'."),
 				__FUNCTION__,
@@ -359,7 +359,7 @@ class FileUploader {
 	 *	It's NULL during the first call.
 	 * @return string File name (with extension)
 	 */
-	private static function buildFilename( $filename, $ext, $args, $i = null ) {
+	public static function buildFilename( $filename, $ext, $args, $i = null ) {
 		if( ! isset( $args['autoincrement'] ) ) {
 			$args['autoincrement'] = '-%d';
 			DEBUG && error( sprintf(
