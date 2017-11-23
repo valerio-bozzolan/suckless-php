@@ -378,4 +378,36 @@ class FileUploader {
 		$suffix = ( $i === null ) ? '' : sprintf( $args['autoincrement'], $i );
 		return $filename . $suffix . $args['post-filename'];
 	}
+
+	/**
+	 * Guess the MIME type from a file.
+	 * It requires the existence of the MAGIC_MIME_FILE.
+	 *
+	 * @param string $filepath The file path.
+	 * @param bool $pure true for 'image/png; something'; or false for 'image/png'.
+	 * @return string|false
+	 */
+	public static function fileMimetype( $filepath, $pure = false ) {
+		$finfo = finfo_open(FILEINFO_MIME, MAGIC_MIME_FILE);
+		if( ! $finfo ) {
+			DEBUG and error( sprintf(
+				_("Errore aprendo il database fileinfo situato in '%s'."),
+				MAGIC_MIME_FILE
+			) );
+			return false;
+		}
+		$mime = finfo_file($finfo, $filepath);
+		if( ! $mime ) {
+			DEBUG && error( sprintf(
+				_("Impossibile ottenere il MIME del file '%s'."),
+				esc_html( $filepath )
+			) );
+			return false;
+		}
+		if( ! $pure ) {
+			$mime = explode(';', $mime, 2); // Split "; charset"
+			$mime = $mime[0];
+		}
+		return $mime;
+	}
 }
