@@ -28,11 +28,8 @@ class Query {
 	private $rowCount;
 	private $orders;
 
-	function __construct(& $db = null) {
-		if( ! $db ) {
-			$db = expect('db');
-		}
-		$this->db = $db; // Dipendency injection
+	public function __construct( &$db = null ) {
+		$this->db = $db ? $db : expect('db'); // Dipendency injection
 	}
 
 	/**
@@ -41,9 +38,9 @@ class Query {
 	 * @param string $class_name Class to encapsulate the database result
 	 * @return Query
 	 */
-	static function factory($class_name = null) {
+	public static function factory( $class_name = null ) {
 		$t = new self();
-		$class_name and $t->defaultClass($class_name);
+		$class_name and $t->defaultClass( $class_name );
 		return $t;
 	}
 
@@ -54,7 +51,7 @@ class Query {
 	 * @param string|array $fields
 	 * @return Query
 	 */
-	function select() {
+	public function select() {
 		return $this->appendInArray( func_get_args() , $this->selectFields );
 	}
 
@@ -65,7 +62,7 @@ class Query {
 	 * @note I wanted to use "use()", but it's reserved.
 	 * @return Query
 	 */
-	function from() {
+	public function from() {
 		return $this->appendInArray( func_get_args(), $this->tables );
 	}
 
@@ -74,7 +71,7 @@ class Query {
 	 * @param string|array $groups Group by
 	 * @return Query
 	 */
-	function groupBy() {
+	public function groupBy() {
 		return $this->appendInArray( func_get_args(), $this->groups );
 	}
 
@@ -83,8 +80,8 @@ class Query {
 	 *
 	 * @return Query
 	 */
-	function uniqueTables() {
-		$this->tables = array_unique($this->tables);
+	public function uniqueTables() {
+		$this->tables = array_unique( $this->tables );
 		return $this;
 	}
 
@@ -94,8 +91,8 @@ class Query {
 	 * @param string $condition Something as 'field = 1'
 	 * @return Query
 	 */
-	function where($condition, $glue = 'AND') {
-		if( isset( $this->conditions) ) {
+	public function where( $condition, $glue = 'AND' ) {
+		if( null !== $this->conditions ) {
 			$this->conditions .= " $glue ";
 		}
 		$this->conditions .= $condition;
@@ -109,7 +106,7 @@ class Query {
 	 * @param string $two Result set field
 	 * @return Query
 	 */
-	function equals($one, $two) {
+	public function equals( $one, $two ) {
 		return $this->where("$one = $two");
 	}
 
@@ -119,8 +116,8 @@ class Query {
 	 * @param string $one Column name
 	 * @param int $value Value
 	 */
-	function whereInt($column, $value) {
-		return $this->equals($column, (int) $value);
+	public function whereInt( $column, $value ) {
+		return $this->equals( $column, (int)$value );
 	}
 
 	/**
@@ -129,9 +126,9 @@ class Query {
 	 * @param string $one Column name
 	 * @param string $value Value
 	 */
-	function whereStr($column, $value) {
-		$value = esc_sql($value);
-		return $this->equals($column, "'$value'");
+	public function whereStr( $column, $value ) {
+		$value = esc_sql( $value );
+		return $this->equals( $column, "'$value'" );
 	}
 
 	/**
@@ -141,7 +138,7 @@ class Query {
 	 * @param int $offset Starting offset
 	 * @return Query
 	 */
-	function limit($row_count, $offset = null) {
+	public function limit($row_count, $offset = null) {
 		$this->rowCount = $row_count;
 		$this->offset = $offset;
 		return $this;
@@ -153,7 +150,7 @@ class Query {
 	 * @param string $heystack Field.
 	 * @param string|array $needles Values to compare.
 	 */
-	function whereSomethingIn($heystack, $needles, $glue = 'AND', $not_in = false) {
+	public function whereSomethingIn( $heystack, $needles, $glue = 'AND', $not_in = false ) {
 		force_array($needles);
 
 		$n_needles = count($needles);
@@ -192,58 +189,61 @@ class Query {
 	 * @param string $heystack Field.
 	 * @param string|array $needles Values to compare.
 	 */
-	function whereSomethingNotIn($heystack, $needles, $glue = 'AND') {
+	public function whereSomethingNotIn( $heystack, $needles, $glue = 'AND' ) {
 		$this->appendConditionSomethingIn($heystack, $needles, $glue, true); // See true
 		return $this;
 	}
 
-	function getFrom() {
+	public function getFrom() {
 		return $this->db->getTables( $this->tables );
 	}
 
-	function getSelect() {
+	public function getSelect() {
 		if( count( $this->selectFields ) === 0 ) {
 			return '*';
 		}
 		return implode(', ', $this->selectFields);
 	}
 
-	function getWhere() {
+	public function getWhere() {
 		return $this->conditions;
 	}
 
-	function getGroupBy() {
+	public function getGroupBy() {
 		return implode(', ', $this->groups);
 	}
 
-	function having( $having ) {
+	public function having( $having ) {
 		$this->having = $having;
 		return $this;
 	}
 
-	function orderBy($order_by) {
-		if( isset( $this->orders ) ) {
+	public function orderBy( $order_by, $how = null ) {
+		if( null !== $this->orders ) {
 			$this->orders .= ', ';
 		}
 		$this->orders .= $order_by;
+		if( $how ) {
+			$this->orders .= " $how";
+		}
 		return $this;
 	}
 
 	/**
 	 * @return string SQL query
 	 */
-	function getQuery() {
+	public function getQuery() {
 		$sql = "SELECT {$this->getSelect()} FROM {$this->getFrom()}";
-		if($this->conditions) {
+		if( $this->conditions ) {
 			$sql .= " WHERE {$this->getWhere()}";
 		}
-		if($this->groups) {
+		if( $this->groups ) {
 			$sql .= " GROUP BY {$this->getGroupBy()}";
 		}
-		if($this->having) {
+		if( $this->having ) {
 			$sql .= " HAVING {$this->having}";
 		}
-		if($this->orders) {
+		if( $this->orders ) {
 			$sql .= " ORDER BY {$this->orders}";
 		}
 		if( null !== $this->rowCount ) {
@@ -262,20 +262,22 @@ class Query {
 	 * @param string $class_name Class name
 	 * @return Query
 	 */
-	function defaultClass($class_name) {
+	public function defaultClass( $class_name ) {
 		$this->class_name = $class_name;
 		return $this;
 	}
 
-	function getDefaultClass() {
-		$c = $this->class_name;
-		return isset( $c ) ? $c : null;
+	public function getDefaultClass( $default_class = null ) {
+		if( null === $this->class_name ) {
+			return $default_class;
+		}
+		return $this->class_name;
 	}
 
 	/**
 	 * @see DB#query()
 	 */
-	function query() {
+	public function query() {
 		return $this->db->query( $this->getQuery() );
 	}
 
@@ -286,9 +288,12 @@ class Query {
 	 * @see DB#getResults()
 	 * @return array
 	 */
-	function queryResults($class_name = null, $params = [] ) {
-		$class_name = $class_name ? $class_name : $this->getDefaultClass();
-		return $this->db->getResults( $this->getQuery(), $class_name, $params );
+	public function queryResults( $class_name = null, $params = [] ) {
+		return $this->db->getResults(
+			$this->getQuery(),
+			$this->getDefaultClass( $class_name ),
+			$params
+		);
 	}
 
 	/**
@@ -298,9 +303,12 @@ class Query {
 	 * @see DB#getRow()
 	 * @return null|Object
 	 */
-	function queryRow($class_name = null, $params = []) {
-		$class_name = $class_name ? $class_name : $this->getDefaultClass();
-		return $this->db->getRow( $this->getQuery(), $class_name, $params );
+	public function queryRow( $class_name = null, $params = [] ) {
+		return $this->db->getRow(
+			$this->getQuery(),
+			$this->getDefaultClass( $class_name ),
+			$params
+		);
 	}
 
 	/**
@@ -309,22 +317,21 @@ class Query {
 	 * @see DB#getValue()
 	 * @return mixed
 	 */
-	function queryValue( $column_name ) {
+	public function queryValue( $column_name ) {
 		return $this->db->getValue( $this->getQuery(), $column_name );
 	}
 
-	private function appendInArray($values, & $array) {
+	private function appendInArray( $values, & $array ) {
 		// Retrocompatibility patch
 		if( isset( $values[0] ) && is_array( $values[0] ) ) {
 			$values = $values[0];
 		}
 
-		foreach($values as $value) {
-			if( $value && ! in_array($value, $array, true) ) {
+		foreach( $values as $value ) {
+			if( $value && ! in_array( $value, $array, true ) ) {
 				$array[] = $value;
 			}
 		}
 		return $this;
 	}
 }
-

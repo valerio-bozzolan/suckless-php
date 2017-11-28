@@ -445,8 +445,8 @@ function this_folder() {
  * @param string $blabla Optional. If string length is over $max_length, $blabla it's appended after $string
  * @deprecated Use mb_strimwidth
  */
-function str_truncate($s, $max_length, $blabla = '') {
-	return mb_strimwidth($s, 0, $max_length, $blabla);
+function str_truncate($s, $max_length, $blabla = '', $encoding = null ) {
+	return mb_strimwidth($s, 0, $max_length, $blabla, $encoding);
 }
 
 /**
@@ -470,8 +470,8 @@ function multi_text($n, $text_multi, $text_one, $text_no = '') {
 /**
  * Simple HTTP redirects.
  */
-function http_redirect($url) {
-	header("Location: $url");
+function http_redirect($url, $http_response_code = 0) {
+	header("Location: $url", true, $http_response_code);
 	exit;
 }
 
