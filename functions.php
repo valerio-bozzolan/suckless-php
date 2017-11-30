@@ -321,7 +321,7 @@ function get_user($property = null) {
 		) );
 		return null;
 	}
-	return $user->$property;
+	return $user ? $user->$property : null;
 }
 /**
  * Try to login using $_POST['user_uid'] and $_POST['user_password'].
