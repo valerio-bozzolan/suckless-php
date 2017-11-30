@@ -446,6 +446,9 @@ function this_folder() {
  * @deprecated Use mb_strimwidth
  */
 function str_truncate($s, $max_length, $blabla = '', $encoding = null ) {
+	if( ! $encoding ) {
+		$encoding = mb_internal_encoding();
+	}
 	return mb_strimwidth($s, 0, $max_length, $blabla, $encoding);
 }
 
