@@ -18,20 +18,20 @@
 define('DOT',  '.');
 define('STAR', '*');
 
-function selected($helper = null, $current = null) {
-	return (string) $helper === (string) $current ? ' selected="selected"' : '';
+function selected( $helper = null, $current = null, $force = false ) {
+	return $force || (string) $helper === (string) $current ? ' selected="selected"' : '';
 }
 
-function checked($helper = null, $current = null) {
-	return (string) $helper === (string) $current ? ' checked="checked"' : '';
+function checked( $helper = null, $current = null, $force = false ) {
+	return $force || (string) $helper === (string) $current ? ' checked="checked"' : '';
 }
 
-function _checked($helper = null, $current = null) {
-	echo checked($helper, $current);
+function _checked( $helper = null, $current = null, $force = false ) {
+	echo checked( $helper, $current, $force );
 }
 
-function _selected($helper = null, $current = null) {
-	echo selected($helper, $current);
+function _selected( $helper = null, $current = null, $force = false ) {
+	echo selected( $helper, $current, $force );
 }
 
 /**
