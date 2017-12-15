@@ -14,102 +14,70 @@
 # You should have received a copy of the GNU General License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-class Permission {
-	function __construct($permission) {
-		expect('session');
-		$this->permission = $permission;
-	}
-
-	function __toString() {
-		return $this->permission;
-	}
-}
-
 class Permissions {
 	var $rolePermissions = [];
 
-	function registerPermissions($role, $permissions) {
-		if( !$this->roleExists($role) ) {
+	public function __construct() {
+		expect('session');
+	}
+
+	public function registerPermissions( $role, $permissions ) {
+		force_array( $permissions );
+		if( ! $this->roleExists( $role ) ) {
 			$this->rolePermissions[ $role ] = [];
 		}
-
-		force_array($permissions);
-
-		$n = count($permissions);
-		for($i=0; $i<$n; $i++) {
-			$this->rolePermissions[ $role ][] = new Permission( $permissions[$i] );
-		}
+		$this->rolePermissions[ $role ] = array_merge( $this->rolePermissions[ $role ], $permissions );
 	}
 
-	/**
-	 * @deprecated
-	 */
-	function registerPermission($role, $permissions) {
-		$this->registerPermissions($role, $permissions);
-	}
-
-	function hasPermission($role, $permission) {
-		if( !$this->roleExists($role) ) {
-			return false;
-		}
-
-		foreach($this->rolePermissions[ $role ] as $singlePermission) {
-			if($singlePermission->permission == $permission) {
-				return true;
+	public function hasPermission( $role, $permission ) {
+		if( $this->roleExists( $role ) ) {
+			foreach( $this->rolePermissions[ $role ] as $rolePermission ) {
+				if( $rolePermission === $permission ) {
+					return true;
+				}
 			}
 		}
 		return false;
 	}
 
-	function inheritPermissions($newRole, $existingRole, $newRolePermissions = [] ) {
-		if( !$this->roleExists($existingRole) ) {
-			$this->errorRole($existingRole);
+	public function inheritPermissions( $new_role, $existing_role, $new_role_permissions = [] ) {
+		if( ! $this->roleExists( $existing_role ) ) {
+			self::errorRole( $existing_role );
 			return false;
 		}
-		if( !$this->roleExists($newRole) ) {
-			$this->rolePermissions[ $newRole ] = [];
-		}
-		foreach($this->rolePermissions[ $existingRole ] as $permission) {
-			$this->rolePermissions[ $newRole ][] = $permission;
-		}
-		if( $permissions ) {
-			$this->registerPermissions( $newRole, $newRolePermissions );
+		$this->registerPermissions( $new_role, $this->rolePermissions[ $existing_role ] );
+		if( $new_role_permissions ) {
+			$this->registerPermissions( $new_role, $new_role_permissions );
 		}
 		return true;
 	}
 
-	function roleExists($role) {
-		return @is_array( $this->rolePermissions[ $role ] );
+	public function roleExists( $role ) {
+		return isset( $this->rolePermissions[ $role ] );
 	}
 
-	private function errorRole($role) {
+	public function getPermissions() {
+		$all = [];
+		foreach( $this->rolePermissions as $permissions ) {
+			$all = array_merge( $all, $permissions );
+		}
+		return array_unique( $permissions );
+	}
+
+	public function getRoles() {
+		return array_values( $this->rolePermissions );
+	}
+
+	public function clean() {
+		foreach( $this->rolePermissions as $role => $permissions ) {
+			$this->rolePermissions[ $role ] = array_unique( $permissions );
+		}
+	}
+
+	private static function errorRole( $role ) {
 		DEBUG && error( sprintf(
 			_("Il ruolo %s non è stato ancora registrato"),
 			esc_html( $role )
 		) );
-	}
-
-	function getPermissions() {
-		$allPermissions = [];
-		foreach($this->rolePermissions as $rolePermission) {
-			foreach($rolePermission as $permission) {
-				$allPermissions[] = $permission->permission;
-			}
-		}
-		return array_unique($allPermissions);
-	}
-
-	function getRoles() {
-		$roles = [];
-		foreach($this->rolePermissions as $role => $permission) {
-			$roles[] = $role;
-		}
-		return array_unique($roles);
-	}
-
-	function clean() {
-		foreach( $this->rolePermissions as $role=>$permissions ) {
-			$this->rolePermissions[ $role ] = array_unique( $permissions );
-		}
 	}
 }
