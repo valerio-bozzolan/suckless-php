@@ -254,8 +254,8 @@ function register_permissions($role, $permissions) {
  * @param string $role_to New role
  * @param string $role_from Existing role
  */
-function inherit_permissions($role_to, $role_from) {
-	expect('permissions')->inheritPermissions($role_to, $role_from);
+function inherit_permissions($role_to, $role_from, $other_permissions) {
+	expect('permissions')->inheritPermissions($role_to, $role_from, $other_permissions);
 }
 function register_js($javascript_uid, $url, $position = null) {
 	return expect('javascript')->register( $javascript_uid, $url, $position );

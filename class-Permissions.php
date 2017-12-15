@@ -61,7 +61,7 @@ class Permissions {
 		return false;
 	}
 
-	function inheritPermissions($newRole, $existingRole) {
+	function inheritPermissions($newRole, $existingRole, $newRolePermissions = [] ) {
 		if( !$this->roleExists($existingRole) ) {
 			$this->errorRole($existingRole);
 			return false;
@@ -71,6 +71,9 @@ class Permissions {
 		}
 		foreach($this->rolePermissions[ $existingRole ] as $permission) {
 			$this->rolePermissions[ $newRole ][] = $permission;
+		}
+		if( $permissions ) {
+			$this->registerPermissions( $newRole, $newRolePermissions );
 		}
 		return true;
 	}
