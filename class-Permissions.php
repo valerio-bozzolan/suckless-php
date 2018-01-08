@@ -65,7 +65,7 @@ class Permissions {
 	}
 
 	public function getRoles() {
-		return array_values( $this->rolePermissions );
+		return array_keys( $this->rolePermissions );
 	}
 
 	public function clean() {
