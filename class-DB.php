@@ -667,18 +667,6 @@ class DB {
 	}
 }
 
-class DBCol {
-	public $column;
-	public $forceType;
-	public $value;
-
-	function __construct($column, $value, $forceType) {
-		$this->column = $column;
-		$this->value = $value;
-		$this->forceType = $forceType;
-	}
-}
-
 /**
  * The stdClass does not have a constructor.
  *

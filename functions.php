@@ -34,6 +34,10 @@ function _selected( $helper = null, $current = null, $force = false ) {
 	echo selected( $helper, $current, $force );
 }
 
+function _value( $v ) {
+	echo HTML::property('value', $v );
+}
+
 /**
  * Retrieve a required global object.
  * @see G::expect()

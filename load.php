@@ -47,11 +47,6 @@ defined('CACHE_BUSTER')             || define('CACHE_BUSTER', '');
 
 // On demand requests class-$php ... it's f****** amazing!
 spl_autoload_register( function($c) {
-	// Little fix
-	if($c === 'DBCol') {
-		$c = 'DB';
-	}
-
 	$path = BOZ_PHP . __ . "class-$c.php";
 	if( is_file( $path ) ) {
 		require $path;
