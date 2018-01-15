@@ -19,11 +19,15 @@ define('DOT',  '.');
 define('STAR', '*');
 
 function selected( $helper = null, $current = null, $force = false ) {
-	return $force || (string) $helper === (string) $current ? ' selected="selected"' : '';
+	return html_property_when_matching( 'selected', 'selected', $helper, $current, $force);
 }
 
 function checked( $helper = null, $current = null, $force = false ) {
-	return $force || (string) $helper === (string) $current ? ' checked="checked"' : '';
+	return html_property_when_matching( 'checked', 'checked', $helper, $current, $force);
+}
+
+function disabled( $helper = null, $current = null, $force = false ) {
+	return html_property_when_matching( 'disabled', 'disabled', $helper, $current, $force );
 }
 
 function _checked( $helper = null, $current = null, $force = false ) {
@@ -32,6 +36,17 @@ function _checked( $helper = null, $current = null, $force = false ) {
 
 function _selected( $helper = null, $current = null, $force = false ) {
 	echo selected( $helper, $current, $force );
+}
+
+function _disabled( $helper = null, $current = null, $force = false ) {
+	echo disabled( $helper, $current, $force );
+}
+
+function html_property_when_matching( $property, $value, $helper = null, $current = null, $force = false ) {
+	if( $helper === null || $force || (string) $helper === (string) $current ) {
+		return HTML::property( $property, $value );
+	}
+	return '';
 }
 
 function _value( $v ) {
