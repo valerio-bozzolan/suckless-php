@@ -38,10 +38,12 @@ class DBCol {
 	}
 
 	/**
-	 * Empty strings can be promoted to NULL values.
+	 * Empty strings or zeroes can be promoted to NULL values.
 	 */
 	public function promoteNULL() {
-		if( $this->forceType === 'snull' && ! $this->value ) {
+		$type  = $this->forceType;
+		$value = $this->value;
+		if( 'snull' === $type && '' === $value || 'dnull' === $type && 0 === $value ) {
 			$this->value = null;
 		}
 	}
