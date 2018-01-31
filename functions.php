@@ -43,7 +43,7 @@ function _disabled( $helper = null, $current = null, $force = false ) {
 }
 
 function html_property_when_matching( $property, $value, $helper = null, $current = null, $force = false ) {
-	if( $helper === null || $force || (string) $helper === (string) $current ) {
+	if( $helper === $current || $force ) {
 		return HTML::property( $property, $value );
 	}
 	return '';
