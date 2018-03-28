@@ -1,5 +1,5 @@
 <?php
-# Copyright (C) 2015 Valerio Bozzolan
+# Copyright (C) 2015, 2018 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * Create a menu entry and define it's parent.
@@ -46,6 +46,17 @@ class MenuEntry {
 		$this->name      = $name;
 		$this->parentUid = $parentUid;
 		$this->extra     = $extra;
+	}
+
+	/**
+	 * Call site_page() on the URL.
+	 *
+	 * @param $base string
+	 * @see site_page()
+	 * @return string
+	 */
+	public function getSitePage( $base = NULL ) {
+		return site_page( $this->url, $base );
 	}
 
 	public function getExtra($arg, $default = null) {
