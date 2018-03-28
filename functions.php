@@ -521,12 +521,18 @@ function URL_domain() {
 }
 
 /**
- * Get the port of the request
+ * Get the explicit port of the request
  * @see PORT
+ * @return string
  */
 function URL_port() {
-	$p = @ $_SERVER['SERVER_PORT'];
-	return $p === '443' || $p === '80' ? '' : ":$p";
+	if( isset( $_SERVER[ 'SERVER_PORT' ] ) ) {
+		$p = (int) $_SERVER[ 'SERVER_PORT' ];
+		if( 80 !== $p && 443 !== $p ) {
+			return ":$p";
+		}
+	}
+	return '';
 }
 
 function URL_root() {
