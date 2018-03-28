@@ -1,5 +1,5 @@
 <?php
-# Copyright (C) 2015, 2017 Valerio Bozzolan
+# Copyright (C) 2015, 2017, 2018 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General License as published by
@@ -68,10 +68,17 @@ class Permissions {
 		return array_keys( $this->rolePermissions );
 	}
 
+	/**
+	 * To avoid duplicate permissions
+	 * Only useful when someone want to list all the permissions.
+	 *
+	 * @return self
+	 */
 	public function clean() {
 		foreach( $this->rolePermissions as $role => $permissions ) {
 			$this->rolePermissions[ $role ] = array_unique( $permissions );
 		}
+		return $this;
 	}
 
 	private static function errorRole( $role ) {
