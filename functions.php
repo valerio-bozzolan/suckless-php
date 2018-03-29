@@ -1,5 +1,5 @@
 <?php
-# Copyright (C) 2015, 2016, 2017 Valerio Bozzolan
+# Copyright (C) 2015, 2016, 2017, 2018 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -697,30 +697,4 @@ function get_page_load($decimals = 6) {
 		$start_microtime = microtime(true);
 	}
 	return substr(microtime(true) - $start_microtime, 0, 2 + $decimals);
-}
-
-/**
- * Merge user defined arguments into defaults array.
- * It's used in a lot of functions.
- *
- * @param array $args Value to merge with $defaults
- * @param array $defaults Array that serves as the defaults
- * @return array Merged user defined values with defaults
- * @deprecated
- */
-function merge_args_defaults($args, $defaults) {
-        if( ! is_array($args) ) {
-		DEBUG && error( sprintf(
-			_("Errore in %s: l'argomento 1 dovrebbe essere un array."),
-			__FUNCTION__
-		) );
-		return $defaults;
-	}
-	if( ! is_array($defaults) ) {
-		error_die( sprintf(
-			_("Errore in %s: l'argomento 2 deve essere un array."),
-			__FUNCTION__
-		) );
-	}
-	return array_merge($defaults, $args);
 }

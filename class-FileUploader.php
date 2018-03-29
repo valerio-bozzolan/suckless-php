@@ -1,5 +1,5 @@
 <?php
-# Copyright (C) 2015 Valerio Bozzolan
+# Copyright (C) 2015, 2018 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -88,8 +88,8 @@ class FileUploader {
 	 *		E.g.: false (overwrite the file if already exists)
 	 *		Default: true
 	 */
-	public function setArgs($args) {
-		$this->args = merge_args_defaults($args, [
+	public function setArgs( $args ) {
+		$this->args = array_replace( [
 			'slug' => true,
 			'override-filename' => null,
 			'pre-filename' => '',
@@ -100,7 +100,7 @@ class FileUploader {
 			'min-length-filename' => 2,
 			'max-length-filename' => 200,
 			'dont-overwrite' => true
-		] );
+		], $args );
 	}
 
 	/**

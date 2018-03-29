@@ -1,5 +1,5 @@
 <?php
-# Copyright (C) 2015 Valerio Bozzolan
+# Copyright (C) 2015, 2018 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -26,13 +26,13 @@
  * @param int $level Level of the menu, used internally. Default 0.
  * @param array $args Arguments
  */
-function print_menu($uid = null, $level = 0, $args = [] ) {
+function print_menu( $uid = null, $level = 0, $args = [] ) {
 
 	// Example of custom default args
-	$args = merge_args_defaults( $args, [
+	$args = array_replace( [
 		'max-level' => 99,
 		'menu-ul-intag' => 'class="collection"'
-	] );
+	], $args );
 
 	// End menu if level reached
 	if( $level > $args['max-level'] ) {

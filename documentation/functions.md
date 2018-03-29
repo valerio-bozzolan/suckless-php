@@ -16,15 +16,6 @@ Register a required global object.
    * `string` — variable name
    * `string` — name
 
-### `function merge_args_defaults($args, $defaults)`
-
-Merge user defined arguments into defaults array. It's used in a lot of functions.
-
- * **Parameters:**
-   * `$args` — `array` — Value to merge with $defaults
-   * `$defaults` — `array` — Array that serves as the defaults
- * **Returns:** `array` — Merged user defined values with defaults
-
 ### `function force_array( & $a )`
 
 Force something to be an array.

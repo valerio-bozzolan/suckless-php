@@ -50,7 +50,7 @@ class TreeResults {
 	private $entry_childs = [];
 
 	function __construct($table, $class_name, $args = []) {
-		$args = merge_args_defaults($args, [
+		$args = array_replace( [
 			'ID'        => "{$table}_ID",
 			'uid'       => "{$table}_uid",
 			'parent'    => "{$table}_parent",
@@ -58,7 +58,7 @@ class TreeResults {
 			'select'    => [],
 			'from'      => $table,
 			'condition' => null
-		] );
+		], $args );
 
 		$this->table          = $table;
 		$this->className      = $class_name;

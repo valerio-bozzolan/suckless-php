@@ -1,5 +1,5 @@
 <?php
-# Copyright (C) 2015 Valerio Bozzolan
+# Copyright (C) 2015, 2018 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
- * Use: esc_html(), error_die(), DEBUG, merge_args_defaults(), force_array()
+ * Use: esc_html(), error_die(), DEBUG, force_array()
  */
 
 /**
@@ -224,9 +224,9 @@ class DB {
 	 * @param array $args Extra arguments
 	 */
 	public function insert($table_name, $columns, $rows, $args = []) {
-		$args = merge_args_defaults($args, [
+		$args = array_replace( [
 			'replace-into' => false
-		] );
+		], $args );
 
 		force_array($rows);
 
