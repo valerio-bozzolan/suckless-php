@@ -115,7 +115,7 @@ function esc_sql_like($s) {
  * @return string
  */
 function esc_html($s) {
-	return htmlentities($s);
+	return htmlspecialchars($s);
 }
 
 /**
