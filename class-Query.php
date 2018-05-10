@@ -21,6 +21,7 @@ class Query {
 
 	private $selectFields = [];
 	private $tables = [];
+	private $from = [];
 	private $groups = [];
 	private $having;
 	private $conditions;
@@ -59,11 +60,21 @@ class Query {
 	 * Selected tables without prefix.
 	 *
 	 * @param string|array $tables Table/tables
-	 * @note I wanted to use "use()", but it's reserved.
 	 * @return Query
 	 */
 	public function from() {
 		return $this->appendInArray( func_get_args(), $this->tables );
+	}
+
+	/**
+	 * Set a custom from value
+	 *
+	 * @param string e.g. "(SELECT * ...) as t1"
+	 * @return Query
+	 */
+	public function fromCustom( $from ) {
+		$this->from[] = $from;
+		return $this;
 	}
 
 	/**
@@ -194,8 +205,20 @@ class Query {
 		return $this;
 	}
 
+	/**
+	 * Get the FROM clause
+	 *
+	 * @return string
+	 */
 	public function getFrom() {
-		return $this->db->getTables( $this->tables );
+		$tables = $this->db->getTables( $this->tables );
+		if( $this->from ) {
+			if( $tables ) {
+				$tables .= ', ';
+			}
+			$tables .= implode( ', ', $this->from );
+		}
+		return $tables;
 	}
 
 	public function getSelect() {
