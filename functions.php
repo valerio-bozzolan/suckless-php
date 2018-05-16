@@ -18,32 +18,32 @@
 define('DOT',  '.');
 define('STAR', '*');
 
-function selected( $helper = null, $current = null, $force = false ) {
+function selected( $helper = PHP_INT_MAX, $current = PHP_INT_MAX, $force = false ) {
 	return html_property_when_matching( 'selected', 'selected', $helper, $current, $force);
 }
 
-function checked( $helper = null, $current = null, $force = false ) {
+function checked( $helper = PHP_INT_MAX, $current = PHP_INT_MAX, $force = false ) {
 	return html_property_when_matching( 'checked', 'checked', $helper, $current, $force);
 }
 
-function disabled( $helper = null, $current = null, $force = false ) {
+function disabled( $helper = PHP_INT_MAX, $current = PHP_INT_MAX, $force = false ) {
 	return html_property_when_matching( 'disabled', 'disabled', $helper, $current, $force );
 }
 
-function _checked( $helper = null, $current = null, $force = false ) {
+function _checked( $helper = PHP_INT_MAX, $current = PHP_INT_MAX, $force = false ) {
 	echo checked( $helper, $current, $force );
 }
 
-function _selected( $helper = null, $current = null, $force = false ) {
+function _selected( $helper = PHP_INT_MAX, $current = PHP_INT_MAX, $force = false ) {
 	echo selected( $helper, $current, $force );
 }
 
-function _disabled( $helper = null, $current = null, $force = false ) {
+function _disabled( $helper = PHP_INT_MAX, $current = PHP_INT_MAX, $force = false ) {
 	echo disabled( $helper, $current, $force );
 }
 
-function html_property_when_matching( $property, $value, $helper = null, $current = null, $force = false ) {
-	if( $helper === $current || $helper && null === $current || $force ) {
+function html_property_when_matching( $property, $value, $helper = PHP_INT_MAX, $current = PHP_INT_MAX, $force = false ) {
+	if( $helper === $current || $helper && PHP_INT_MAX === $current || $force ) {
 		return HTML::property( $property, $value );
 	}
 	return '';
