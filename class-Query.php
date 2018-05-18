@@ -320,6 +320,21 @@ class Query {
 	}
 
 	/**
+	 * Get a generator of $class_name objects.
+	 *
+	 * @param string $class_name
+	 * @see DB#getResults()
+	 * @return array
+	 */
+	public function queryGenerator( $class_name = null, $params = [] ) {
+		return $this->db->getGenerator(
+			$this->getQuery(),
+			$this->getDefaultClass( $class_name ),
+			$params
+		);
+	}
+
+	/**
 	 * Get the result set encapsulated in the specified class.
 	 *
 	 * @param string $class_name

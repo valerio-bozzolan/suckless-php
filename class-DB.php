@@ -189,6 +189,22 @@ class DB {
 	}
 
 	/**
+	 * Execute a query and return a generator of $class_name objects.
+	 *
+	 * @param string $query Database SQL query.
+	 * @param string $class_name The name of the class to instantiate.
+	 * @param array $params Optional data for the $class_name constructor.
+	 * @See http://php.net/manual/en/mysqli-result.fetch-object.php
+	 */
+	public function getGenerator( $query, $class_name = null, $params = [] ) {
+		$this->query( $query );
+		$res = [];
+		while( $row = $this->lastResult->fetch_object( $class_name, $params ) ) {
+			yield $row;
+		}
+	}
+
+	/**
 	 * To insert a single row.
 	 * I have not time to check if $dbCols are DBCol objects.
 	 *
