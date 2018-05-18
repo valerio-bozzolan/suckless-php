@@ -197,6 +197,9 @@ class DB {
 	 * @See http://php.net/manual/en/mysqli-result.fetch-object.php
 	 */
 	public function getGenerator( $query, $class_name = null, $params = [] ) {
+		if( $class_name === null ) {
+			$class_name = 'Queried';
+		}
 		$this->query( $query );
 		$res = [];
 		while( $row = $this->lastResult->fetch_object( $class_name, $params ) ) {
