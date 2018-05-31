@@ -102,7 +102,7 @@ class RegisterJS {
 					$url .= false === strpos($url, '?') ? '?' : '&amp;';
 					$url .= CACHE_BUSTER;
 				}
-				echo "<script type=\"text/javascript\" src=\"$url\"></script>";
+				echo "<script src=\"$url\"></script>";
 				if(DEBUG) {
 					echo "<!-- $javascript_uid -->";
 				}
