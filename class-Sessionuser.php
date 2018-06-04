@@ -1,5 +1,5 @@
 <?php
-# Copyright (C) 2015, 2016 Valerio Bozzolan
+# Copyright (C) 2015, 2016, 2018 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,78 +14,127 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-class_exists('Session');
-
 /**
- * @use SESSIONUSER_CLASS
+ * Sessionuser class
  */
-trait SessionuserTrait {
-	private static function prepareSessionuser(& $u) {
-		if( ! isset($u->user_ID, $u->user_uid, $u->user_active, $u->user_password, $u->user_role) ) {
-			if( DEBUG ) {
-				$error = function($s) {
-					error( sprintf( _("Campo %s mancante nella tabella utente."), $s ) );
-				};
-				isset($u->user_ID)       || $error("user_ID");
-				isset($u->user_uid)      || $error("user_uid");
-				isset($u->user_active)   || $error("user_active");
-				isset($u->user_password) || $error("user_password");
-				isset($u->user_role)     || $error("user_role");
-			}
+class Sessionuser extends Queried {
 
-			error_die( _("Inattesa struttura della tabella utenti.") );
-		}
+	/**
+	 * Database table name
+	 */
+	const T = 'user';
 
-		$u->user_ID     = (int) $u->user_ID;
-		$u->user_active = (bool) (int) $u->user_active;
+	/**
+	 * Database ID column name
+	 */
+	const ID = 'user_ID';
+
+	/**
+	 * Database UID column name
+	 */
+	const UID = 'user_uid';
+
+	/**
+	 * Database UID length in characters
+	 */
+	const UID_MAXLEN = 128;
+
+	/**
+	 * Database activation status column name
+	 */
+	const IS_ACTIVE = 'user_active';
+
+	/**
+	 * Database password column name
+	 */
+	const PASSWORD = 'user_password';
+
+	/**
+	 * Database role column name
+	 */
+	const ROLE = 'user_role';
+
+	/**
+	 * Construct
+	 */
+	public function __construct() {
+		$this->normalizeSessionuser();
 	}
 
-	function isSessionuserActive() { // Deprecated
-		return $this->user_active;
+	/**
+	 * Object normalization
+	 */
+	protected function normalizeSessionuser() {
+		$this->integers( self::ID )
+		     ->booleans( self::IS_ACTIVE );
 	}
 
-	function getSessionuserRole() {
-		return $this->user_role;
+	/**
+	 * Factory from login
+	 *
+	 * @param $uid string
+	 * @param $password string
+	 * @return query
+	 */
+	public static function factoryFromLogin( $uid, $password ) {
+		return self::factoryFromUID( $uid )
+			->whereStr( self::PASSWORD, self::encryptPassword( $password ) );
 	}
 
-	function generateCookieToken() {
-		return hash(COOKIE_HASH_ALGO, COOKIE_HASH_SALT . $this->user_password . COOKIE_HASH_PEPP);
+	/**
+	 * Get Sessionuser ID
+	 *
+	 * @return int
+	 */
+	public function getSessionuserID() {
+		return $this->get( self::ID );
 	}
 
-	static function querySessionuserFromUid($uid) {
-		return query_row(
-			sprintf(
-				"SELECT * FROM {$GLOBALS[T]('user')} WHERE user_uid = '%s'",
-				esc_sql( $uid )
-			),
-			SESSIONUSER_CLASS
-		);
+	/**
+	 * Get Sessionuser UID
+	 *
+	 * @return string
+	 */
+	public function getSessionuserUID() {
+		return $this->get( self::UID );
 	}
 
-	static function querySessionuserFromLogin($user_uid, $user_password) {
-		return query_row(
-			sprintf(
-				"SELECT * FROM {$GLOBALS[T]('user')} WHERE user_uid = '%s' AND user_password = '%s'",
-				esc_sql( $user_uid ),
-				esc_sql( self::encryptSessionuserPassword( $user_password ) )
-			),
-			SESSIONUSER_CLASS
-		);
+	/**
+	 * Get the role
+	 *
+	 * @return string
+	 */
+	public function getSessionuserRole() {
+		return $this->get( self::ROLE );
 	}
 
-	static function encryptSessionuserPassword($password) {
-		return hash(PASSWD_HASH_ALGO, PASSWD_HASH_SALT . $password . PASSWD_HASH_PEPP);
+	/**
+	 * Is active?
+	 *
+	 * @return bool
+	 */
+	public function isSessionuserActive() {
+		return $this->get( self::IS_ACTIVE );
 	}
 
-	function isActive() { // Deprecated
-		return $this->isSessionuserActive();
+	/**
+	 * Generate the cookie token
+	 *
+	 * @return string
+	 */
+	public function generateSessionuserCookieToken() {
+		return hash( COOKIE_HASH_ALGO, COOKIE_HASH_SALT . $this->get( self::PASSWORD ) . COOKIE_HASH_PEPP );
 	}
-}
 
-class Sessionuser {
-	use SessionuserTrait;
-
-	function __construct() {
-		self::prepareSessionuser( $this );
+	/**
+	 * Encrypt the password
+	 *
+	 * @param $password string
+	 * @return string
+	 */
+	public static function encryptPassword( $password ) {
+		$password = luser_input( $password, 500 );
+		return hash( PASSWD_HASH_ALGO, PASSWD_HASH_SALT . $password . PASSWD_HASH_PEPP );
 	}
+
 }

@@ -1,5 +1,5 @@
 <?php
-# Copyright (C) 2015 Valerio Bozzolan
+# Copyright (C) 2015, 2018 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,58 +23,101 @@ defined('COOKIE_HASH_PEPP')  || define('COOKIE_HASH_PEPP', '30s3-f'); // Just so
 defined('SESSION_DURATION')  || define('SESSION_DURATION', 604800);   // Just something 60s * 60m * 24h * 7d
 defined('SESSIONUSER_CLASS') || define('SESSIONUSER_CLASS', 'Sessionuser');
 
+/**
+ * Session handler class
+ */
 class Session {
+
+	/**
+	 * Is the login verified?
+	 *
+	 * @var bool
+	 */
 	private $loginVerified = false;
 
+	/**
+	 * User currently logged
+	 *
+	 * @var Sessionuser
+	 */
 	private $user = null;
 
-	private $userClass;
-
-	function __construct() {
-		$this->userClass = SESSIONUSER_CLASS;
-		$this->isLogged();
+	/**
+	 * Constructor
+	 */
+	public function __construct() {
+		$this->validate();
 	}
 
-	const OK = 0;
-	const LOGIN_FAILED = 1;
-	const ALREADY_LOGGED = 2;
-	const EMPTY_USER_UID = 4;
+	/**
+	 * Is the user logged?
+	 *
+	 * @return bool
+	 */
+	public function isLogged() {
+		return null !== $this->getUser();
+	}
+
+	/**
+	 * Get the currently logged-in user
+	 *
+	 * @return Sessionuser
+	 */
+	public function getUser() {
+		if( ! $this->loginVerified ) {
+			$this->validate();
+		}
+		return $this->user;
+	}
+
+	/*
+	 * Login statuses
+	 */
+	const OK                  = 0;
+	const LOGIN_FAILED        = 1;
+	const ALREADY_LOGGED      = 2;
+	const EMPTY_USER_UID      = 4;
 	const EMPTY_USER_PASSWORD = 8;
-	const TOO_LONG_USER_UID = 16; // Deprecated
-	const TOO_LONG_USER_PASSWORD = 32; // Deprecated
-	const USER_DISABLED = 64;
-	public function login(& $status = null, $user_uid = null, $user_password = null) {
+	const USER_DISABLED       = 64;
+
+	/**
+	 * Do a login
+	 *
+	 * @param $status int Login status
+	 * @param $user_uid User UID
+	 * @param $user_password User password
+	 * @return bool
+	 */
+	public function login( & $status = null, $user_uid = null, $user_password = null ) {
 		if( $this->isLogged() ) {
 			$status = self::ALREADY_LOGGED;
 			return true;
 		}
-		if($user_uid === null) {
-			$user_uid = @$_POST['user_uid'];
+
+		if( null === $user_uid && isset( $_POST['user_uid'] )  ) {
+			$user_uid = $_POST['user_uid'];
 		}
-		if($user_password === null) {
-			$user_password = @$_POST['user_password'];
+		if( null === $user_password && isset( $_POST['user_password'] ) ) {
+			$user_password = $_POST['user_password'];
 		}
 
-		/// Silently short user input
-		$user_uid      = luser_input( $user_uid,      100 );
-		$user_password = luser_input( $user_password, 100 );
-
-		if( empty($user_uid) ) {
+		if( empty( $user_uid ) ) {
 			$status = self::EMPTY_USER_UID;
 			return false;
 		}
-		if( empty($user_password) ) {
+		if( empty( $user_password ) ) {
 			$status = self::EMPTY_USER_PASSWORD;
 			return false;
 		}
 
 		// PHP bug
-		$userClass = $this->userClass;
-		$user = $userClass::querySessionuserFromLogin($user_uid, $user_password);
+		$userClass = SESSIONUSER_CLASS;
+		$user = $userClass::factoryFromLogin( $user_uid, $user_password )
+			->queryRow();
 
 		if( ! $user ) {
 			$status = self::LOGIN_FAILED;
-			error_log( sprintf( "Login failed for %s", str_truncate($user_uid, 8, '..') ) );
+			error_log( sprintf( "Login failed by '%s' using POST", $userClass::sanitizeUID( $user_uid ) ) );
 			return false;
 		}
 
@@ -90,16 +133,21 @@ class Session {
 		$time     = time();
 		$duration = $time + SESSION_DURATION;
 
-		setcookie('user_uid',   $user->user_uid,              $duration);
-		setcookie('token',      $user->generateCookieToken(), $duration);
-		setcookie('login_time', $time,                        $duration);
+		setcookie( 'user_uid',   $user->getSessionuserUID(),              $duration );
+		setcookie( 'token',      $user->generateSessionuserCookieToken(), $duration );
+		setcookie( 'login_time', $time,                                   $duration );
 
 		$status = self::OK;
 		return true;
 	}
 
+	/**
+	 * Validate the user session
+	 *
+	 * @return bool
+	 */
 	private function validate() {
-		if($this->loginVerified === true) {
+		if( $this->loginVerified ) {
 			return true;
 		}
 
@@ -108,8 +156,10 @@ class Session {
 		}
 
 		// PHP Bug
-		$userClass = $this->userClass;
-		$user = $userClass::querySessionuserFromUid( str_truncate( $_COOKIE['user_uid'], 400 ) );
+		$userClass = SESSIONUSER_CLASS;
+
+		$user = $userClass::factoryFromUID( $_COOKIE['user_uid'] )
+			->queryRow();
 
 		$this->loginVerified = true;
 
@@ -122,7 +172,8 @@ class Session {
 			return false;
 		}
 
-		if( $_COOKIE['token'] !== $user->generateCookieToken() ) {
+		if( $_COOKIE['token'] !== $user->generateSessionuserCookieToken() ) {
+			error_log( sprintf( "Login failed by '%s' using cookies", $userClass::sanitizeUID( $_COOKIE['user_uid'] ) ) );
 			return false;
 		}
 
@@ -133,29 +184,17 @@ class Session {
 		return true;
 	}
 
-	public function getUser() {
-		if($this->loginVerified !== true) {
-			$this->validate();
-		}
-		return $this->user;
-	}
-
-	public function isLogged() {
-		return $this->getUser() !== null;
-	}
-
+	/**
+	 * Destroy the session
+	 */
 	public function destroy() {
 		$invalidate = time() - 8000;
 
-		setcookie('user_uid',   'lol', $invalidate);
-		setcookie('token',      'lol', $invalidate);
-		setcookie('login_time', 'lol', $invalidate);
+		setcookie( 'user_uid',   'lol', $invalidate );
+		setcookie( 'token',      'lol', $invalidate );
+		setcookie( 'login_time', 'lol', $invalidate );
 
 		$this->loginVerified = true;
 		$this->user = null;
-	}
-
-	public static function encryptUserPassword($password) {
-		return hash(PASSWD_HASH_ALGO, PASSWD_HASH_SALT . $password . PASSWD_HASH_PEPP);
 	}
 }

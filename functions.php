@@ -328,19 +328,12 @@ function remove_option($option_name) {
  * @param null|string $property Property name
  * @return mixed|Sessionuser Property, or entire Sessionuser object.
  */
-function get_user($property = null) {
+function get_user( $property = null ) {
 	$user = expect('session')->getUser();
-	if( $property === null ) {
+	if( null === $property ) {
 		return $user;
 	}
-	if( is_logged() && ! isset( $user->$property ) ) {
-		DEBUG && error( sprintf(
-			_("Colonna utente '%s' mancante!"),
-			esc_html( $property )
-		) );
-		return null;
-	}
-	return $user ? $user->$property : null;
+	return $user ? $user->get( $property ) : null;
 }
 /**
  * Try to login using $_POST['user_uid'] and $_POST['user_password'].

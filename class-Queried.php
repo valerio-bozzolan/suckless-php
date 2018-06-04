@@ -1,5 +1,5 @@
 <?php
-# Copyright (C) 2017 Valerio Bozzolan
+# Copyright (C) 2017, 2018 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,21 +15,20 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This class is intended to be extended by injectable classes.
+ * This class handles a database result entity
  */
 class Queried {
-	function __construct () {}
 
 	/**
 	 * Obtain a property that can be null (but can't be undefined).
 	 *
 	 * @param string $property
+	 * @return mixed
 	 */
-	function get($property) {
-		if( property_exists($this, $property) ) {
+	function get( $property ) {
+		if( property_exists( $this, $property ) ) {
 			return $this->$property;
 		}
-
 		error_die( sprintf(
 			_("Impossibile ottenere %s->%s"),
 			__CLASS__,
@@ -41,6 +40,7 @@ class Queried {
 	 * Obtain a property that can't be null (and can't be undefined).
 	 *
 	 * @param string $property
+	 * @return mixed
 	 */
 	function nonnull($property) {
 		if( isset( $this->$property ) ) {
@@ -90,5 +90,54 @@ class Queried {
 			isset( $this->$p ) and
 				$this->$p = (float) $this->$p;
 		}
+	}
+
+	/**
+	 * Query factory
+	 *
+	 * The class constant 'T' is expected as table name
+	 *
+	 * @return Query
+	 */
+	public static function factory() {
+		return Query::factory( static::class )
+			->from( static::T );
+	}
+
+	/**
+	 * Factory from an ID column
+	 *
+	 * The class constant 'ID' is expected
+	 *
+	 * @param $ID int
+	 * @return Queried
+	 */
+	public static function factoryFromID( $ID ) {
+		return self::factory()
+			->whereInt( static::T . DOT . static::ID, $ID );
+	}
+
+	/**
+	 * Factory from an UID column
+	 *
+	 * The class constant 'UID' is expected
+	 *
+	 * @param $uid string
+	 * @return Queried
+	 */
+	public static function factoryFromUID( $uid ) {
+		$uid = static::sanitizeUID( $uid );
+		return self::factory()
+			->whereStr( static::UID, $uid );
+	}
+
+	/**
+	 * Sanitize the UID
+	 *
+	 * @return string
+	 * @use luser_input()
+	 */
+	public static function sanitizeUID( $uid ) {
+		return luser_input( $uid, static::UID_MAXLEN );
 	}
 }
