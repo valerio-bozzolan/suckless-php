@@ -27,6 +27,11 @@ class Queried {
 	const MAXLEN_UID = 256;
 
 	/**
+	 * Empty constructor
+	 */
+	public function __construct() {}
+
+	/**
 	 * Obtain a property that can be null (but can't be undefined).
 	 *
 	 * @param string $property
