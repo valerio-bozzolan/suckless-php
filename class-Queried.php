@@ -15,9 +15,16 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This class handles a database result entity
+ * This class handles a database table result
+ *
+ * Very often this database table has an ID and an UID.
  */
 class Queried {
+
+	/**
+	 * Maximum UID length
+	 */
+	const MAXLEN_UID = 256;
 
 	/**
 	 * Obtain a property that can be null (but can't be undefined).
@@ -138,6 +145,24 @@ class Queried {
 	 * @use luser_input()
 	 */
 	public static function sanitizeUID( $uid ) {
-		return luser_input( $uid, static::UID_MAXLEN );
+		return luser_input( $uid, static::MAXLEN_UID );
+	}
+
+	/**
+	 * Alias of self::factoryFromID()
+	 *
+	 * @deprecated
+	 */
+	public static function factoryByID( $ID ) {
+		return self::factoryFromID( $ID );
+	}
+
+	/**
+	 * Alias of self::factoryFromUID()
+	 *
+	 * @deprecated
+	 */
+	public static function factoryByUID( $uid ) {
+		return self::factoryFromUID( $uid );
 	}
 }
