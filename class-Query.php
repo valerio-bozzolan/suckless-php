@@ -1,5 +1,5 @@
 <?php
-# Copyright (C) 2017 Valerio Bozzolan
+# Copyright (C) 2017, 2018 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -241,13 +241,20 @@ class Query {
 		return $this;
 	}
 
+	/**
+	 * Order by
+	 *
+	 * @param $order_by string Field to sort
+	 * @param $how string DESC|ASC, failing to ASC
+	 * @return self
+	 */
 	public function orderBy( $order_by, $how = null ) {
 		if( null !== $this->orders ) {
 			$this->orders .= ', ';
 		}
 		$this->orders .= $order_by;
 		if( $how ) {
-			$this->orders .= " $how";
+			$this->orders .= $how === 'DESC' ? ' DESC' : ' ASC';
 		}
 		return $this;
 	}
