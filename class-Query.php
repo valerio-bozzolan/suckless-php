@@ -179,8 +179,11 @@ class Query {
 		}
 
 		$escaped_needles = [];
+		$is_int = is_int( reset( $needles ) );
 		foreach( $needles as $needle ) {
-			$escaped_needles[] = single_quotes( esc_sql( $needle ) );
+			$escaped_needles[] = $is_int
+				? (int) $needle
+				: "'" . esc_sql( $needle ) . "'";
 		}
 
 		if( $escaped_needles ) {
