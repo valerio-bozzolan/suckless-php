@@ -50,7 +50,7 @@ function html_property_when_matching( $property, $value, $helper = PHP_INT_MAX, 
 }
 
 function _value( $v ) {
-	echo HTML::property('value', $v );
+	echo HTML::property( 'value', $v );
 }
 
 /**
