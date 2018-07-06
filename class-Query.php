@@ -397,8 +397,8 @@ class Query {
 
 	private function appendInArray( $values, & $array ) {
 		// Retrocompatibility patch
-		if( isset( $values[0] ) && is_array( $values[0] ) ) {
-			$values = $values[0];
+		if( isset( $values[ 0 ] ) && is_array( $values[ 0 ] ) ) {
+			$values = $values[ 0 ];
 		}
 		foreach( $values as $value ) {
 			$array[] = $value;
