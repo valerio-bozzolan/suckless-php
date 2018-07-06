@@ -45,7 +45,6 @@ class Query {
 		return $t;
 	}
 
-
 	/**
 	 * Selected fields (SELECT).
 	 *
@@ -91,7 +90,7 @@ class Query {
 		} elseif( $this->from ) {
 			$latest_table = array_pop( $this->from   );
 		} else {
-			throw new IllegalArgumentException( 'not enough tables' );
+			throw new InvalidArgumentException( 'not enough tables' );
 		}
 		$this->from[] = sprintf(
 			'%s %s JOIN %s ON (%s = %s)',
