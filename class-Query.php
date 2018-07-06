@@ -400,11 +400,8 @@ class Query {
 		if( isset( $values[0] ) && is_array( $values[0] ) ) {
 			$values = $values[0];
 		}
-
 		foreach( $values as $value ) {
-			if( $value && ! in_array( $value, $array, true ) ) {
-				$array[] = $value;
-			}
+			$array[] = $value;
 		}
 		return $this;
 	}
