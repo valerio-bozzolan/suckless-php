@@ -57,9 +57,9 @@ class Query {
 	}
 
 	/**
-	 * Selected tables without prefix.
+	 * Selected tables
 	 *
-	 * @param string|array $tables Table/tables
+	 * @param string|array $tables Table/tables without database prefix
 	 * @return Query
 	 */
 	public function from() {
@@ -74,6 +74,33 @@ class Query {
 	 */
 	public function fromCustom( $from ) {
 		$this->from[] = $from;
+		return $this;
+	}
+
+	/**
+	 * Append a custom join from the latest selected table
+	 *
+	 * @param $type string join type e.g. LEFT, RIGHT, LEFT OUTHER
+	 * @param $table string table name
+	 * @param $a string column name
+	 * @param $b string column name
+	 */
+	public function joinOn( $type, $table, $a, $b ) {
+		if( $this->tables ) {
+			$latest_table = $this->db->getTable( array_pop( $this->tables ) );
+		} elseif( $this->from ) {
+			$latest_table = array_pop( $this->from   );
+		} else {
+			throw new IllegalArgumentException( 'not enough tables' );
+		}
+		$this->from[] = sprintf(
+			'%s %s JOIN %s ON (%s = %s)',
+			$latest_table,
+			$type,
+			$this->db->getTable( $table ),
+			$a,
+			$b
+		);
 		return $this;
 	}
 
