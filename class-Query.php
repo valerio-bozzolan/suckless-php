@@ -88,7 +88,7 @@ class Query {
 		if( $this->tables ) {
 			$latest_table = $this->db->getTable( array_pop( $this->tables ) );
 		} elseif( $this->from ) {
-			$latest_table = array_pop( $this->from   );
+			$latest_table = array_pop( $this->from );
 		} else {
 			throw new InvalidArgumentException( 'not enough tables' );
 		}
