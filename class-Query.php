@@ -86,7 +86,7 @@ class Query {
 	 */
 	public function joinOn( $type, $table, $a, $b ) {
 		if( $this->tables ) {
-			$latest_table = $this->db->getTable( array_pop( $this->tables ) );
+			$latest_table = $this->db->getTable( array_pop( $this->tables ), true );
 		} elseif( $this->from ) {
 			$latest_table = array_pop( $this->from );
 		} else {
@@ -243,18 +243,18 @@ class Query {
 		$tables = $this->db->getTables( $this->tables );
 		if( $this->from ) {
 			if( $tables ) {
-				$tables .= ', ';
+				$tables .= ' JOIN ';
 			}
-			$tables .= implode( ', ', $this->from );
+			$tables .= implode( ' JOIN ', $this->from );
 		}
 		return $tables;
 	}
 
 	public function getSelect() {
-		if( count( $this->selectFields ) === 0 ) {
-			return '*';
+		if( $this->selectFields ) {
+			return implode( ', ', $this->selectFields );
 		}
-		return implode(', ', $this->selectFields);
+		return '*';
 	}
 
 	public function getWhere() {

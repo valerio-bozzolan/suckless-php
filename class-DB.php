@@ -539,19 +539,14 @@ class DB {
 	 * Return the list of every table name inserted as arguments or as an []
 	 */
 	public function getTables($args = []) {
-		$tables = '';
-		if( ! is_array($args) ) {
+		$tables = [];
+		if( ! is_array( $args ) ) {
 			$args = func_get_args();
 		}
-		if($n = count($args)) {
-			for($i=0; $i<$n; $i++) {
-				if($i !== 0) {
-					$tables .= ', ';
-				}
-				$tables .= $this->getTable($args[$i], true);
-			}
+		foreach( $args as $arg ) {
+			$tables[] = $this->getTable( $arg, true );
 		}
-		return $tables;
+		return implode( ' JOIN ', $tables );
 	}
 
 	/**
