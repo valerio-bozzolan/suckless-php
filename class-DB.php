@@ -197,14 +197,15 @@ class DB {
 	 * @See http://php.net/manual/en/mysqli-result.fetch-object.php
 	 */
 	public function getGenerator( $query, $class_name = null, $params = [] ) {
-		if( $class_name === null ) {
+		if( null === $class_name ) {
 			$class_name = 'Queried';
 		}
-		$this->query( $query );
-		$res = [];
-		while( $row = $this->lastResult->fetch_object( $class_name, $params ) ) {
+		$result = $this->query( $query );
+		$this->lastResult = true; // to don't be killed from another query() call
+		while( $row = $result->fetch_object( $class_name, $params ) ) {
 			yield $row;
 		}
+		$result->free();
 	}
 
 	/**
