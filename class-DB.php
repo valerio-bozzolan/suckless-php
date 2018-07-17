@@ -197,14 +197,15 @@ class DB {
 	 * @See http://php.net/manual/en/mysqli-result.fetch-object.php
 	 */
 	public function getGenerator( $query, $class_name = null, $params = [] ) {
-		if( $class_name === null ) {
+		if( null === $class_name ) {
 			$class_name = 'Queried';
 		}
-		$this->query( $query );
-		$res = [];
-		while( $row = $this->lastResult->fetch_object( $class_name, $params ) ) {
+		$result = $this->query( $query );
+		$this->lastResult = true; // to don't be killed from another query() call
+		while( $row = $result->fetch_object( $class_name, $params ) ) {
 			yield $row;
 		}
+		$result->free();
 	}
 
 	/**
@@ -539,19 +540,14 @@ class DB {
 	 * Return the list of every table name inserted as arguments or as an []
 	 */
 	public function getTables($args = []) {
-		$tables = '';
-		if( ! is_array($args) ) {
+		$tables = [];
+		if( ! is_array( $args ) ) {
 			$args = func_get_args();
 		}
-		if($n = count($args)) {
-			for($i=0; $i<$n; $i++) {
-				if($i !== 0) {
-					$tables .= ', ';
-				}
-				$tables .= $this->getTable($args[$i], true);
-			}
+		foreach( $args as $arg ) {
+			$tables[] = $this->getTable( $arg, true );
 		}
-		return $tables;
+		return implode( ' JOIN ', $tables );
 	}
 
 	/**
