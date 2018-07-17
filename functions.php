@@ -577,7 +577,7 @@ function error( $msg ) {
  * @param string $msgid String to be translated
  * @return string translated string (or original, if not found)
  */
-function ___( $msgid ) {
+function __( $msgid ) {
 	return MoLoader::getInstance()->getTranslator()->gettext( $msgid );
 }
 
@@ -585,7 +585,7 @@ function ___( $msgid ) {
  * Shortcut for echoing a translated string
  */
 function _e( $s ) {
-	echo ___( $s );
+	echo __( $s );
 }
 
 function http_json_header($charset = null) {
