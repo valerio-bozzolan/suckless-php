@@ -1,5 +1,5 @@
 <?php
-# Copyright (C) 2015, 2016 Valerio Bozzolan
+# Copyright (C) 2015, 2016, 2018 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@
  * @use error_die(), esc_html()
  */
 class RegisterLanguage {
+
 	var $i = -1;
 	var $languages = [];
 
@@ -45,76 +46,72 @@ class RegisterLanguage {
 	var $default = null;
 
 	/**
+	 * Constructor
+	 *
 	 * @param string $domain GNU Gettext domain
 	 * @param string $directory GNU Gettext directory
 	 * @param string $default_encode GNU Gettext default language encode
 	 */
-	function __construct($domain = null, $directory = null, $default_encode = null) {
-		if($domain === null && defined('GETTEXT_DOMAIN') ) {
+	function __construct( $domain = null, $directory = null, $default_encode = null ) {
+		if( ! $domain ) {
 			$domain = GETTEXT_DOMAIN;
 		}
-		if($directory === null && defined('GETTEXT_DIRECTORY') ) {
+		if( ! $directory ) {
 			$directory = GETTEXT_DIRECTORY;
 		}
-		if($default_encode === null && defined('GETTEXT_DEFAULT_ENCODE') ) {
+		if( ! $default_encode ) {
 			 $default_encode = GETTEXT_DEFAULT_ENCODE;
 		}
-
-		if($domain === null || $directory === null) {
-			error_die( sprintf(
-				_("Devi impostare le costanti %s e %s."),
-				'GETTEXT_DOMAIN',
-				'GETTEXT_DIRECTORY'
-			) );
-		}
-
 		$this->gettextDomain = $domain;
 		$this->gettextDirectory = $directory;
 		$this->gettextDefaultEncode = $default_encode;
 	}
 
 	/**
+	 * Register a language
+	 *
 	 * @string string $code GNU Gettext code language
 	 * @string array $aliases You can specify language aliases (in lower case)
 	 * @string string $encode Override the default GNU Gettext language encode
 	 */
-	function registerLanguage($code, $aliases = [], $encode = null, $iso = null) {
-		if( $encode === null ) {
+	public function registerLanguage( $code, $aliases = [], $encode = null, $iso = null ) {
+		if( ! $encode ) {
 			$encode = $this->gettextDefaultEncode;
 		}
 
-		if( $encode === null ) {
+		if( ! $encode ) {
 			DEBUG && error( sprintf(
-				_("Non hai specificato una codifica per la lingua '%s' e non ce n'è una predefinita. Impostala con la costante %s."),
+				__("Non hai specificato una codifica per la lingua '%s' e non ce n'è una predefinita. Impostala con la costante %s."),
 				esc_html($code),
 				'GETTEXT_DEFAULT_ENCODE'
 			) );
 			return false;
 		}
 
-		$this->languages[ ++$this->i ] = new BozPHPLanguage($code, $encode, $iso);
+		$this->languages[ ++$this->i ] = new BozPHPLanguage( $code, $encode, $iso );
 
 		// Yes, the language code it's an alias to itself. That's a lazy hack!
 		$this->aliases[ self::normalize($code) ] = $this->i;
 
 		// Each alias is associated to it's language code
-		force_array($aliases);
-		foreach($aliases as $alias) {
+		force_array( $aliases );
+		foreach( $aliases as $alias ) {
 			$this->aliases[ $alias ] = $this->i;
 		}
 	}
 
 	/**
 	 * Set the default language.
-	 * A default language allow more GNU Gettext efficiency and less high-level pain.
+	 *
+	 * A default language allow less high-level pain.
 	 *
 	 * @param string $default
 	 */
-	function setDefaultLanguage($default) {
+	public function setDefaultLanguage( $default ) {
 		$code = self::normalize($default);
 		if( ! isset( $this->aliases[ $code ] ) ) {
 			error_die( sprintf(
-				_("Default language '%s' have to be registered previously"),
+				__("Default language '%s' have to be registered previously"),
 				esc_html($default)
 			) );
 		}
@@ -127,16 +124,15 @@ class RegisterLanguage {
 	 * @param string $language_alias Language alias, null for browser preferences
 	 * @return false|object Language object or false if it isn't registered
 	 */
-	function getLanguage($language_alias = null) {
-		if($language_alias === null) {
-			return $this->getLanguageFromHTTP();
-		} else {
-			$language_alias = strtolower($language_alias);
+	public function getLanguage( $language_alias = null ) {
+		if( $language_alias ) {
+			$language_alias = self::normalize( $language_alias );
 			if( isset( $this->aliases[ $language_alias ] ) ) {
 				return $this->languages[ $this->aliases[ $language_alias ] ];
 			}
+		} else {
+			return $this->getLanguageFromHTTP();
 		}
-
 		return false;
 	}
 
@@ -146,21 +142,14 @@ class RegisterLanguage {
 	 * @param string $language_alias Language alias, null for browser preferences
 	 * @return mixed
 	 */
-	function applyLanguage($language_alias = null) {
-		$language = $this->getLanguage($language_alias);
-
-		if($language === false) {
+	public function applyLanguage( $language_alias = null ) {
+		$language = $this->getLanguage( $language_alias );
+		if( ! $language ) {
 			return false;
 		}
-
 		$this->latest = $language;
-
-		if( $language === $this->default ) {
-			// Like calling self::GNUGettextEnvironment without any existing language file
-			return '';
-		}
-
-		return self::GNUGettextEnvironment($language->code, $language->encode, $this->gettextDomain, $this->gettextDirectory);
+		self::GNUGettextEnvironment( $language->code, $language->encode, $this->gettextDomain, $this->gettextDirectory );
+		return $language->code;
 	}
 
 	/**
@@ -181,55 +170,50 @@ class RegisterLanguage {
 		}
 
 		// Create an associative array of priority=>language
-		preg_match_all('/([a-z]{1,8}(-[a-z]{1,8})?)\s*(;\s*q\s*=\s*(1|0\.[0-9]+))?/i', $_SERVER['HTTP_ACCEPT_LANGUAGE'], $langs);
-		if( count($langs[1]) === 0 ) {
+		preg_match_all( '/([a-z]{1,8}(-[a-z]{1,8})?)\s*(;\s*q\s*=\s*(1|0\.[0-9]+))?/i', $_SERVER[ 'HTTP_ACCEPT_LANGUAGE' ], $langs );
+		if( 0 === count( $langs[ 1 ] ) ) {
 			return false;
 		}
-		$langs = array_combine($langs[1], $langs[4]);
+		$langs = array_combine( $langs[ 1 ], $langs[ 4 ] );
 
 		// To respect RFC if no priority is specified (q=;)
-		foreach($langs as $lang => $val){
-			$langs[$lang] = ( $val === '' ) ? 1.0 : (float) $val;
+		foreach( $langs as $lang => $val ){
+			$langs[ $lang ] = ( '' === $val ) ? 1.0 : (float) $val;
 		}
 
 		// Order by priority
-		arsort($langs, SORT_NUMERIC);
+		arsort( $langs, SORT_NUMERIC );
 
 		// Search and use a known language
-		foreach($langs as $lang => $val) {
+		foreach( $langs as $lang => $val ) {
 			$language = $this->getLanguage( $lang );
 
-			if($language !== false) {
+			if( false !== $language ) {
 				// Found a language that match browser preferences!
 				return $language;
 			}
 		}
-
 		return false;
 	}
 
 	/**
-	 * Fill the GNU Gettext Environment.
-	 *
-	 * @see http://php.net/manual/en/book.gettext.php
-	 * @return boolean GNU Gettext works for your system?
+	 * Fill the GNU Gettext Environment
 	 */
-	static function GNUGettextEnvironment($code, $encode, $domain, $directory) {
-		putenv("LANG=$code.$encode");
-		$ok = setlocale(LC_MESSAGES, "$code.$encode");
-		bindtextdomain($domain, $directory);
-		textdomain($domain);
-		bind_textdomain_codeset($domain, $encode);
-
-		if(! $ok && DEBUG) {
-			error( sprintf( _("La localizzazione non è implementata nel tuo sistema. Riferimento: %s"), 'http://php.net/manual/en/function.setlocale.php' ) );
-		}
-
-		return $ok;
+	public static function GNUGettextEnvironment( $code, $encode, $domain, $directory ) {
+		$loader = MoLoader::getInstance();
+		$loader->setlocale( "$code.$encode" );
+		$loader->textdomain( $domain );
+		$loader->bindtextdomain( $domain, $directory );
 	}
 
-	static function normalize($code) {
-		return strtolower($code);
+	/**
+	 * Normalize a language code for internal use
+	 *
+	 * @param $code string
+	 * @return string
+	 */
+	private static function normalize( $code ) {
+		return strtolower( $code );
 	}
 }
 
@@ -238,21 +222,21 @@ class BozPHPLanguage {
 	var $encode;
 	var $iso;
 
-	function __construct($code, $encode, $iso) {
+	public function __construct($code, $encode, $iso) {
 		$this->code   = $code;
 		$this->encode = $encode;
 		$this->iso    = $iso;
 	}
 
-	function getCode() {
+	public function getCode() {
 		return $this->code;
 	}
 
-	function getEncode() {
+	public function getEncode() {
 		return $this->encode;
 	}
 
-	function getISO() {
+	public function getISO() {
 		if($this->iso === null) {
 			$this->iso = self::guessISO($this->iso);
 		}
@@ -264,14 +248,14 @@ class BozPHPLanguage {
 	 *
 	 * Can be called statically
 	 */
-	function guessISO($code = null, $fallback = 'en') {
+	public function guessISO( $code = null, $fallback = 'en' ) {
 		if($code === null) {
 			$code = $this->code;
 		}
-		$p = strpos($code, '_');
-		if($p === false) {
+		$p = strpos( $code, '_' );
+		if( false === $p ) {
 			DEBUG && error( sprintf(
-				_("Can't guess the ISO language from language code '%s'. Falling on default '%s'."),
+				__("Can't guess the ISO language from language code '%s'. Falling on default '%s'."),
 				esc_html($code),
 				$fallback
 			) );

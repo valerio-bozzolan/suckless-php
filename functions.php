@@ -572,10 +572,20 @@ function error( $msg ) {
 }
 
 /**
- * Support for gettext
+ * Translates a string
+ *
+ * @param string $msgid String to be translated
+ * @return string translated string (or original, if not found)
  */
-function _e($s) {
-	echo _($s);
+function __( $msgid ) {
+	return MoLoader::getInstance()->getTranslator()->gettext( $msgid );
+}
+
+/**
+ * Shortcut for echoing a translated string
+ */
+function _e( $s ) {
+	echo __( $s );
 }
 
 function http_json_header($charset = null) {
