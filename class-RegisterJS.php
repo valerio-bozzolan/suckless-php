@@ -82,7 +82,7 @@ class RegisterJS {
 			return true;
 		} else {
 			DEBUG && error( sprintf(
-				_("La libreria JavaScript %s non può essere incorporata poichè non è ancora stata registrata."),
+				__("La libreria JavaScript %s non può essere incorporata poichè non è ancora stata registrata."),
 				"<em>" . esc_html($javascript_uid) . "</em>"
 			) );
 			return false;

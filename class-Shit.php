@@ -52,8 +52,8 @@ class Shit {
 		</head>
 		<body>
 			<h1><?php printf(
-				_("Ci dispiace! C'è qualche piccolo problema! <small>(DEBUG: %s)</small>"),
-				DEBUG ? _("sì") : _("no")
+				__("Ci dispiace! C'è qualche piccolo problema! <small>(DEBUG: %s)</small>"),
+				DEBUG ? __("sì") : __("no")
 			) ?></h1>
 			<p><?php _e("Si è verificato il seguente errore durante l'avvio del framework:") ?></p>
 			<p>&laquo; <?php echo $msg ?> &raquo;</p>

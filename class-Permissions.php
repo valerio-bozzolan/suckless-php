@@ -83,7 +83,7 @@ class Permissions {
 
 	private static function errorRole( $role ) {
 		DEBUG && error( sprintf(
-			_("Il ruolo %s non è stato ancora registrato"),
+			__("Il ruolo %s non è stato ancora registrato"),
 			esc_html( $role )
 		) );
 	}

@@ -79,7 +79,7 @@ class Menu {
 		}
 
 		DEBUG && error( sprintf(
-			_("La voce di menu '%s' non è stata ancora creata."),
+			__("La voce di menu '%s' non è stata ancora creata."),
 			esc_html($uid)
 		) );
 

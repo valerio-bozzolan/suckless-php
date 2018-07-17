@@ -67,7 +67,7 @@ $GLOBALS['G']->add('registerLanguage', 'RegisterLanguage');
 
 // Callback
 if( REQUIRE_LOAD_POST ) {
-	defined('ABSPATH') || error_die( _("Devi definire la costante ABSPATH. Oppure disabilita REQUIRE_LOAD_POST.") );
+	defined('ABSPATH') || error_die( __("Devi definire la costante ABSPATH. Oppure disabilita REQUIRE_LOAD_POST.") );
 
 	require ABSPATH . __ . 'load-post.php';
 }

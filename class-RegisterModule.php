@@ -55,7 +55,7 @@ class RegisterModule {
 	public function register($module_uid) {
 		if( isset( $this->module[ $module_uid ] ) ) {
 			DEBUG && error( sprintf(
-				_("Il modulo %s è già stato registrato."),
+				__("Il modulo %s è già stato registrato."),
 				"<code>" . esc_html($module_uid) . "</code>"
 			) );
 		}
@@ -70,7 +70,7 @@ class RegisterModule {
 		if( ! isset( $this->module[ $module_uid ] ) ) {
 			$this->module[$module_uid] = [];
 			DEBUG && error( sprintf(
-				_("Il modulo %s non è stato ancora creato. Hai sbagliato a scriverlo?"),
+				__("Il modulo %s non è stato ancora creato. Hai sbagliato a scriverlo?"),
 				"<em>" . esc_html($module_uid) . "</em>"
 			) );
 		}
@@ -85,7 +85,7 @@ class RegisterModule {
 	public function loadModule($module_uid) {
 		if( ! isset( $this->module[ $module_uid ] ) ) {
 			DEBUG && error( sprintf(
-				_("Il modulo %s è già stato registrato."),
+				__("Il modulo %s è già stato registrato."),
 				"<code>" . esc_html($module_uid) . "</code>"
 			) );
 			return false;
@@ -102,7 +102,7 @@ class RegisterModule {
 				$status = $module[$i]();
 				if(DEBUG && $status === false) {
 					error( sprintf(
-						_("Errore caricando il modulo %s (callback %s°)."),
+						__("Errore caricando il modulo %s (callback %s°)."),
 						"<em>" . esc_html($module_uuid) . "</em>",
 						"<em>" . $i . "</em>"
 					) );
@@ -110,7 +110,7 @@ class RegisterModule {
 			} else {
 				$status = false;
 				DEBUG && error( sprintf(
-					_("Il callback richiesto per il modulo %s non esiste."),
+					__("Il callback richiesto per il modulo %s non esiste."),
 					"<em>" . esc_html($module_uuid) . "</em>"
 				) );
 			}

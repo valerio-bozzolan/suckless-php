@@ -52,14 +52,14 @@ class G {
 		if( ! isset( $GLOBALS[ $name ] ) ) {
 			// Die if class was not registered
 			isset( $this->added[ $name ] ) || error_die( sprintf(
-				_("Variabile globale '%s' attesa ma mai registrata. L'hai scritta correttamente?"),
+				__("Variabile globale '%s' attesa ma mai registrata. L'hai scritta correttamente?"),
 				esc_html($name)
 			) );
 
 			$class_name = $this->added[ $name ];
 
 			class_exists($class_name, true) || error_die( sprintf(
-				_("La classe '%s' non esiste!"),
+				__("La classe '%s' non esiste!"),
 				esc_html($class_name)
 			) );
 

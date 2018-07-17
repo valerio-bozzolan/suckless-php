@@ -237,7 +237,7 @@ class MimeTypes {
 		$finfo = finfo_open( FILEINFO_MIME, MAGIC_MIME_FILE );
 		if( ! $finfo ) {
 			DEBUG && error( sprintf(
-				_("Errore aprendo il database fileinfo situato in '%s'."),
+				__("Errore aprendo il database fileinfo situato in '%s'."),
 				MAGIC_MIME_FILE
 			) );
 			return false;
@@ -245,7 +245,7 @@ class MimeTypes {
 		$mime = finfo_file( $finfo, $filepath );
 		if( ! $mime ) {
 			DEBUG && error( sprintf(
-				_("Impossibile ottenere il MIME del file '%s'."),
+				__("Impossibile ottenere il MIME del file '%s'."),
 				esc_html( $filepath )
 			) );
 			return false;
@@ -259,7 +259,7 @@ class MimeTypes {
 
 	private static function printErrorUnknownCategory($category) {
 		error( sprintf(
-			_("Categoria di MIME <em>%s</em> non registrata."),
+			__("Categoria di MIME <em>%s</em> non registrata."),
 			esc_html( $category )
 		) );
 	}

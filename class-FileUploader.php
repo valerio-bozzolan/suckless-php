@@ -154,7 +154,7 @@ class FileUploader {
 				break;
 			default:
 				DEBUG && error( sprintf(
-					_("FileUploader ha ottenuto un errore sconosciuto: %d."),
+					__("FileUploader ha ottenuto un errore sconosciuto: %d."),
 					$_FILES[ $this->fileEntry ]['error']
 				) );
 				$status = UPLOAD_EXTRA_ERR_GENERIC_ERROR;
@@ -251,29 +251,29 @@ class FileUploader {
 		switch($status) {
 			case UPLOAD_ERR_OK:
 				// You should avoid this. Is not an error!
-				return _("Upload completato con successo.");
+				return __("Upload completato con successo.");
 			case UPLOAD_ERR_NO_FILE:
-				return _("Non è stato selezionato alcun file.");
+				return __("Non è stato selezionato alcun file.");
 			case UPLOAD_ERR_INI_SIZE:
-				return _("Il file eccede i limiti di sistema.");
+				return __("Il file eccede i limiti di sistema.");
 			case UPLOAD_ERR_FORM_SIZE:
-				DEBUG && error( _("Non affidarti a UPLOAD_ERR_FORM_SIZE!") );
-				return _("Il file eccede i limiti imposti.");
+				DEBUG && error( __("Non affidarti a UPLOAD_ERR_FORM_SIZE!") );
+				return __("Il file eccede i limiti imposti.");
 			case UPLOAD_EXTRA_ERR_OVERSIZE:
 				return sprintf(
-					_("Il file pesa %s. Non può superare %s."),
+					__("Il file pesa %s. Non può superare %s."),
 					human_filesize($_FILES[ $this->fileEntry ]['size']),
 					human_filesize( $this->args['max-filesize'] )
 				);
 			case UPLOAD_EXTRA_ERR_CANT_SAVE_FILE:
-				return _("Impossibile salvare il file.");
+				return __("Impossibile salvare il file.");
 			case UPLOAD_EXTRA_ERR_CANT_READ_MIMETYPE:
-				return _("Il MIME del file non è validabile.");
+				return __("Il MIME del file non è validabile.");
 			case UPLOAD_EXTRA_ERR_UNALLOWED_MIMETYPE:
 				$mime = self::fileMimetype( $_FILES[ $this->fileEntry ]['tmp_name'] );
 
 				return sprintf(
-					_("Il file é di un <em>MIME type</em> non concesso: <em>%s</em>."),
+					__("Il file é di un <em>MIME type</em> non concesso: <em>%s</em>."),
 					esc_html( $mime )
 				);
 			case UPLOAD_EXTRA_ERR_UNALLOWED_FILE:
@@ -287,26 +287,26 @@ class FileUploader {
 				return multi_text(
 					count( $allowed_filetypes ),
 					sprintf(
-						_("Il file ha un'estensione non valida. Estensioni attese: <em>%s</em>."),
+						__("Il file ha un'estensione non valida. Estensioni attese: <em>%s</em>."),
 						esc_html( implode(', ', $allowed_filetypes ) )
 					),
 					sprintf(
-						_("Il file ha un'estensione non valida. Estensione attesa: <em>%s</em>."),
+						__("Il file ha un'estensione non valida. Estensione attesa: <em>%s</em>."),
 						esc_html( $allowed_filetypes[0] )
 					)
 				);
 			case UPLOAD_EXTRA_ERR_FILENAME_TOO_SHORT:
-				return _("Il file ha un nome troppo breve.");
+				return __("Il file ha un nome troppo breve.");
 			case UPLOAD_EXTRA_ERR_FILENAME_TOO_LONG:
-				return _("Il file ha un nome troppo lungo.");
+				return __("Il file ha un nome troppo lungo.");
 			case UPLOAD_EXTRA_ERR_GENERIC_ERROR:
-				return _("Errore di caricamento.");
+				return __("Errore di caricamento.");
 		}
 		DEBUG && error( sprintf(
-			_("Stato di errore non previsto: '%d'"),
+			__("Stato di errore non previsto: '%d'"),
 			$status
 		) );
-		return _("Errore durante l'upload.");
+		return __("Errore durante l'upload.");
 	}
 
 	/**
@@ -326,7 +326,7 @@ class FileUploader {
 
 		if( ! is_callable( $build_filename ) ) {
 			error_die( sprintf(
-				_("Il 5° argomento di %s dovrebbe essere il nome di una funzione ma non esiste alcuna funzione '%s'."),
+				__("Il 5° argomento di %s dovrebbe essere il nome di una funzione ma non esiste alcuna funzione '%s'."),
 				__FUNCTION__,
 				esc_html( $build_filename )
 			) );
@@ -363,7 +363,7 @@ class FileUploader {
 		if( ! isset( $args['autoincrement'] ) ) {
 			$args['autoincrement'] = '-%d';
 			DEBUG && error( sprintf(
-				_("Arg [autoincrement] atteso in %s. Assunto '%s'."),
+				__("Arg [autoincrement] atteso in %s. Assunto '%s'."),
 				__FUNCTION__,
 				'-%d'
 			) );
@@ -371,7 +371,7 @@ class FileUploader {
 		if( ! isset( $args['post-filename']  ) ) {
 			$args['post-filename'] = '';
 			DEBUG && error( sprintf(
-				_("Arg [post-filename] atteso in %s. Assunto vuoto."),
+				__("Arg [post-filename] atteso in %s. Assunto vuoto."),
 				__FUNCTION__
 			) );
 		}
@@ -391,7 +391,7 @@ class FileUploader {
 		$finfo = finfo_open(FILEINFO_MIME, MAGIC_MIME_FILE);
 		if( ! $finfo ) {
 			DEBUG and error( sprintf(
-				_("Errore aprendo il database fileinfo situato in '%s'."),
+				__("Errore aprendo il database fileinfo situato in '%s'."),
 				MAGIC_MIME_FILE
 			) );
 			return false;
@@ -399,7 +399,7 @@ class FileUploader {
 		$mime = finfo_file($finfo, $filepath);
 		if( ! $mime ) {
 			DEBUG && error( sprintf(
-				_("Impossibile ottenere il MIME del file '%s'."),
+				__("Impossibile ottenere il MIME del file '%s'."),
 				esc_html( $filepath )
 			) );
 			return false;

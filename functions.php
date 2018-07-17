@@ -209,7 +209,7 @@ function insert_row($table, $cols) {
  */
 function last_inserted_ID() {
 	isset( $GLOBALS['db'] )
-		|| error_die( _("Manca la connessione al database. Come ottenere l'ultimo indice?") );
+		|| error_die( __("Manca la connessione al database. Come ottenere l'ultimo indice?") );
 
 	return expect('db')->getLastInsertedID();
 }
@@ -577,7 +577,7 @@ function error( $msg ) {
  * @param string $msgid String to be translated
  * @return string translated string (or original, if not found)
  */
-function __( $msgid ) {
+function ___( $msgid ) {
 	return MoLoader::getInstance()->getTranslator()->gettext( $msgid );
 }
 
@@ -585,7 +585,7 @@ function __( $msgid ) {
  * Shortcut for echoing a translated string
  */
 function _e( $s ) {
-	echo __( $s );
+	echo ___( $s );
 }
 
 function http_json_header($charset = null) {
@@ -644,7 +644,7 @@ function is_closure($t) {
  */
 function human_filesize($filesize, $separator = ' '){
 	if( ! is_numeric($filesize) ) {
-		return _("NaN");
+		return __("NaN");
 	}
 	$decr = 1024;
 	$step = 0;
@@ -664,7 +664,7 @@ function create_path($path, $chmod = CHMOD_WRITABLE_DIRECTORY) {
 		return true;
 	}
 	DEBUG && error( sprintf(
-		_("Impossibile scrivere il percorso '%s'."),
+		__("Impossibile scrivere il percorso '%s'."),
 		esc_html( $path )
 	) );
 	return false;

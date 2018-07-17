@@ -42,7 +42,7 @@ class Queried {
 			return $this->$property;
 		}
 		error_die( sprintf(
-			_("Impossibile ottenere %s->%s"),
+			__("Impossibile ottenere %s->%s"),
 			get_class( $this ),
 			$property
 		) );
@@ -60,7 +60,7 @@ class Queried {
 		}
 
 		error_die( sprintf(
-			_("Impossibile ottenere %s->%s"),
+			__("Impossibile ottenere %s->%s"),
 			get_class( $this ),
 			$property
 		) );

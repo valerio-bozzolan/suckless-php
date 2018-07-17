@@ -50,7 +50,7 @@ class RegisterCSS {
 	public function enqueue($css_uid) {
 		if(!isset($this->css[$css_uid])) {
 			DEBUG && error( sprintf(
-				_("Il foglio di stile %s non può essere incorporato perchè non è stato ancora registrato."),
+				__("Il foglio di stile %s non può essere incorporato perchè non è stato ancora registrato."),
 				"<em>" . esc_html($css_uid) . "</em>"
 			) );
 		} else {

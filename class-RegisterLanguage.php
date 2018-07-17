@@ -81,7 +81,7 @@ class RegisterLanguage {
 
 		if( ! $encode ) {
 			DEBUG && error( sprintf(
-				__("Non hai specificato una codifica per la lingua '%s' e non ce n'è una predefinita. Impostala con la costante %s."),
+				___("Non hai specificato una codifica per la lingua '%s' e non ce n'è una predefinita. Impostala con la costante %s."),
 				esc_html($code),
 				'GETTEXT_DEFAULT_ENCODE'
 			) );
@@ -111,7 +111,7 @@ class RegisterLanguage {
 		$code = self::normalize($default);
 		if( ! isset( $this->aliases[ $code ] ) ) {
 			error_die( sprintf(
-				__("Default language '%s' have to be registered previously"),
+				___("Default language '%s' have to be registered previously"),
 				esc_html($default)
 			) );
 		}
@@ -255,7 +255,7 @@ class BozPHPLanguage {
 		$p = strpos( $code, '_' );
 		if( false === $p ) {
 			DEBUG && error( sprintf(
-				__("Can't guess the ISO language from language code '%s'. Falling on default '%s'."),
+				___("Can't guess the ISO language from language code '%s'. Falling on default '%s'."),
 				esc_html($code),
 				$fallback
 			) );

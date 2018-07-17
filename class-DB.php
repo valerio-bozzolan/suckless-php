@@ -83,13 +83,13 @@ class DB {
 		@$this->mysqli = new mysqli($location, $username, $password, $database);
 		if( $this->errorConnection() ) {
 			if(DEBUG) {
-				$password_shown = ($password === '') ? _("nessuna") : sprintf(
-					_("di %d caratteri"),
+				$password_shown = ($password === '') ? __("nessuna") : sprintf(
+					__("di %d caratteri"),
 					strlen( $password )
 				);
 
 				error_die( sprintf(
-					_("Impossibile connettersi al database '%s' tramite l'utente '%s' e password (%s) sul server MySQL/MariaDB '%s'. Specifica correttamente queste informazioni nel file di configurazione del tuo progetto (usualmente '%s'). %s."),
+					__("Impossibile connettersi al database '%s' tramite l'utente '%s' e password (%s) sul server MySQL/MariaDB '%s'. Specifica correttamente queste informazioni nel file di configurazione del tuo progetto (usualmente '%s'). %s."),
 					$database,
 					$username,
 					$password_shown,
@@ -97,11 +97,11 @@ class DB {
 					'load.php',
 					HTML::a(
 						'https://github.com/valerio-bozzolan/boz-php-another-php-framework/blob/master/README.md#use-it',
-						_("Documentazione")
+						__("Documentazione")
 					)
 				) );
 			} else {
-				error_die( _("Errore nello stabilire una connessione al database.") );
+				error_die( __("Errore nello stabilire una connessione al database.") );
 			}
 		}
 
@@ -141,7 +141,7 @@ class DB {
 
 	private function showSQL($SQL) {
 		echo "<p>" . sprintf(
-			_("Query numero %d: <pre>%s</pre>"),
+			__("Query numero %d: <pre>%s</pre>"),
 			$this->numQueries,
 			$SQL
 		) . "</p>\n";
@@ -275,7 +275,7 @@ class DB {
 
 			if($n_columns != count($rows[$i])) {
 				DEBUG && error( sprintf(
-					_("Errore inserendo nella tabella <em>%s</em>. Colonne: <em>%d</em>. Colonne values[<em>%d</em>]: <em>%d</em>"),
+					__("Errore inserendo nella tabella <em>%s</em>. Colonne: <em>%d</em>. Colonne values[<em>%d</em>]: <em>%d</em>"),
 					esc_html($table_name),
 					$n_columns,
 					$i,
@@ -328,10 +328,10 @@ class DB {
 		$options = $this->getResults("SELECT option_name, option_value FROM {$this->getTable('option')} WHERE option_autoload != 0");
 		if($options === false) {
 			if(DEBUG) {
-				error_die( _("Errore caricando le opzioni dal database") );
+				error_die( __("Errore caricando le opzioni dal database") );
 			} else {
 				error_die( sprintf(
-					_("Probabilmente la tabella %s non esiste."),
+					__("Probabilmente la tabella %s non esiste."),
 					$this->getTable('option')
 				) );
 			}
@@ -357,7 +357,7 @@ class DB {
 	public function registerOption($option_name, $wildcard = false) {
 		if( in_array($option_name, $this->optionsUsed, true) ) {
 			DEBUG && error( sprintf(
-				_("Errore registrando l'opzione '%s' poichè risulta già registrata!"),
+				__("Errore registrando l'opzione '%s' poichè risulta già registrata!"),
 				esc_html($option_name)
 			) );
 			return false;
@@ -630,7 +630,7 @@ class DB {
 	 */
 	private function getQueryErrorMessage($SQL) {
 		return sprintf(
-			_("Errore eseguendo una query SQL: Query n. %d: <blockquote><pre>%s</pre></blockquote><br />Errore: <pre>%s</pre>"),
+			__("Errore eseguendo una query SQL: Query n. %d: <blockquote><pre>%s</pre></blockquote><br />Errore: <pre>%s</pre>"),
 			$this->numQueries,
 			$SQL,
 			esc_html($this->mysqli->error)
