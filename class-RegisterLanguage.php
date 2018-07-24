@@ -21,36 +21,36 @@
  */
 class RegisterLanguage {
 
-	var $i = -1;
-	var $languages = [];
+	private $i = -1;
+	private $languages = [];
 
 	/**
 	 * Associative map of alias=>index of $this->languages
 	 */
-	var $aliases = [];
+	private $aliases = [];
 
-	var $gettextDomain;
-	var $gettextDirectory;
-	var $gettextDefaultEncode;
+	private $gettextDomain;
+	private $gettextDirectory;
+	private $gettextDefaultEncode;
 
 	/**
 	 * Use native GNU Gettext (lot of quicker but more unreliable)
 	 *
 	 * @var bool
 	 */
-	var $native;
+	private $native;
 
 	/**
 	 * Latest language applied
 	 */
-	var $latest = null;
+	private $latest = null;
 
 	/**
 	 * Default language (don't apply GNU Gettext in this case).
 	 *
 	 * Index of self#languages[]
 	 */
-	var $default = null;
+	private $default = null;
 
 	/**
 	 * Constructor
@@ -59,7 +59,7 @@ class RegisterLanguage {
 	 * @param string $directory GNU Gettext directory
 	 * @param string $default_encode GNU Gettext default language encode
 	 */
-	function __construct( $domain = null, $directory = null, $default_encode = null, $native = null ) {
+	public function __construct( $domain = null, $directory = null, $default_encode = null, $native = null ) {
 		if( ! $domain ) {
 			$domain = GETTEXT_DOMAIN;
 		}
@@ -239,9 +239,9 @@ class RegisterLanguage {
 }
 
 class BozPHPLanguage {
-	var $code;
-	var $encode;
-	var $iso;
+	private $code;
+	private $encode;
+	private $iso;
 
 	public function __construct($code, $encode, $iso) {
 		$this->code   = $code;
