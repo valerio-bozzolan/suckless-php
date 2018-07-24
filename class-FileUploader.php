@@ -108,7 +108,8 @@ class FileUploader {
 	 * @return bool
 	 */
 	public function uploadRequestOK() {
-		return isset( $_FILES[ $this->fileEntry ]['error'] ) && ! is_array( $_FILES[ $this->fileEntry ]['error'] );
+		$err = $this->getFileInfo( 'error' );
+		return null !== $err && ! is_array( $err );
 	}
 
 	/**
@@ -119,7 +120,19 @@ class FileUploader {
 	 * @return bool If the user have sent a valid file or not.
 	 */
 	public function fileChoosed() {
-		return $this->uploadRequestOK() && $_FILES[ $this->fileEntry ]['error'] !== UPLOAD_ERR_NO_FILE;
+		return $this->uploadRequestOK() && $this->getFileInfo( 'error' ) !== UPLOAD_ERR_NO_FILE;
+	}
+
+	/**
+	 * Get a file property
+	 */
+	public function getFileInfo( $property ) {
+		$v = @ $_FILES[ $this->fileEntry ][ $property ];
+		$i = $this->args[ 'i' ];
+		if( isset( $i ) ) {
+			$v = @ $v[ $i ];
+		}
+		return $v;
 	}
 
 	/**
@@ -137,7 +150,7 @@ class FileUploader {
 			return false;
 		}
 
-		switch( $_FILES[ $this->fileEntry ]['error'] ) {
+		switch( $this->getFileInfo( 'error' ) ) {
 			case UPLOAD_ERR_NO_FILE:
 			case UPLOAD_ERR_INI_SIZE:
 			case UPLOAD_ERR_FORM_SIZE:
@@ -146,7 +159,7 @@ class FileUploader {
 			case UPLOAD_ERR_CANT_WRITE:
 			case UPLOAD_ERR_EXTENSION:
 				// Return the same error
-				$status = $_FILES[ $this->fileEntry ]['error'];
+				$status = $this->getFileInfo( 'error ' );
 				return false;
 			case UPLOAD_ERR_OK:
 				// It's OK
@@ -154,20 +167,20 @@ class FileUploader {
 			default:
 				DEBUG && error( sprintf(
 					__("FileUploader ha ottenuto un errore sconosciuto: %d."),
-					$_FILES[ $this->fileEntry ]['error']
+					$this->getFileInfo( 'error' )
 				) );
 				$status = UPLOAD_EXTRA_ERR_GENERIC_ERROR;
 				return false;
 		}
 
 		// Check filesize
-		if( $this->args['max-filesize'] !== null && $_FILES[ $this->fileEntry ]['size'] > $this->args['max-filesize'] ) {
+		if( $this->args['max-filesize'] !== null && $this->getFileInfo( 'size' ) > $this->args['max-filesize'] ) {
 			$status = UPLOAD_EXTRA_ERR_OVERSIZE;
 			return false;
 		}
 
 		// Check original MIME type
-		$mime = self::fileMimetype( $_FILES[ $this->fileEntry ]['tmp_name'] );
+		$mime = self::fileMimetype( $this->getFileInfo( 'tmp_name' ) );
 		if( ! $mime ) {
 			$status = UPLOAD_EXTRA_ERR_CANT_READ_MIMETYPE;
 			return false;
@@ -181,7 +194,7 @@ class FileUploader {
 
 		// Check original file extension
 		$ext = $GLOBALS['mimeTypes']->getFileExtensionFromExpectations(
-			$_FILES[ $this->fileEntry ]['name'],
+			$this->getFileInfo( 'name' ),
 			$this->args['category'],
 			$mime
 		);
@@ -192,7 +205,7 @@ class FileUploader {
 
 		if( $this->args['override-filename'] === null ) {
 			// Strip original complete file name from extension
-			$filename = substr($_FILES[ $this->fileEntry ]['name'], 0, - ( strlen( $ext ) + 1 ) );
+			$filename = substr( $this->getFileInfo( 'name' ), 0, - ( strlen( $ext ) + 1 ) );
 		} else {
 			// Override file name
 			$filename = $this->args['override-filename'];
@@ -227,7 +240,7 @@ class FileUploader {
 		}
 
 		$moved = move_uploaded_file(
-			$_FILES[ $this->fileEntry ]['tmp_name'],
+			$this->getFileInfo( 'tmp_name' ),
 			$pathname . _ . $complete_filename
 		);
 
@@ -261,7 +274,7 @@ class FileUploader {
 			case UPLOAD_EXTRA_ERR_OVERSIZE:
 				return sprintf(
 					__("Il file pesa %s. Non può superare %s."),
-					human_filesize($_FILES[ $this->fileEntry ]['size']),
+					human_filesize( $this->getFileInfo( 'size' ) ),
 					human_filesize( $this->args['max-filesize'] )
 				);
 			case UPLOAD_EXTRA_ERR_CANT_SAVE_FILE:
@@ -269,14 +282,14 @@ class FileUploader {
 			case UPLOAD_EXTRA_ERR_CANT_READ_MIMETYPE:
 				return __("Il MIME del file non è validabile.");
 			case UPLOAD_EXTRA_ERR_UNALLOWED_MIMETYPE:
-				$mime = self::fileMimetype( $_FILES[ $this->fileEntry ]['tmp_name'] );
+				$mime = self::fileMimetype( $this->getFileInfo( 'tmp_name' ) );
 
 				return sprintf(
 					__("Il file é di un <em>MIME type</em> non concesso: <em>%s</em>."),
 					esc_html( $mime )
 				);
 			case UPLOAD_EXTRA_ERR_UNALLOWED_FILE:
-				$mime = self::fileMimetype( $_FILES[ $this->fileEntry ]['tmp_name'] );
+				$mime = self::fileMimetype( $this->getFileInfo( 'tmp_name' ) );
 
 				$allowed_filetypes = $this->mimeTypes->getFiletypes(
 					$this->args['category'],
@@ -408,5 +421,19 @@ class FileUploader {
 			$mime = $mime[0];
 		}
 		return $mime;
+	}
+
+	/**
+	 * Generate multiple FileUploader constructors
+	 *
+	 * @generator
+	 */
+	public static function multiple( $name, $args = [] ) {
+		$files = isset( $_FILES[ $name ] ) ? $_FILES[ $name ] : [];
+		foreach( $files[ 'name' ] as $i => $_ ) {
+			yield new self( $name, array_replace( $args, [
+				'i' => $i
+			] ) );
+		}
 	}
 }
