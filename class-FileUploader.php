@@ -56,6 +56,8 @@ class FileUploader {
 	 * Set options.
 	 *
 	 * @param array $args Arguments.
+	 *	'i' => int
+	 *		If the user uploaded multiple filenames, this is the index.
 	 *	'slug' => bool
 	 *		If the filename have to be slugged.
 	 *		Default: true
@@ -89,6 +91,7 @@ class FileUploader {
 	 */
 	public function setArgs( $args ) {
 		$this->args = array_replace( [
+			'i' => null,
 			'slug' => true,
 			'override-filename' => null,
 			'pre-filename' => '',
