@@ -42,12 +42,11 @@ class FileUploader {
 	 * @param array $args Arguments.
 	 * @see FileUploader::setArgs()
 	 */
-	function __construct($fileEntry, $args = [], $mimeTypes = null) {
+	function __construct( $fileEntry, $args = [], $mimeTypes = null ) {
 		$this->fileEntry = $fileEntry;
 		$this->setArgs($args);
-		if($mimeTypes === null) {
-			expect('mimeTypes');
-			$this->mimeTypes = & $GLOBALS['mimeTypes'];
+		if( null === $mimeTypes ) {
+			$this->mimeTypes = expect( 'mimeTypes' );
 		} else {
 			$this->mimeTypes = $mimeTypes;
 		}
@@ -109,7 +108,7 @@ class FileUploader {
 	 * @return bool
 	 */
 	public function uploadRequestOK() {
-		return isset($_FILES[ $this->fileEntry ]['error']) && ! is_array($_FILES[ $this->fileEntry ]['error']);
+		return isset( $_FILES[ $this->fileEntry ]['error'] ) && ! is_array( $_FILES[ $this->fileEntry ]['error'] );
 	}
 
 	/**
@@ -132,13 +131,13 @@ class FileUploader {
 	 * @param string $ext File extension with dot
 	 * @param string $mime MIME type
 	 */
-	public function uploadTo($pathname, & $status, & $filename = null, & $ext = null, & $mime = null) {
+	public function uploadTo( $pathname, & $status, & $filename = null, & $ext = null, & $mime = null ) {
 		if( ! $this->uploadRequestOK() ) {
 			$status = UPLOAD_EXTRA_ERR_INVALID_REQUEST;
 			return false;
 		}
 
-		switch($_FILES[ $this->fileEntry ]['error']) {
+		switch( $_FILES[ $this->fileEntry ]['error'] ) {
 			case UPLOAD_ERR_NO_FILE:
 			case UPLOAD_ERR_INI_SIZE:
 			case UPLOAD_ERR_FORM_SIZE:
@@ -247,8 +246,8 @@ class FileUploader {
 	 * @param int $status The $status var from FileUploader::uploadTo()
 	 * @return string The proper error message.
 	 */
-	public function getErrorMessage($status) {
-		switch($status) {
+	public function getErrorMessage( $status ) {
+		switch( $status ) {
 			case UPLOAD_ERR_OK:
 				// You should avoid this. Is not an error!
 				return __("Upload completato con successo.");
@@ -396,7 +395,7 @@ class FileUploader {
 			) );
 			return false;
 		}
-		$mime = finfo_file($finfo, $filepath);
+		$mime = finfo_file( $finfo, $filepath );
 		if( ! $mime ) {
 			DEBUG && error( sprintf(
 				__("Impossibile ottenere il MIME del file '%s'."),
