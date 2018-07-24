@@ -34,6 +34,13 @@ class RegisterLanguage {
 	var $gettextDefaultEncode;
 
 	/**
+	 * Use native GNU Gettext (lot of quicker but more unreliable)
+	 *
+	 * @var bool
+	 */
+	var $native;
+
+	/**
 	 * Latest language applied
 	 */
 	var $latest = null;
@@ -52,7 +59,7 @@ class RegisterLanguage {
 	 * @param string $directory GNU Gettext directory
 	 * @param string $default_encode GNU Gettext default language encode
 	 */
-	function __construct( $domain = null, $directory = null, $default_encode = null ) {
+	function __construct( $domain = null, $directory = null, $default_encode = null, $native = null ) {
 		if( ! $domain ) {
 			$domain = GETTEXT_DOMAIN;
 		}
@@ -62,9 +69,13 @@ class RegisterLanguage {
 		if( ! $default_encode ) {
 			 $default_encode = GETTEXT_DEFAULT_ENCODE;
 		}
+		if( null === $native ) {
+			$native = defined( 'GETTEXT_NATIVE' ) ? GETTEXT_NATIVE : false;
+		}
 		$this->gettextDomain = $domain;
 		$this->gettextDirectory = $directory;
 		$this->gettextDefaultEncode = $default_encode;
+		$this->native = $native;
 	}
 
 	/**
@@ -148,7 +159,7 @@ class RegisterLanguage {
 			return false;
 		}
 		$this->latest = $language;
-		self::GNUGettextEnvironment( $language->code, $language->encode, $this->gettextDomain, $this->gettextDirectory );
+		self::GNUGettextEnvironment( $language->code, $language->encode, $this->gettextDomain, $this->gettextDirectory, $this->native );
 		return $language->code;
 	}
 
@@ -198,12 +209,22 @@ class RegisterLanguage {
 
 	/**
 	 * Fill the GNU Gettext Environment
+	 *
+	 * @param $native bool Use or not the native implementation
 	 */
-	public static function GNUGettextEnvironment( $code, $encode, $domain, $directory ) {
-		$loader = MoLoader::getInstance();
-		$loader->setlocale( "$code.$encode" );
-		$loader->textdomain( $domain );
-		$loader->bindtextdomain( $domain, $directory );
+	public static function GNUGettextEnvironment( $code, $encode, $domain, $directory, $native = false ) {
+		if( $native ) {
+			putenv( "LANG=$code.$encode" );
+			$ok = setlocale( LC_MESSAGES, "$code.$encode" );
+			bindtextdomain( $domain, $directory );
+			textdomain( $domain );
+			bind_textdomain_codeset( $domain, $encode );
+		} else {
+			$loader = MoLoader::getInstance();
+			$loader->setlocale( "$code.$encode" );
+			$loader->textdomain( $domain );
+			$loader->bindtextdomain( $domain, $directory );
+		}
 	}
 
 	/**
