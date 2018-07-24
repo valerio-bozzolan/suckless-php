@@ -159,8 +159,8 @@ class RegisterLanguage {
 			return false;
 		}
 		$this->latest = $language;
-		self::GNUGettextEnvironment( $language->code, $language->encode, $this->gettextDomain, $this->gettextDirectory, $this->native );
-		return $language->code;
+		self::GNUGettextEnvironment( $language->getCode(), $language->getEncode(), $this->gettextDomain, $this->gettextDirectory, $this->native );
+		return $language->getCode();
 	}
 
 	/**
