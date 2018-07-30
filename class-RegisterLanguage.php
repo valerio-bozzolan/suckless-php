@@ -148,6 +148,15 @@ class RegisterLanguage {
 	}
 
 	/**
+	 * Is a native GETTEXT implementation?
+	 *
+	 * @return bool
+	 */
+	public function isNative() {
+		return $this->native;
+	}
+
+	/**
 	 * Set the GNU Gettext environment from a language alias or from browser preferences.
 	 *
 	 * @param string $language_alias Language alias, null for browser preferences
@@ -159,7 +168,7 @@ class RegisterLanguage {
 			return false;
 		}
 		$this->latest = $language;
-		self::GNUGettextEnvironment( $language->getCode(), $language->getEncode(), $this->gettextDomain, $this->gettextDirectory, $this->native );
+		self::GNUGettextEnvironment( $language->getCode(), $language->getEncode(), $this->gettextDomain, $this->gettextDirectory, $this->isNative() );
 		return $language->getCode();
 	}
 
