@@ -18,7 +18,7 @@ class Permissions {
 	var $rolePermissions = [];
 
 	public function __construct() {
-		expect('session');
+		// expect('session'); it is unnecessary at this time
 	}
 
 	public function registerPermissions( $role, $permissions ) {
