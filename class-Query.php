@@ -169,6 +169,24 @@ class Query {
 	}
 
 	/**
+	 * Filter by a LIKE command
+	 *
+	 * @param $column string Column name
+	 * @param $value string Value to be liked
+	 * @param $left string To have whatever before the value
+	 * @param $right string To have whatever after the value
+	 */
+	public function whereLike( $column, $value, $left = true, $right = true ) {
+		$left  = $left  ? '%' : '';
+		$right = $right ? '%' : '';
+		return $this->where( sprintf(
+			'`%s` LIKE \'%s%s%s\'',
+			$column,
+			$left, esc_sql_like( $value ), $right
+		) );
+	}
+
+	/**
 	 * LIMIT count, offset.
 	 *
 	 * @param int $row_count Max numbers of elements.
