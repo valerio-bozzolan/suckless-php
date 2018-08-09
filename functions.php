@@ -18,6 +18,10 @@
 define('DOT',  '.');
 define('STAR', '*');
 
+function define_default( $constant_name, $default_value ) {
+	defined( $constant_name ) or define( $constant_name, $default_value );
+}
+
 function selected( $helper = PHP_INT_MAX, $current = PHP_INT_MAX, $force = false ) {
 	return html_property_when_matching( 'selected', 'selected', $helper, $current, $force);
 }
