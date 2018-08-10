@@ -301,7 +301,7 @@ class Query {
 		}
 		$this->orders .= $order_by;
 		if( $how ) {
-			$this->orders .= $how === 'DESC' ? ' DESC' : ' ASC';
+			$this->orders .= ' ' . self::filterDirection( $how );
 		}
 		return $this;
 	}
@@ -422,5 +422,15 @@ class Query {
 			$array[] = $value;
 		}
 		return $this;
+	}
+
+	/**
+	 * Filter a direction
+	 *
+	 * @param $dir string
+	 */
+	public static function filterDirection( $dir ) {
+		$dir = strtoupper( $dir );
+		return $dir === 'ASC' ? 'ASC' : 'DESC';
 	}
 }
