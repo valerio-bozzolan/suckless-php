@@ -344,11 +344,15 @@ class Query {
 		return $this;
 	}
 
-	public function getDefaultClass( $default_class = null ) {
-		if( null === $this->class_name ) {
-			return $default_class;
-		}
-		return $this->class_name;
+	/**
+	 * Get the specified class name or the default one
+	 *
+	 * @TODO: rename to getClassName()
+	 * @param $class_name string
+	 * @return string
+	 */
+	public function getDefaultClass( $class_name = null ) {
+		return $class_name ? $class_name : $this->class_name;
 	}
 
 	/**
