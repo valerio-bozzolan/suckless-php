@@ -431,10 +431,13 @@ class Query {
 	/**
 	 * Filter a direction
 	 *
+	 * The fallback is ASC.
+	 *
 	 * @param $dir string
+	 * @return string DESC|ASC
 	 */
 	public static function filterDirection( $dir ) {
 		$dir = strtoupper( $dir );
-		return $dir === 'ASC' ? 'ASC' : 'DESC';
+		return $dir === 'DESC' ? 'DESC' : 'ASC';
 	}
 }
