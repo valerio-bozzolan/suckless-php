@@ -24,6 +24,9 @@ define('UPLOAD_EXTRA_ERR_FILENAME_TOO_SHORT', 107);
 define('UPLOAD_EXTRA_ERR_FILENAME_TOO_LONG', 108);
 define('UPLOAD_EXTRA_ERR_CANT_SAVE_FILE', 109);
 
+defined('MAGIC_MIME_FILE')
+	or define('MAGIC_MIME_FILE', null); // Fifo system default
+
 /**
  * Manage upload exceptions.
  */

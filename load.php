@@ -41,7 +41,6 @@ defined('SHOW_EVERY_SQL')           or define('SHOW_EVERY_SQL', false);
 defined('REQUIRE_LOAD_POST')        or define('REQUIRE_LOAD_POST', true);
 defined('CHMOD_WRITABLE_DIRECTORY') or define('CHMOD_WRITABLE_DIRECTORY', 0777);
 defined('CHMOD_WRITABLE_FILE')      or define('CHMOD_WRITABLE_FILE', 0666);
-defined('MAGIC_MIME_FILE')          or define('MAGIC_MIME_FILE', null); // Fifo system default
 defined('CHARSET')                  or define('CHARSET', 'utf-8');
 defined('CACHE_BUSTER')             or define('CACHE_BUSTER', '');
 
