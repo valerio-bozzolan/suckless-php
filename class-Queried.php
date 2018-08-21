@@ -125,7 +125,7 @@ class Queried {
 	 * @return Queried
 	 */
 	public static function factoryFromID( $ID ) {
-		$field = defined( static::ID ) ? static::ID : static::T . '_ID';
+		$field = defined( static::class . '::ID' ) ? static::ID : static::T . '_ID';
 		$field = static::T . DOT . $field;
 		return self::factory()
 			->whereInt( $field, $ID );
@@ -140,7 +140,7 @@ class Queried {
 	 * @return Queried
 	 */
 	public static function factoryFromUID( $uid ) {
-		$field = defined( static::ID ) ? static::ID : static::T . '_uid';
+		$field = defined( static::class . '::UID' ) ? static::UID : static::T . '_uid';
 		$uid = static::sanitizeUID( $uid );
 		return self::factory()
 			->whereStr( $field, $uid );
