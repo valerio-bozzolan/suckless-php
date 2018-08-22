@@ -351,8 +351,8 @@ function login(& $status = null, $user_uid = null, $user_password = null) {
 function logout() {
 	return expect('session')->destroy();
 }
-function register_language($code, $aliases = [], $encode = null, $iso = null) {
-	return expect('registerLanguage')->registerLanguage($code, $aliases, $encode, $iso);
+function register_language($code, $aliases = [], $encode = null, $iso = null, $human = null) {
+	return expect('registerLanguage')->registerLanguage($code, $aliases, $encode, $iso, $human);
 }
 function register_default_language($default) {
 	return expect('registerLanguage')->setDefaultLanguage($default);

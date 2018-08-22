@@ -81,11 +81,13 @@ class RegisterLanguage {
 	/**
 	 * Register a language
 	 *
-	 * @string string $code GNU Gettext code language
-	 * @string array $aliases You can specify language aliases (in lower case)
-	 * @string string $encode Override the default GNU Gettext language encode
+	 * @param $code string GNU Gettext code language
+	 * @param $aliases array You can specify language aliases (in lower case)
+	 * @param $encode string Override the default GNU Gettext language encode
+	 * @param $iso string
+	 * @param $human string e.g. 'English'
 	 */
-	public function registerLanguage( $code, $aliases = [], $encode = null, $iso = null ) {
+	public function registerLanguage( $code, $aliases = [], $encode = null, $iso = null, $human = null ) {
 		if( ! $encode ) {
 			$encode = $this->gettextDefaultEncode;
 		}
@@ -99,7 +101,7 @@ class RegisterLanguage {
 			return false;
 		}
 
-		$this->languages[ ++$this->i ] = new BozPHPLanguage( $code, $encode, $iso );
+		$this->languages[ ++$this->i ] = new BozPHPLanguage( $code, $encode, $iso, $human );
 
 		// Yes, the language code it's an alias to itself. That's a lazy hack!
 		$this->aliases[ self::normalize($code) ] = $this->i;
@@ -251,11 +253,13 @@ class BozPHPLanguage {
 	private $code;
 	private $encode;
 	private $iso;
+	private $human;
 
-	public function __construct($code, $encode, $iso) {
+	public function __construct( $code, $encode, $iso, $human ) {
 		$this->code   = $code;
 		$this->encode = $encode;
 		$this->iso    = $iso;
+		$this->human  = $human;
 	}
 
 	public function getCode() {
@@ -271,6 +275,10 @@ class BozPHPLanguage {
 			$this->iso = self::guessISO($this->iso);
 		}
 		return $this->iso;
+	}
+
+	public function getHuman() {
+		return $this->human;
 	}
 
 	/**
