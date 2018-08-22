@@ -37,7 +37,7 @@ class Queried {
 	 * @param string $property
 	 * @return mixed
 	 */
-	function get( $property ) {
+	public function get( $property ) {
 		if( property_exists( $this, $property ) ) {
 			return $this->$property;
 		}
@@ -49,12 +49,22 @@ class Queried {
 	}
 
 	/**
+	 * Check if a property is not NULL
+	 *
+	 * @param string $property
+	 * @return bool
+	 */
+	public function has( $property ) {
+		return null !== $this->get( $property );
+	}
+
+	/**
 	 * Obtain a property that can't be null (and can't be undefined).
 	 *
 	 * @param string $property
 	 * @return mixed
 	 */
-	function nonnull($property) {
+	public function nonnull($property) {
 		if( isset( $this->$property ) ) {
 			return $this->$property;
 		}
