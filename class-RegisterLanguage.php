@@ -219,6 +219,15 @@ class RegisterLanguage {
 	}
 
 	/**
+	 * Get all the registered languages
+	 *
+	 * @return array
+	 */
+	public function getAll() {
+		return $this->languages;
+	}
+
+	/**
 	 * Fill the GNU Gettext Environment
 	 *
 	 * @param $native bool Use or not the native implementation

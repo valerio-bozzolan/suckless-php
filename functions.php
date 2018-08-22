@@ -366,6 +366,9 @@ function apply_language($language_alias = null) {
 function latest_language() {
 	return expect('registerLanguage')->getLatestLanguageApplied();
 }
+function all_languages() {
+	return expect('registerLanguage')->getAll();
+}
 function get_num_queries() {
 	if( isset( $GLOBALS['db'] ) ) {
 		return $GLOBALS['db']->getNumQueries();
