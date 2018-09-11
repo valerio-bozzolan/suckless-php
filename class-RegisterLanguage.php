@@ -87,7 +87,7 @@ class RegisterLanguage {
 	 * @param $iso string
 	 * @param $human string e.g. 'English'
 	 */
-	public function registerLanguage( $code, $aliases = [], $encode = null, $iso = null, $human = null ) {
+	public function registerLanguage( $code, $aliases = [], $encode = null, $iso = null, $human = null, $humanL10n = null ) {
 		if( ! $encode ) {
 			$encode = $this->gettextDefaultEncode;
 		}
@@ -101,7 +101,7 @@ class RegisterLanguage {
 			return false;
 		}
 
-		$this->languages[ ++$this->i ] = new BozPHPLanguage( $code, $encode, $iso, $human );
+		$this->languages[ ++$this->i ] = new BozPHPLanguage( $code, $encode, $iso, $human, $humanL10n );
 
 		// Yes, the language code it's an alias to itself. That's a lazy hack!
 		$this->aliases[ self::normalize($code) ] = $this->i;
@@ -263,12 +263,14 @@ class BozPHPLanguage {
 	private $encode;
 	private $iso;
 	private $human;
+	private $humanL10n;
 
-	public function __construct( $code, $encode, $iso, $human ) {
+	public function __construct( $code, $encode, $iso, $human, $humanL10n ) {
 		$this->code   = $code;
 		$this->encode = $encode;
 		$this->iso    = $iso;
 		$this->human  = $human;
+		$this->humanL10n = $humanL10n;
 	}
 
 	public function getCode() {
@@ -288,6 +290,10 @@ class BozPHPLanguage {
 
 	public function getHuman() {
 		return $this->human;
+	}
+
+	public function getHumanL10n() {
+		return $this->humanL10n;
 	}
 
 	/**
