@@ -616,6 +616,45 @@ function http_json_header($charset = null) {
 }
 
 /**
+ * Send a JSON and quit
+ *
+ * @param $data mixed
+ */
+function json( $data ) {
+	http_json_header();
+	echo json_encode( $data );
+	exit;
+}
+
+/**
+ * Send a JSON with success status and quit
+ *
+ * @param $data mixed
+ * @param $http_code int HTTP response code
+ */
+function json_success( $data, $http_code = false ) {
+	if( $http_code ) {
+		http_response_code( $http_code );
+	}
+	json( [ 'data' => $data ] );
+}
+
+/**
+ * Send a JSON with error status and quit
+ *
+ * @param $http_code int HTTP response code
+ * @param $code string Error code
+ * @param $msg string Error human message
+ */
+function json_error( $http_code, $code = null, $msg = null ) {
+	http_response_code( $http_code );
+	json( [ 'error' => [
+		'code'    => $code,
+		'message' => $msg,
+	] ] );
+}
+
+/**
  * Get the MIME type of a file.
  * @see MimeTypes::fileMimetype()
  */
