@@ -23,6 +23,7 @@ define('UPLOAD_EXTRA_ERR_OVERSIZE', 106);
 define('UPLOAD_EXTRA_ERR_FILENAME_TOO_SHORT', 107);
 define('UPLOAD_EXTRA_ERR_FILENAME_TOO_LONG', 108);
 define('UPLOAD_EXTRA_ERR_CANT_SAVE_FILE', 109);
+define('UPLOAD_EXTRA_ERR_POST_MAX_SIZE', 110);
 
 defined('MAGIC_MIME_FILE')
 	or define('MAGIC_MIME_FILE', null); // Fifo system default
@@ -153,6 +154,12 @@ class FileUploader {
 	public function uploadTo( $pathname, & $status, & $filename = null, & $ext = null, & $mime = null ) {
 		if( ! $this->uploadRequestOK() ) {
 			$status = UPLOAD_EXTRA_ERR_INVALID_REQUEST;
+			return false;
+		}
+
+		$max_size = (int) ini_get( 'post_max_size' ) * 1024 * 1024;
+		if( isset ( $_SERVER[ 'CONTENT_LENGTH' ] ) && $_SERVER[ 'CONTENT_LENGTH' ] > $max_size ) {
+			$status = UPLOAD_EXTRA_ERR_POST_MAX_SIZE;
 			return false;
 		}
 
@@ -319,6 +326,11 @@ class FileUploader {
 				return __("Il file ha un nome troppo lungo.");
 			case UPLOAD_EXTRA_ERR_GENERIC_ERROR:
 				return __("Errore di caricamento.");
+			case UPLOAD_EXTRA_ERR_POST_MAX_SIZE:
+				return sprintf(
+					__( "Superato il limite massimo di dati POST accettabili per ogni richiesta (%s)" ),
+					human_filesize( (int) ini_get( 'post_max_size' ) * 1024 * 1024 )
+				);
 		}
 		DEBUG && error( sprintf(
 			__("Stato di errore non previsto: '%d'"),
