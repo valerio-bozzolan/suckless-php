@@ -156,7 +156,8 @@ class FileUploader {
 			return false;
 		}
 
-		switch( $this->getFileInfo( 'error' ) ) {
+		$status = $this->getFileInfo( 'error ' );
+		switch( $status ) {
 			case UPLOAD_ERR_NO_FILE:
 			case UPLOAD_ERR_INI_SIZE:
 			case UPLOAD_ERR_FORM_SIZE:
@@ -165,7 +166,6 @@ class FileUploader {
 			case UPLOAD_ERR_CANT_WRITE:
 			case UPLOAD_ERR_EXTENSION:
 				// Return the same error
-				$status = $this->getFileInfo( 'error ' );
 				return false;
 			case UPLOAD_ERR_OK:
 				// It's OK
@@ -173,7 +173,7 @@ class FileUploader {
 			default:
 				DEBUG && error( sprintf(
 					__("FileUploader ha ottenuto un errore sconosciuto: %d."),
-					$this->getFileInfo( 'error' )
+					$status
 				) );
 				$status = UPLOAD_EXTRA_ERR_GENERIC_ERROR;
 				return false;
@@ -321,13 +321,13 @@ class FileUploader {
 			case UPLOAD_EXTRA_ERR_FILENAME_TOO_LONG:
 				return __("Il file ha un nome troppo lungo.");
 			case UPLOAD_EXTRA_ERR_GENERIC_ERROR:
-				return __("Errore di caricamento.");
+				return __("Errore di caricamento sconosciuto.");
 		}
 		DEBUG and error( sprintf(
 			__("Stato di errore non previsto: '%d'"),
 			$status
 		) );
-		return __("Errore durante l'upload.");
+		return __("Errore di caricamento alquanto sconosciuto.");
 	}
 
 	/**
