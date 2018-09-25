@@ -179,8 +179,8 @@ class FileUploader {
 				return false;
 		}
 
-		// Check filesize
-		if( $this->args['max-filesize'] !== null && $this->getFileInfo( 'size' ) > $this->args['max-filesize'] ) {
+		// Check filesize (too much or zero)
+		if( $this->args['max-filesize'] !== null && $this->getFileInfo( 'size' ) > $this->args['max-filesize'] || ! $this->getFileInfo( 'size' ) ) {
 			$status = UPLOAD_EXTRA_ERR_OVERSIZE;
 			return false;
 		}
@@ -281,9 +281,10 @@ class FileUploader {
 				DEBUG && error( __("Non affidarti a UPLOAD_ERR_FORM_SIZE!") );
 				return __("Il file eccede i limiti imposti.");
 			case UPLOAD_EXTRA_ERR_OVERSIZE:
+				$size = $this->getFileInfo( 'size' );
 				return sprintf(
-					__("Il file pesa %s. Non può superare %s."),
-					human_filesize( $this->getFileInfo( 'size' ) ),
+					__( "Il file pesa %s. Non può superare %s."),
+					$size ? human_filesize( $this->getFileInfo( 'size' ) ) : __( "troppo" ),
 					human_filesize( $this->args['max-filesize'] )
 				);
 			case UPLOAD_EXTRA_ERR_CANT_SAVE_FILE:
