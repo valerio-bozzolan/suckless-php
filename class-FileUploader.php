@@ -273,7 +273,10 @@ class FileUploader {
 			case UPLOAD_ERR_NO_FILE:
 				return __("Non è stato selezionato alcun file.");
 			case UPLOAD_ERR_INI_SIZE:
-				return __("Il file eccede i limiti di sistema.");
+				return sprintf(
+					__( "Il file eccede i limiti di sistema (%s)." ),
+					human_filesize( self::uploadMaxFilesize() )
+				);
 			case UPLOAD_ERR_FORM_SIZE:
 				DEBUG && error( __("Non affidarti a UPLOAD_ERR_FORM_SIZE!") );
 				return __("Il file eccede i limiti imposti.");
@@ -320,7 +323,7 @@ class FileUploader {
 			case UPLOAD_EXTRA_ERR_GENERIC_ERROR:
 				return __("Errore di caricamento.");
 		}
-		DEBUG && error( sprintf(
+		DEBUG and error( sprintf(
 			__("Stato di errore non previsto: '%d'"),
 			$status
 		) );
@@ -444,12 +447,13 @@ class FileUploader {
 	}
 
 	/**
-	 * Convert a php.ini file weight value to bytes
+	 * Convert a php.ini name with a file weight value to bytes
 	 *
+	 * @param $name string php_ini variable name
 	 * @return int bytes
 	 */
-	public static function iniValueToBytes( $v ) {
-		$v = trim( $v );
+	public static function iniToBytes( $name ) {
+		$v = trim( ini_get( $name ) );
 		$last = strtolower( $v[ strlen( $v ) - 1 ] );
 		switch( $last ) {
 			case 'g': $v *= 1024;
@@ -465,8 +469,17 @@ class FileUploader {
 	 * @return int
 	 */
 	public static function maxPOSTSize() {
-	    return self::iniValueToBytes( ini_get( 'post_max_size' ) );
+	    return self::iniToBytes( 'post_max_size' );
     }
+
+	/**
+	 * Get the upload_max_filesize in bytes
+	 *
+	 * @return int
+	 */
+	public static function uploadMaxFilesize() {
+		return self::iniToBytes( 'upload_max_filesize' );
+	}
 
 	/**
 	 * Check if the request is over the max_post_size
