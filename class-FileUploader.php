@@ -483,9 +483,22 @@ class FileUploader {
 
 	/**
 	 * Check if the request is over the max_post_size
+	 *
+	 * @return bool
 	 */
 	public static function isOverMaxPOSTSize() {
 		return isset( $_SERVER[ 'CONTENT_LENGTH' ] )
 		           && $_SERVER[ 'CONTENT_LENGTH' ] > self::maxPOSTSize();
+	}
+
+	/**
+	 * Check if the request is over the upload_max_filesize
+	 *
+	 * @return bool
+	 */
+	public static function isOverMaxUploadFilesize() {
+		return empty( $_FILES )
+			&& isset( $_SERVER[ 'CONTENT_LENGTH' ] )
+			&&        $_SERVER[ 'CONTENT_LENGTH' ] > self::uploadMaxFilesize();
 	}
 }
