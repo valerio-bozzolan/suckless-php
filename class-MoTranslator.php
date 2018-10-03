@@ -147,6 +147,11 @@ class MoTranslator
      */
     public function gettext($msgid)
     {
+		// if $msgid is NULL it gets the entire .po header .___.
+		if( ! $msgid ) {
+			return $msgid;
+		}
+
         if (array_key_exists($msgid, $this->cache_translations)) {
             return $this->cache_translations[$msgid];
         }
