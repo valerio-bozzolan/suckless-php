@@ -156,6 +156,18 @@ function query_results($query, $class = null, $args = [] ) {
 }
 
 /**
+ * Execute a query and return a Generator
+ *
+ * @param string $query SQL query
+ * @param string $class Class name to encapsulate the result set
+ * @generator
+ * @see DB#getGenerator()
+ */
+function query_generator( $query, $class = null, $args = [] ) {
+	return expect( 'db' )->getGenerator( $query, $class, $args );
+}
+
+/**
  * Execute a query and return an object.
  *
  * @param string $query SQL query
