@@ -127,9 +127,10 @@ class Session {
 		$time     = time();
 		$duration = $time + SESSION_DURATION;
 
-		setcookie( 'user_uid',   $user->getSessionuserUID(),              $duration, ROOT );
-		setcookie( 'token',      $user->generateSessionuserCookieToken(), $duration, ROOT );
-		setcookie( 'login_time', $time,                                   $duration, ROOT );
+		$force_https = is_https();
+		setcookie( 'user_uid',   $user->getSessionuserUID(),              $duration, ROOT, '', $force_https, false );
+		setcookie( 'login_time', $time,                                   $duration, ROOT, '', $force_https, false );
+		setcookie( 'token',      $user->generateSessionuserCookieToken(), $duration, ROOT, '', $force_https, true  );
 
 		$status = self::OK;
 		return true;
