@@ -127,9 +127,9 @@ class Session {
 		$time     = time();
 		$duration = $time + SESSION_DURATION;
 
-		setcookie( 'user_uid',   $user->getSessionuserUID(),              $duration );
-		setcookie( 'token',      $user->generateSessionuserCookieToken(), $duration );
-		setcookie( 'login_time', $time,                                   $duration );
+		setcookie( 'user_uid',   $user->getSessionuserUID(),              $duration, ROOT );
+		setcookie( 'token',      $user->generateSessionuserCookieToken(), $duration, ROOT );
+		setcookie( 'login_time', $time,                                   $duration, ROOT );
 
 		$status = self::OK;
 		return true;
