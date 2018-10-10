@@ -651,7 +651,7 @@ function json_success( $data, $http_code = false ) {
 	if( $http_code ) {
 		http_response_code( $http_code );
 	}
-	json( [ 'data' => $data ] );
+	json( $data );
 }
 
 /**
