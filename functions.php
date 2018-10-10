@@ -631,13 +631,32 @@ function http_json_header($charset = null) {
 }
 
 /**
+ * Unset the empty values in an array recursively
+ *
+ * @param $array array
+ */
+function array_unset_empty( & $array ) {
+	foreach( $array as $k => $v ) {
+		if( is_array( $v ) ) {
+			array_unset_empty( $array[ $k ] );
+		}
+		if( empty( $array[ $k ] ) ) {
+			unset( $array[ $k ] );
+		}
+    }
+    return $array;
+}
+
+/**
  * Send a JSON and quit
+ *
+ * Falsy elements are not returned
  *
  * @param $data mixed
  */
 function json( $data ) {
 	http_json_header();
-	echo json_encode( $data );
+	echo json_encode( array_unset_empty( $data ) );
 	exit;
 }
 
