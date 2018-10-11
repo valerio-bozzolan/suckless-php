@@ -67,7 +67,7 @@ if( ! defined( 'REQUIRE_LOAD_POST' ) ) {
 	if( defined( 'ABSPATH' ) ) {
 		define( 'REQUIRE_LOAD_POST', ABSPATH . __ . 'load-post.php' );
 	} else {
-		error_die( __( "Devi definire la costante ABSPATH. Oppure disabilita REQUIRE_LOAD_POST." ) );
+		error_die( "Please define your ABSPATH or disable REQUIRE_LOAD_POST" );
 	}
 }
 
