@@ -38,7 +38,6 @@ defined('PORT')                     or define('PORT', URL_port() );
 defined('ROOT')                     or define('ROOT', URL_root() );
 defined('URL')                      or define('URL', PROTOCOL . DOMAIN . PORT . ROOT );
 defined('SHOW_EVERY_SQL')           or define('SHOW_EVERY_SQL', false);
-defined('REQUIRE_LOAD_POST')        or define('REQUIRE_LOAD_POST', true);
 defined('CHMOD_WRITABLE_DIRECTORY') or define('CHMOD_WRITABLE_DIRECTORY', 0777);
 defined('CHMOD_WRITABLE_FILE')      or define('CHMOD_WRITABLE_FILE', 0666);
 defined('CHARSET')                  or define('CHARSET', 'utf-8');
@@ -64,9 +63,14 @@ $GLOBALS['G']->add('menu',        'Menu');
 $GLOBALS['G']->add('module',      'RegisterModule');
 $GLOBALS['G']->add('registerLanguage', 'RegisterLanguage');
 
-// Callback
-if( REQUIRE_LOAD_POST ) {
-	defined('ABSPATH') or error_die( __("Devi definire la costante ABSPATH. Oppure disabilita REQUIRE_LOAD_POST.") );
+if( ! defined( 'REQUIRE_LOAD_POST' ) ) {
+	if( defined( 'ABSPATH' ) ) {
+		define( 'REQUIRE_LOAD_POST', ABSPATH . __ . 'load-post.php' );
+	} else {
+		error_die( __( "Devi definire la costante ABSPATH. Oppure disabilita REQUIRE_LOAD_POST." ) );
+	}
+}
 
-	require ABSPATH . __ . 'load-post.php';
+if( REQUIRE_LOAD_POST ) {
+	require REQUIRE_LOAD_POST;
 }

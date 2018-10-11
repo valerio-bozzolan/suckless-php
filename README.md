@@ -78,7 +78,7 @@ Have to specify these:
 Definibles (as  (`type`) `default`):
 * `DEBUG` (`bool`) `false`: Enable verbose debugging.
 * `SHOW_EVERY_SQL` (`bool`) `false`: It does what you think. Only if `DEBUG`.
-* `REQUIRE_LOAD_POST` (`bool`) `true`: To require your `ABSPATH . '/load-post.php`.
+* `REQUIRE_LOAD_POST` (`string|false`) `string`: As default it's `ABSPATH . '/load-post.php` and it's a file that describes your CMS.
 * `PROTOCOL` (`string`): Default is the protocol of the request (`http://` / `https://`). It builds the `URL` constant.
 * `DOMAIN` (`string`): Default is your domain name. You can override it. It builds the `URL` constant.
 * `URL` (`string`): Default is `PROTOCOL . DOMAIN . ROOT`.
