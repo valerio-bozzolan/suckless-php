@@ -633,18 +633,19 @@ function http_json_header($charset = null) {
 /**
  * Unset the empty values in an array recursively
  *
- * @param $array array
+ * @param $data mixed
+ * @return array
  */
-function array_unset_empty( & $array ) {
-	foreach( $array as $k => $v ) {
-		if( is_array( $v ) ) {
-			array_unset_empty( $array[ $k ] );
-		}
-		if( empty( $array[ $k ] ) ) {
-			unset( $array[ $k ] );
+function array_unset_empty( $data ) {
+	$data = (array) $data;
+	foreach( $data as $k => $v ) {
+		if( is_array( $v ) || is_object( $v ) ) {
+			$data[ $k ] = array_unset_empty( $v );
+		} elseif( empty( $v ) ) {
+			unset( $data[ $k ] );
 		}
     }
-    return $array;
+    return $data;
 }
 
 /**
