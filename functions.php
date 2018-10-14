@@ -214,10 +214,11 @@ $GLOBALS[JOIN] = function($t) {
  * Insert a row in the specified database table.
  * @param string $table
  * @param DBCols[]
+ * @param $args array
  * @see DB#insertRow()
  */
-function insert_row($table, $cols) {
-	return expect('db')->insertRow($table, $cols);
+function insert_row( $table, $cols, $args = [] ) {
+	return expect('db')->insertRow( $table, $cols, $args );
 }
 
 /**

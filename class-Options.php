@@ -23,7 +23,7 @@ class Options {
 	 * Cached options
 	 * @var array
 	 */
-	private $cache = null;
+	private $cache = [];
 
 	/**
 	 * List of formally registered options.
@@ -46,7 +46,8 @@ class Options {
 	 * Load options with autoload in cache
 	 */
 	public function autoload() {
-		if( $this->cache === null ) {
+		static $todo = true;
+		if( $todo ) {
 			$options = Query::factory()
 				->select( [
 					'option_name',
@@ -57,8 +58,9 @@ class Options {
 				->queryResults();
 
 			foreach( $options as $option ) {
-				$this->cache[ $option->option_name ] = $option->option_value;
+				$this->override( $option->option_name, $option->option_value );
 			}
+			$todo = false;
 		}
 	}
 
@@ -129,26 +131,14 @@ class Options {
 	 * @param true $autoload If the option it's automatically requested on every page-request
 	 */
 	public function set( $name, $value, $autoload = true ) {
-		// do not autoload here. 'get' autoloads, 'set' nope
 		$this->override( $name, $value );
-		if( isset( $this->cache[ $name ] ) ) {
-			if( $this->cache[ $name ] !== $value ) {
-				$autoload = $autoload ? 1 : 0;
-				query_update( 'option', [
-						new DBCol( 'option_value',    $value,    's' ),
-						new DBCol( 'option_autoload', $autoload, 'd' ),
-					],
-					sprintf( 'option_name = %s', esc_sql( $name ) )
-				);
-			}
-		} else {
-			// here the option does not exist or was not autoloaded (so it exists)
-			insert_row( 'option', [
-				new DBCol( 'option_name',     $name,     's' ),
-				new DBCol( 'option_value',    $value,    's' ),
-				new DBCol( 'option_autoload', $autoload, 'd' ),
-			], [ 'replace-into' => true ] );
-		}
+
+		$autoload = $autoload ? 1 : 0;
+		insert_row( 'option', [
+			new DBCol( 'option_name',     $name,     's' ),
+			new DBCol( 'option_value',    $value,    's' ),
+			new DBCol( 'option_autoload', $autoload, 'd' ),
+		], [ 'replace-into' => true ] );
 	}
 
 	/**

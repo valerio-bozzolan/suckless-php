@@ -202,8 +202,9 @@ class DB {
 	 *
 	 * @param string $table_name
 	 * @param DBCol[] $cols
+	 * @param $args arguments like 'replace-into
 	 */
-	public function insertRow($table_name, $cols) {
+	public function insertRow( $table_name, $cols, $args = [] ) {
 		$SQL_columns = '';
 		$n = count($cols);
 		for($i=0; $i<$n; $i++) {
@@ -220,7 +221,14 @@ class DB {
 			}
 			$values .= $this->forceType($cols[$i]->value, $cols[$i]->forceType);
 		}
-		return $this->query("INSERT INTO {$this->getTable($table_name)} ($SQL_columns) VALUES ($values)");
+
+		$args = array_replace( [
+			'replace-into' => false,
+		], $args );
+
+		$what = $args[ 'replace-into' ] ? 'REPLACE' : 'INSERT';
+
+		return $this->query("$what INTO {$this->getTable($table_name)} ($SQL_columns) VALUES ($values)");
 	}
 
 	/**
