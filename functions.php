@@ -188,6 +188,14 @@ function query_value($query, $value, $class = null) {
 }
 
 /**
+ * Executes one or multiple queries which are concatenated by a semicolon
+ * @see DB#multiQuery()
+ */
+function multiquery( $queries ) {
+	return expect('db')->multiQuery( $queries );
+}
+
+/**
  * Database table full with prefix.
  *
  * @param string $t Table name (as 'test')

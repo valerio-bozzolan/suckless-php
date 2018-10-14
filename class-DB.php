@@ -232,6 +232,15 @@ class DB {
 	}
 
 	/**
+	 * Executes one or multiple queries which are concatenated by a semicolon
+	 *
+	 * @param $queries string
+	 */
+	public function multiQuery( $queries ) {
+		return $this->mysqli->multi_query( $queries );
+	}
+
+	/**
 	 * To execute clean insert SQL queries.
 	 *
 	 * @param string $table_name Table Name without prefix
