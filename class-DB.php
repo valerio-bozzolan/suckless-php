@@ -424,6 +424,8 @@ class DB {
 
 	/**
 	 * You have to check the result before use this!
+	 *
+	 * @deprecated
 	 */
 	private function fetch_row($fetch) {
 		if($fetch === 'object' || $fetch === 'assoc') {
