@@ -53,7 +53,7 @@ class Options {
 					'option_value',
 				] )
 				->from( 'option' )
-				->where( 'option_autoload != 0' )
+				->whereInt( 'option_autoload', 1 )
 				->queryResults();
 
 			foreach( $options as $option ) {
