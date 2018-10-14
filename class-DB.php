@@ -681,13 +681,3 @@ class DB {
 		return $this->getTables($args);
 	}
 }
-
-/**
- * The stdClass does not have a constructor.
- *
- * @See http://php.net/manual/en/mysqli-result.fetch-object.php
- */
-class EhmStdClass {
-	function __construct() {
-	}
-}
