@@ -332,14 +332,14 @@ function get_table_prefix() {
 function register_option($option_name) {
 	return expect('db')->registerOption($option_name);
 }
-function get_option($option_name, $default_value = '') {
-	return expect('db')->getOption($option_name, $default_value);
+function get_option( $name, $default = '' ) {
+	return Options::instance()->get( $name, $default );
 }
-function set_option($option_name, $option_value, $option_autoload = true) {
-	return expect('db')->setOption($option_name, $option_value, $option_autoload);
+function set_option( $name, $value, $autoload = true ) {
+	return Options::instance()->set( $name, $value, $autoload );
 }
-function remove_option($option_name) {
-	return expect('db')->removeOption($option_name);
+function remove_option( $name ) {
+	return Options::instance()->remove( $name );
 }
 /**
  * Get the current logged user.
