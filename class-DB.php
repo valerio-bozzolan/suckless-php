@@ -393,7 +393,7 @@ class DB {
 		if(isset($this->optionsCache[$option_name])) {
 			return (empty($this->optionsCache[$option_name])) ? $default_value : $this->optionsCache[$option_name];
 		} else {
-			$option = $this->get_row( sprintf(
+			$option = $this->getRow( sprintf(
 				"SELECT * FROM {$this->getTable('option')} WHERE option_name='%s'",
 				$this->escapeString($option_name)
 			) );
@@ -633,51 +633,4 @@ class DB {
 		);
 	}
 
-	/**
-	 * To get a single row from a query.
-	 *
-	 * @deprecated
-	 * @param $SQL SQL query
-	 * @param $args Arguments.
-	 * @return object Object row.
-	 */
-	public function get_row($SQL) {
-		return $this->getRow($SQL);
-	}
-
-	/**
-	 * Return multi-row from a query.
-	 *
-	 * @deprecated
-	 * @param string $SQL The SQL query to execute
-	 * @param array $args Arguments.
-	 * @return array The result is as an array of object.
-	 */
-	public function get_results($SQL) {
-		return $this->getResults($SQL);
-	}
-
-	/**
-	 * @deprecated
- 	 */
-	public function get_last_inserted_id() {
-		return $this->mysqli->insert_id;
-	}
-
-	/**
-	 *@deprecated
-	 */
-	public function get_table($name, $as = false) {
-		return $this->getTable($name, $as);
-	}
-
-	/**
-	 * @deprecated
-	 */
-	public function get_tables($args = []) {
-		if( ! is_array($args) ) {
-			$args = func_get_args();
-		}
-		return $this->getTables($args);
-	}
 }
