@@ -61,6 +61,6 @@ class Shit {
 		</body>
 		</html>
 		<?php
-		exit;
+		exit( 1 );
 	}
 }
