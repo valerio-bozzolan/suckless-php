@@ -35,7 +35,7 @@ class Options {
 	 * Get the instance
 	 */
 	public static function instance() {
-		$self = null;
+		static $self = null;
 		if( ! $self ) {
 			$self = new self();
 		}
@@ -100,7 +100,7 @@ class Options {
 	public function get( $name, $default = '' ) {
 		$value = '';
 		$this->autoload();
-		if( isset( $this->cache[ $name ] ) ) {
+		if( array_key_exists( $name, $this->cache ) ) {
 			$value = $this->cache[ $name ];
 		} else {
 			$value = Query::factory()
