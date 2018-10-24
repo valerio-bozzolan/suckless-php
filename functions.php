@@ -650,7 +650,7 @@ function array_unset_empty( $data ) {
 	foreach( $data as $k => $v ) {
 		if( is_array( $v ) || is_object( $v ) ) {
 			$data[ $k ] = array_unset_empty( $v );
-		} elseif( empty( $v ) ) {
+		} elseif( empty( $v ) && ! is_int( $v ) ) {
 			unset( $data[ $k ] );
 		}
     }
