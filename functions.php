@@ -671,19 +671,6 @@ function json( $data ) {
 }
 
 /**
- * Send a JSON with success status and quit
- *
- * @param $data mixed
- * @param $http_code int HTTP response code
- */
-function json_success( $data, $http_code = false ) {
-	if( $http_code ) {
-		http_response_code( $http_code );
-	}
-	json( $data );
-}
-
-/**
  * Send a JSON with error status and quit
  *
  * @param $http_code int HTTP response code
