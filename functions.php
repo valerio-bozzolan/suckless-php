@@ -646,14 +646,19 @@ function http_json_header($charset = null) {
  * @return array
  */
 function array_unset_empty( $data ) {
-	$data = (array) $data;
-	foreach( $data as $k => $v ) {
-		if( is_array( $v ) || is_object( $v ) ) {
-			$data[ $k ] = array_unset_empty( $v );
-		} elseif( empty( $v ) && ! is_int( $v ) ) {
-			unset( $data[ $k ] );
-		}
-    }
+	if( is_object( $data ) || is_array( $data ) ) {
+		foreach( $data as $k => $v ) {
+			if( is_array( $v ) || is_object( $v ) ) {
+				$data[ $k ] = array_unset_empty( $v );
+			} elseif( empty( $v ) && ! is_int( $v ) ) {
+				if( is_array( $v ) ) {
+					unset( $data[ $k ] );
+				} else {
+					unset( $data->{ $k } );
+				}
+			}
+   		}
+	}
     return $data;
 }
 
