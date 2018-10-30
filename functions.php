@@ -640,23 +640,24 @@ function http_json_header($charset = null) {
 }
 
 /**
- * Unset the empty values in an array recursively
+ * Unset the empty values in an array or an object as well recursively
  *
  * @param $data mixed
  * @return array
  */
 function array_unset_empty( $data ) {
 	$is_array  = is_array(  $data );
-	$is_object = is_object( $data );
-	if( $is_array || $is_object ) {
+	if( $is_array || is_object( $data ) ) {
 		foreach( $data as $k => $v ) {
-			if( $is_array ) {
-				$data[ $k ] = array_unset_empty( $v );
-			} elseif( $is_object ) {
-				$data->{ $k } = array_unset_empty( $v );
+			if( is_array( $v ) || is_object( $v ) ) {
+				if( $is_array ) {
+					$data  [ $k ] = array_unset_empty( $v );
+				} else {
+					$data->{ $k } = array_unset_empty( $v );
+				}
 			} elseif( empty( $v ) && ! is_int( $v ) ) {
 				if( $is_array ) {
-					unset( $data[ $k ] );
+					unset( $data  [ $k ] );
 				} else {
 					unset( $data->{ $k } );
 				}
@@ -667,7 +668,7 @@ function array_unset_empty( $data ) {
 }
 
 /**
- * Send a JSON and quit
+ * Send a JSON (stripping out unuseful values) and quit
  *
  * Falsy elements are not returned
  *
@@ -680,13 +681,13 @@ function json( $data ) {
 }
 
 /**
- * Send a JSON with error status and quit
+ * Send a JSON error and quit
  *
  * @param $http_code int HTTP response code
  * @param $code string Error code
  * @param $msg string Error human message
  */
-function json_error( $http_code, $code = null, $msg = null ) {
+function json_error( $http_code, $code, $msg ) {
 	http_response_code( $http_code );
 	json( [ 'error' => [
 		'code'    => $code,
