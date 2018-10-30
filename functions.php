@@ -646,12 +646,16 @@ function http_json_header($charset = null) {
  * @return array
  */
 function array_unset_empty( $data ) {
-	if( is_object( $data ) || is_array( $data ) ) {
+	$is_array  = is_array(  $data );
+	$is_object = is_object( $data );
+	if( $is_array || $is_object ) {
 		foreach( $data as $k => $v ) {
-			if( is_array( $v ) || is_object( $v ) ) {
+			if( $is_array ) {
 				$data[ $k ] = array_unset_empty( $v );
+			} elseif( $is_object ) {
+				$data->{ $k } = array_unset_empty( $v );
 			} elseif( empty( $v ) && ! is_int( $v ) ) {
-				if( is_array( $v ) ) {
+				if( $is_array ) {
 					unset( $data[ $k ] );
 				} else {
 					unset( $data->{ $k } );
