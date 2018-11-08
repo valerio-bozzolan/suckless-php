@@ -80,6 +80,71 @@ class Query {
 	}
 
 	/**
+	 * Intendeed to be used for PRIMARY KEY joins.
+	 *
+	 * @param string $one Result set field
+	 * @param string $two Result set field
+	 * @return self
+	 */
+	public function equals( $one, $two ) {
+		return $this->where( "$one = $two" );
+	}
+
+	/**
+	 * Append a query condition
+	 *
+	 * @param string $condition something as 'field = 1'
+	 * @param string $glue condition glue such as 'OR'
+	 * @return self
+	 */
+	public function where( $condition, $glue = 'AND' ) {
+		if( null !== $this->conditions ) {
+			$this->conditions .= " $glue ";
+		}
+		$this->conditions .= $condition;
+		return $this;
+	}
+
+	/**
+	 * Intended to compare a property with a number.
+	 *
+	 * @param string $one Column name
+	 * @param int $value Value
+	 */
+	public function whereInt( $column, $value ) {
+		return $this->equals( $column, (int)$value );
+	}
+
+	/**
+	 * Intended to compare a property with a string.
+	 *
+	 * @param string $one Column name
+	 * @param string $value Value
+	 */
+	public function whereStr( $column, $value ) {
+		$value = esc_sql( $value );
+		return $this->equals( $column, "'$value'" );
+	}
+
+	/**
+	 * Filter by a LIKE command
+	 *
+	 * @param $column string Column name
+	 * @param $value string Value to be liked
+	 * @param $left string To have whatever before the value
+	 * @param $right string To have whatever after the value
+	 */
+	public function whereLike( $column, $value, $left = true, $right = true ) {
+		$left  = $left  ? '%' : '';
+		$right = $right ? '%' : '';
+		return $this->where( sprintf(
+			'`%s` LIKE \'%s%s%s\'',
+			$column,
+			$left, esc_sql_like( $value ), $right
+		) );
+	}
+
+	/**
 	 * Append a custom join from the latest selected table
 	 *
 	 * @param $type string join type e.g. LEFT, RIGHT, LEFT OUTHER
@@ -124,71 +189,6 @@ class Query {
 	public function uniqueTables() {
 		$this->tables = array_unique( $this->tables );
 		return $this;
-	}
-
-	/**
-	 * Append a query condition
-	 *
-	 * @param string $condition something as 'field = 1'
-	 * @param string $glue condition glue such as 'OR'
-	 * @return self
-	 */
-	public function where( $condition, $glue = 'AND' ) {
-		if( null !== $this->conditions ) {
-			$this->conditions .= " $glue ";
-		}
-		$this->conditions .= $condition;
-		return $this;
-	}
-
-	/**
-	 * Intendeed to be used for PRIMARY KEY joins.
-	 *
-	 * @param string $one Result set field
-	 * @param string $two Result set field
-	 * @return self
-	 */
-	public function equals( $one, $two ) {
-		return $this->where( "$one = $two" );
-	}
-
-	/**
-	 * Intended to compare a property with a number.
-	 *
-	 * @param string $one Column name
-	 * @param int $value Value
-	 */
-	public function whereInt( $column, $value ) {
-		return $this->equals( $column, (int)$value );
-	}
-
-	/**
-	 * Intended to compare a property with a string.
-	 *
-	 * @param string $one Column name
-	 * @param string $value Value
-	 */
-	public function whereStr( $column, $value ) {
-		$value = esc_sql( $value );
-		return $this->equals( $column, "'$value'" );
-	}
-
-	/**
-	 * Filter by a LIKE command
-	 *
-	 * @param $column string Column name
-	 * @param $value string Value to be liked
-	 * @param $left string To have whatever before the value
-	 * @param $right string To have whatever after the value
-	 */
-	public function whereLike( $column, $value, $left = true, $right = true ) {
-		$left  = $left  ? '%' : '';
-		$right = $right ? '%' : '';
-		return $this->where( sprintf(
-			'`%s` LIKE \'%s%s%s\'',
-			$column,
-			$left, esc_sql_like( $value ), $right
-		) );
 	}
 
 	/**
