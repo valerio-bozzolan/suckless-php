@@ -14,6 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * Class useful to build a database query
+ */
 class Query {
 	private $db;
 
@@ -30,14 +33,14 @@ class Query {
 	private $orders;
 
 	public function __construct( &$db = null ) {
-		$this->db = $db ? $db : expect('db'); // Dipendency injection
+		$this->db = $db ? $db : expect( 'db' ); // Dipendency injection
 	}
 
 	/**
 	 * Construct shortcut.
 	 *
 	 * @param string $class_name Class to encapsulate the database result
-	 * @return Query
+	 * @return self
 	 */
 	public static function factory( $class_name = null ) {
 		$t = new self();
@@ -49,17 +52,17 @@ class Query {
 	 * Selected fields (SELECT).
 	 *
 	 * @param string|array $fields
-	 * @return Query
+	 * @return self
 	 */
 	public function select() {
-		return $this->appendInArray( func_get_args() , $this->selectFields );
+		return $this->appendInArray( func_get_args(), $this->selectFields );
 	}
 
 	/**
 	 * Selected tables
 	 *
 	 * @param string|array $tables Table/tables without database prefix
-	 * @return Query
+	 * @return self
 	 */
 	public function from() {
 		return $this->appendInArray( func_get_args(), $this->tables );
@@ -69,7 +72,7 @@ class Query {
 	 * Set a custom from value
 	 *
 	 * @param string e.g. "(SELECT * ...) as t1"
-	 * @return Query
+	 * @return self
 	 */
 	public function fromCustom( $from ) {
 		$this->from[] = $from;
@@ -105,8 +108,9 @@ class Query {
 
 	/**
 	 * Group by
+	 *
 	 * @param string|array $groups Group by
-	 * @return Query
+	 * @return self
 	 */
 	public function groupBy() {
 		return $this->appendInArray( func_get_args(), $this->groups );
@@ -115,7 +119,7 @@ class Query {
 	/**
 	 * You have double-selected a table but that wasn't your goal.
 	 *
-	 * @return Query
+	 * @return self
 	 */
 	public function uniqueTables() {
 		$this->tables = array_unique( $this->tables );
@@ -123,10 +127,11 @@ class Query {
 	}
 
 	/**
-	 * Query condition.
+	 * Append a query condition
 	 *
-	 * @param string $condition Something as 'field = 1'
-	 * @return Query
+	 * @param string $condition something as 'field = 1'
+	 * @param string $glue condition glue such as 'OR'
+	 * @return self
 	 */
 	public function where( $condition, $glue = 'AND' ) {
 		if( null !== $this->conditions ) {
@@ -141,10 +146,10 @@ class Query {
 	 *
 	 * @param string $one Result set field
 	 * @param string $two Result set field
-	 * @return Query
+	 * @return self
 	 */
 	public function equals( $one, $two ) {
-		return $this->where("$one = $two");
+		return $this->where( "$one = $two" );
 	}
 
 	/**
@@ -191,9 +196,9 @@ class Query {
 	 *
 	 * @param int $row_count Max numbers of elements.
 	 * @param int $offset Starting offset
-	 * @return Query
+	 * @return self
 	 */
-	public function limit($row_count, $offset = null) {
+	public function limit( $row_count, $offset = null ) {
 		$this->rowCount = $row_count;
 		$this->offset = $offset;
 		return $this;
@@ -204,6 +209,7 @@ class Query {
 	 *
 	 * @param string $heystack Field.
 	 * @param string|array $needles Values to compare.
+	 * @return self
 	 */
 	public function whereSomethingIn( $heystack, $needles, $glue = 'AND', $not_in = false ) {
 		force_array($needles);
@@ -337,7 +343,7 @@ class Query {
 	 * Set the default class to incapsulate the result set.
 	 *
 	 * @param string $class_name Class name
-	 * @return Query
+	 * @return self
 	 */
 	public function defaultClass( $class_name ) {
 		$this->class_name = $class_name;
