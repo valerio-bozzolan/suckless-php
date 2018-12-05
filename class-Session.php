@@ -128,9 +128,8 @@ class Session {
 		$duration = $time + SESSION_DURATION;
 
 		$force_https = is_https();
-		setcookie( 'user_uid',   $user->getSessionuserUID(),              $duration, ROOT, '', $force_https, false );
-		setcookie( 'login_time', $time,                                   $duration, ROOT, '', $force_https, false );
-		setcookie( 'token',      $user->generateSessionuserCookieToken(), $duration, ROOT, '', $force_https, true  );
+		setcookie( 'user_uid', $user->getSessionuserUID(),              $duration, ROOT, '', $force_https, false );
+		setcookie( 'token',    $user->generateSessionuserCookieToken(), $duration, ROOT, '', $force_https, true  );
 
 		$status = self::OK;
 		return true;
@@ -172,8 +171,6 @@ class Session {
 			return false;
 		}
 
-		// @TODO check also $_COOKIE['login_time']
-
 		$this->user = $user;
 
 		return true;
@@ -185,9 +182,8 @@ class Session {
 	public function destroy() {
 		$invalidate = time() - 8000;
 
-		setcookie( 'user_uid',   'lol', $invalidate );
-		setcookie( 'token',      'lol', $invalidate );
-		setcookie( 'login_time', 'lol', $invalidate );
+		setcookie( 'user_uid', 'asd', $invalidate );
+		setcookie( 'token',    'asd', $invalidate );
 
 		$this->loginVerified = true;
 		$this->user = null;
