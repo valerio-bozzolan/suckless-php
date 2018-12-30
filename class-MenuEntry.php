@@ -51,12 +51,12 @@ class MenuEntry {
 	/**
 	 * Call site_page() on the URL.
 	 *
-	 * @param $base string
+	 * @param $full_url boolean
 	 * @see site_page()
 	 * @return string
 	 */
-	public function getSitePage( $base = NULL ) {
-		return site_page( $this->url, $base );
+	public function getSitePage( $full_url = true ) {
+		return site_page( $this->url, $absolute );
 	}
 
 	public function getExtra($arg, $default = null) {

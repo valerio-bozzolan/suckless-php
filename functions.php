@@ -437,34 +437,32 @@ function has_permission($permission, $user = null) {
  * @param string $dir Directory without any slash
  * @return string URL / Pathname
 */
-function append_dir($base_URL, $dir = _ ) {
-	$base_URL = rtrim($base_URL, _);
-	$dir = ltrim($dir, _);
+function append_dir( $base_URL, $dir = '/' ) {
+	$base_URL = rtrim( $base_URL, '/' );
+	$dir = ltrim( $dir, '/' );
 	return $base_URL . _ . $dir;
 }
 
 /**
- * Full URL or folder from ROOT.
+ * Normalize a site page
+ *
+ * @param $page string Whatever, a full URL, a relative pathname e.g. 'page', an absolute one, etc.
+ * @param $full_url boolean As default it try to avoid full URLs
  */
-function site_page($page, $url = null, $base = null) {
-	$first = @$page[0];
-	if( $first === '#' ) return $page;
+function site_page( $page, $full_url = false ) {
+	$first = @$page[ 0 ];
+	if( $first === '#' ) {
+		return $page; // '#anchor'
+	}
 	if( $first === '/' ) {
-		if( @$page[1] === '/' ) {
-			return $page;
+		if( @$page[ 1 ] === '/' ) {
+			return $page; // "//example.org"
 		}
-		if($base === null) {
-			$base = PROTOCOL . DOMAIN . PORT;
-		}
-		return $base . $page;
+		return append_dir( $full_url ? BASE_URL : '', $page );
+	} elseif( preg_match( '#^[a-z]+://#', $page ) === 1 ) {
+		return $page; // "ftp://example.org"
 	}
-	if( preg_match('#^[a-z]+://#', $page) === 1 ) {
-		return $page;
-	}
-	if( $url === null ) {
-		$url = URL;
-	}
-	return append_dir(URL, $page);
+	return append_dir( $full_url ? URL : ROOT, $page );
 }
 
 function single_quotes($s) {
