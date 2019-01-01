@@ -56,7 +56,7 @@ class MenuEntry {
 	 * @return string
 	 */
 	public function getSitePage( $full_url = true ) {
-		return site_page( $this->url, $absolute );
+		return site_page( $this->url, $full_url );
 	}
 
 	public function getExtra($arg, $default = null) {
