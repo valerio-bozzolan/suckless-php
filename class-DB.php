@@ -1,5 +1,5 @@
 <?php
-# Copyright (C) 2015, 2018 Valerio Bozzolan
+# Copyright (C) 2015, 2018, 2019 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,34 +19,37 @@
  */
 
 /**
- * The database class from the Open Student project.
- * Some functions to run MySQL queries and analyze results.
+ * Database class
+ *
+ * This class was forked from my defunct project called Open Student.
  */
 class DB {
 
 	/**
-	 * MySQL connection link.
-	 * @var MySQLi->link MySQLi connection link
+	 * MySQL connection link
 	 */
 	private $mysqli;
 
 	/**
-	 * Table prefix.
+	 * Table prefix
+	 *
 	 * @var string
 	 */
 	private $prefix;
 
 	/**
-	 * Number of executed queries.
+	 * Number of executed queries
+	 *
 	 * @var int
 	 */
-	private $numQueries = 0;
+	private $queries = 0;
 
 	/**
-	 * Last query result.
+	 * Last query result
+	 *
 	 * @var query-result
 	 */
-	private $lastResult = false;
+	private $last = false;
 
 	/**
 	 * Singleton instance
@@ -56,7 +59,7 @@ class DB {
 	private static $_instance;
 
 	/**
-	 * Get an instance of this class
+	 * Get the singleton instance of this class
 	 *
 	 * @return self
 	 */
@@ -86,6 +89,8 @@ class DB {
 	 * @param type $prefix Table Prefix
 	 */
 	function __construct( $username = null, $password = null, $location = null, $database = null, $prefix = '', $charset = 'utf8' ) {
+
+		// default credentials usually defined from your load.php
 		if( func_num_args() === 0 ) {
 			$username  = $GLOBALS['username'];
 			$password  = $GLOBALS['password'];
@@ -96,8 +101,8 @@ class DB {
 
 		$this->prefix = $prefix;
 
-		@$this->mysqli = new mysqli($location, $username, $password, $database);
-		if( $this->errorConnection() ) {
+		@$this->mysqli = new mysqli( $location, $username, $password, $database );
+		if( $this->mysqli->connect_errno ) {
 			if(DEBUG) {
 				$password_shown = ($password === '') ? __("nessuna") : sprintf(
 					__("di %d caratteri"),
@@ -119,48 +124,41 @@ class DB {
 			} else {
 				error_die( __("Errore nello stabilire una connessione al database.") );
 			}
+		} else {
+			$this->mysqli->set_charset( $charset );
 		}
-
-		@$this->mysqli->set_charset($charset);
-	}
-
-	function __destruct() {
-		$this->closeConnection();
 	}
 
 	/**
-	 * Lock the door when you leave a room.
-	 */
-	public function closeConnection() {
-		$this->mysqli && @$this->mysqli->close();
-	}
-
-	/**
-	 * To execute a query.
+	 * Execute an SQL query
 	 *
-	 * @param string $SQL The SQL query to execute
-	 * @param boolean $tagReplace Use tag sobstitution, or no
+	 * @param string $query The SQL query to execute
 	 */
-	public function query($query) {
-		$this->numQueries++;
-		if( $this->lastResult !== false && $this->lastResult !== true) {
-			$this->lastResult->free();
+	public function query( $query ) {
+		$this->queries++;
+		if( $this->last !== false && $this->last !== true) {
+			$this->last->free();
 		}
-		$this->lastResult = $this->mysqli->query($query);
-		if( ! $this->lastResult ) {
-			error_die( $this->getQueryErrorMessage($query) );
-		} elseif(DEBUG && SHOW_EVERY_SQL) {
-			$this->showSQL($query);
+		$this->last = $this->mysqli->query( $query );
+		if( !$this->last ) {
+			error_die( $this->getQueryErrorMessage( $query ) );
+		} elseif( SHOW_EVERY_SQL ) {
+			$this->debugQuery( $query );
 		}
-		return $this->lastResult;
+		return $this->last;
 	}
 
-	private function showSQL($SQL) {
-		echo "<p>" . sprintf(
-			__("Query numero %d: <pre>%s</pre>"),
-			$this->numQueries,
+	/**
+	 * Log the following query
+	 *
+	 * @param $query string
+	 */
+	private function debugQuery( $query ) {
+		error( sprintf(
+			'query n. %d: %s',
+			$this->queries,
 			$SQL
-		) . "</p>\n";
+		) );
 	}
 
 	/**
@@ -194,10 +192,10 @@ class DB {
 		}
 		// IS_ARRAY() IS SHIT FOR HISTORICAL REASONS
 
-		$this->query($query);
+		$this->query( $query );
 
 		$res = [];
-		while( $row = $this->lastResult->fetch_object($class_name, $params) ) {
+		while( $row = $this->last->fetch_object( $class_name, $params ) ) {
 			$res[] = $row;
 		}
 
@@ -213,11 +211,11 @@ class DB {
 	 * @See http://php.net/manual/en/mysqli-result.fetch-object.php
 	 */
 	public function getGenerator( $query, $class_name = null, $params = [] ) {
-		if( null === $class_name ) {
+		if( !$class_name ) {
 			$class_name = 'Queried';
 		}
 		$result = $this->query( $query );
-		$this->lastResult = true; // to don't be killed from another query() call
+		$this->last = true; // to don't be killed from another query() call
 		while( $row = $result->fetch_object( $class_name, $params ) ) {
 			yield $row;
 		}
@@ -308,7 +306,7 @@ class DB {
 			$SQL_values = [];
 
 			if($n_columns != count($rows[$i])) {
-				DEBUG && error( sprintf(
+				error( sprintf(
 					__("Errore inserendo nella tabella <em>%s</em>. Colonne: <em>%d</em>. Colonne values[<em>%d</em>]: <em>%d</em>"),
 					esc_html($table_name),
 					$n_columns,
@@ -351,6 +349,11 @@ class DB {
 		return $this->query($SQL);
 	}
 
+	/**
+	 * Get the last inserted ID
+	 *
+	 * @return string
+	 */
 	public function getLastInsertedID() {
 		return $this->mysqli->insert_id;
 	}
@@ -365,8 +368,8 @@ class DB {
 		return $this->mysqli->real_escape_string($s);
 	}
 
-	public function getNumQueries() {
-		return $this->numQueries;
+	public function getqueries() {
+		return $this->queries;
 	}
 
 	public function getPrefix() {
@@ -442,7 +445,7 @@ class DB {
 		if( $type === null || $type === 'null' )
 			return 'NULL'; // 'NULL' literally for indexes
 
-		DEBUG && error( sprintf(
+		error( sprintf(
 			"Tipo '%s' non concesso in DB::forceType(). Vedi la documentazione (esiste?). Sarà usato l'escape 's'.",
 			esc_html($type)
 		) );
@@ -451,28 +454,28 @@ class DB {
 	}
 
 	/**
-	 * Check if there is an error in the connection
+	 * Get the number of affected rows
 	 *
-	 * @return boolean
+	 * @return int
 	 */
-	private function errorConnection() {
-		return @mysqli_connect_errno();
+	public function affectedRows() {
+		$this->mysqli->affected_rows();
 	}
 
 	/**
-	 * You have to check the result before use this!
-	 *
-	 * @deprecated
+	 * Please close the door when you leave a room
 	 */
-	private function fetch_row($fetch) {
-		if($fetch === 'object' || $fetch === 'assoc') {
-			return $this->lastResult->{'fetch_' . $fetch}();
+	public function closeConnection() {
+		if( $this->mysqli ) {
+			@$this->mysqli->close();
 		}
-		error_die('Fetch row cannot be ' . $fetch);
 	}
 
-	public function affectedRows() {
-		return @$this->mysqli->affected_rows();
+	/**
+	 * Automatically close the door when you leave the room
+	 */
+	public function __destruct() {
+		$this->closeConnection();
 	}
 
 	/**
@@ -484,7 +487,7 @@ class DB {
 	private function getQueryErrorMessage($SQL) {
 		return sprintf(
 			__("Errore eseguendo una query SQL: Query n. %d: <blockquote><pre>%s</pre></blockquote><br />Errore: <pre>%s</pre>"),
-			$this->numQueries,
+			$this->queries,
 			$SQL,
 			esc_html($this->mysqli->error)
 		);
