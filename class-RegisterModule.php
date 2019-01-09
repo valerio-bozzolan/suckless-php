@@ -59,11 +59,11 @@ class RegisterModule {
 
 		// Append scripts and styles
 		$this->injectFunction( 'header', function () {
-			CSS       ::instance()->printAll();
-			JavaScript::instance()->printAll( JS::HEADER );
+			RegisterJS ::instance()->printAll( JS::HEADER );
+			RegisterCSS::instance()->printAll();
 		} );
 		$this->injectFunction( 'footer', function () {
-			JavaScript::instance()->printAll( JS::FOOTER );
+			RegisterJS::instance()->printAll( JS::FOOTER );
 		} );
 	}
 
