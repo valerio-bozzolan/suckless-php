@@ -1,5 +1,5 @@
 <?php
-# Copyright (C) 2015, 2016, 2018 Valerio Bozzolan
+# Copyright (C) 2015, 2016, 2018, 2019 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,12 +14,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('PASSWD_HASH_ALGO') or define('PASSWD_HASH_ALGO', 'sha1');   // Just something
-defined('PASSWD_HASH_SALT') or define('PASSWD_HASH_SALT', 'drGth');  // Just something
-defined('PASSWD_HASH_PEPP') or define('PASSWD_HASH_PEPP', 'pw72kP'); // Just something
-defined('COOKIE_HASH_ALGO') or define('COOKIE_HASH_ALGO', 'sha256'); // Just something
-defined('COOKIE_HASH_SALT') or define('COOKIE_HASH_SALT', 'daiads'); // Just something
-defined('COOKIE_HASH_PEPP') or define('COOKIE_HASH_PEPP', '30s3-f'); // Just something
+define_default('PASSWD_HASH_ALGO', 'sha1');   // Just something
+define_default('PASSWD_HASH_SALT', 'drGth');  // Just something
+define_default('PASSWD_HASH_PEPP', 'pw72kP'); // Just something
+define_default('COOKIE_HASH_ALGO', 'sha256'); // Just something
+define_default('COOKIE_HASH_SALT', 'daiads'); // Just something
+define_default('COOKIE_HASH_PEPP', '30s3-f'); // Just something
 
 /**
  * Sessionuser class
