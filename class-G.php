@@ -16,6 +16,8 @@
 
 /**
  * Allows you to be sure that a global object exists.
+ *
+ * @deprecated
  */
 class G {
 	/**
