@@ -1,23 +1,18 @@
 # Boz PHP - Another PHP Framework
-To be clear I use to twist this framework very often deprecating and killing stuff how I feel in the morning. It's my custom laser cannon that serves dozen of very-different Content Management Systems "made from zero" in my single Debian GNU/Linux server.
+This framework is my laser cannon that serves dozen of very-different Content Management Systems "made from zero" by me in my single Debian GNU/Linux server.
 
-## Benefits as developer
-You can create a RDBMS CMS with:
+Note that I very often deprecate and kill stuff depending on how I feel in the morning.
 
-* NO PHP SESSIONS
-* Resources loaded only when you request them without thinking too much on them (with [spl-autoload-register](http://php.net/manual/en/function.spl-autoload-register.php) plus a `$GLOBALS` objects orchestrator)
-* No pain with DB table prefixes
-* No pain with DB associative options
-* No pain with login and user capabilities
-* No pain with registering and enqueueing JS and CSS
-* No pain with menu trees
-* No pain with file uploads
-* Very small websites with only what you want in the root of your project
-* Very small framework with few flat files
+## Benefits
+You can create a RDBMS CMS with these features:
 
-## Benefits as sysadmin
-* No pain with overweight copy-pasted websites to be hosted with redundant backups and too things to keep updated: The framework is in one place; the websites are in other places; datas are in dabasase/databases. Everything it's how it should be done!
-* Do not waste the filesystem file cache feature (feel the pain of your kernel and of your hard-drive cache with `n` stand-alone websites without shared resources!)
+* efficient
+* query builder
+* database associative options
+* very small framework with few flat files (BTW not required on startup)
+* implicit support for DB table prefixes
+* login and user capabilities WITHOUT requiring PHP sessions
+* secure file uploads
 
 ## Requirements
 Obviously a webserver with PHP and MySQL or MariaDB working. Personally I have a simple GLAMP machine (GNU/Linux + Apache + PHP + MySQL or MariaDB). Extra packages suggested:
@@ -44,8 +39,8 @@ $location = 'localhost';
 // Table prefix, if any!
 $prefix = 'blog_';
 
-// We can wait for this feature..
-define('REQUIRE_LOAD_POST', false);
+// To avoid the auto-load of your local load-post.php
+// define('REQUIRE_LOAD_POST', false);
 
 // That's it! This will load the framework with the above configurations
 require '/usr/share/boz-php-another-php-framework/load.php';
@@ -128,11 +123,8 @@ has_permission('do-wonderful-things') && add_menu_entries( [
 ] );
 
 // Use of custom associative options
-$visits = get_option('visits', 0);
-
-set_option('visits', ++$visits);
+// $visits = get_option('visits', 0);
+// set_option('visits', ++$visits);
 ```
-Now remove the declaration of `REQUIRE_LOAD_POST` in your `load.php`.
-
 ## License
 This is a **Free** as in **Freedom** project. It comes with ABSOLUTELY NO WARRANTY. You are welcome to redistribute it under the terms of the **GNU Affero General Public License v3+**.
