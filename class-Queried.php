@@ -42,7 +42,7 @@ class Queried {
 			return $this->$property;
 		}
 		error_die( sprintf(
-			__("Impossibile ottenere %s->%s"),
+			'cannot obtain %s->%s',
 			get_class( $this ),
 			$property
 		) );
@@ -68,9 +68,8 @@ class Queried {
 		if( isset( $this->$property ) ) {
 			return $this->$property;
 		}
-
 		error_die( sprintf(
-			__("Impossibile ottenere %s->%s"),
+			'cannot obtain %s->%s',
 			get_class( $this ),
 			$property
 		) );

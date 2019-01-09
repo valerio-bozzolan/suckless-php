@@ -53,6 +53,19 @@ class RegisterLanguage {
 	private $default = null;
 
 	/**
+	 * Get the singleton instance
+	 *
+	 * @return self
+	 */
+	public function instance() {
+		static $me = false;
+		if( ! $me ) {
+			$me = new self();
+		}
+		return $me;
+	}
+
+	/**
 	 * Constructor
 	 *
 	 * @param string $domain GNU Gettext domain

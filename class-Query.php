@@ -1,5 +1,5 @@
 <?php
-# Copyright (C) 2017, 2018 Valerio Bozzolan
+# Copyright (C) 2017, 2018, 2019 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -32,8 +32,8 @@ class Query {
 	private $rowCount;
 	private $orders;
 
-	public function __construct( &$db = null ) {
-		$this->db = $db ? $db : expect( 'db' ); // Dipendency injection
+	public function __construct( $db = null ) {
+		$this->db = $db ? $db : DB::instance(); // Dipendency injection
 	}
 
 	/**

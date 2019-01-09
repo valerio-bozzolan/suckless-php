@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-// Useful e.g. in Table::NAME . DOT . STAR query.
+// unuseful shortcuts when you want a SELECT * query
 define('DOT',  '.');
 define('STAR', '*');
 
@@ -58,29 +58,13 @@ function _value( $v ) {
 }
 
 /**
- * Retrieve a required global object.
- * @see G::expect()
- */
-function expect( $global_var ) {
-	return $GLOBALS['G']->expect( $global_var );
-}
-
-/**
- * Register a required global object.
- * @see G::add()
- */
-function register_expected( $global_var, $class_name ) {
-	$GLOBALS['G']->add( $global_var, $class_name );
-}
-
-/**
  * Force something to be an array.
  *
  * @return mixed|array
  * @return array
  */
 function force_array( & $a ) {
-	if( ! is_array($a) ) {
+	if( ! is_array( $a ) ) {
 		$a = [ $a ];
 	}
 }
@@ -89,11 +73,8 @@ function force_array( & $a ) {
  * Enfatize a substring.
  * @see EnfatizeSubstr::get()
  */
-function enfatize_substr($heystack, $needle, $pre = '<b>', $post = '</b>') {
-	if( ! $needle ) {
-		return $heystack;
-	}
-	return EnfatizeSubstr::get($heystack, $needle, $pre, $post);
+function enfatize_substr( $heystack, $needle, $pre = '<b>', $post = '</b>' ) {
+	return EnfatizeSubstr::get( $heystack, $needle, $pre, $post );
 }
 
 /**
@@ -236,9 +217,9 @@ function insert_row( $table, $cols, $args = [] ) {
  * @see DB#getLastInsertedID()
  */
 function last_inserted_ID() {
-	isset( $GLOBALS['db'] )
-		|| error_die( __("Manca la connessione al database. Come ottenere l'ultimo indice?") );
-
+	if( ! DB::instanced() ) {
+		error_die( 'cannot obtain last inserted ID without database connection' );
+	}
 	return DB::instance()->getLastInsertedID();
 }
 
@@ -285,55 +266,54 @@ function _esc_attr($s) {
  * Friendly symlinks
  */
 function register_mimetypes($category, $mimetypes) {
-	expect('mimeTypes')->registerMimetypes($category, $mimetypes);
+	MimeTypes::instance()->registerMimetypes($category, $mimetypes);
 }
 function get_mimetypes($category = null) {
-	return expect('mimeTypes')->getMimetypes($category);
+	return MimeTypes::instance()->getMimetypes($category);
 }
 /**
  * @param string $role User role
  * @param string|string[] $permissions Permissions
  */
 function register_permissions($role, $permissions) {
-	expect('permissions')->registerPermissions($role, $permissions);
+	Permissions::instance()->registerPermissions($role, $permissions);
 }
 /**
  * @param string $role_to New role
  * @param string $role_from Existing role
  */
 function inherit_permissions($role_to, $role_from, $other_permissions = []) {
-	expect('permissions')->inheritPermissions($role_to, $role_from, $other_permissions);
+	Permissions::instance()->inheritPermissions($role_to, $role_from, $other_permissions);
 }
 function register_js($javascript_uid, $url, $position = null) {
-	return expect('javascript')->register( $javascript_uid, $url, $position );
+	return RegisterJS::instance()->register( $javascript_uid, $url, $position );
 }
 function enqueue_js($javascript_uid, $position = null) {
-	expect('javascript');
-	return $GLOBALS['javascript']->enqueue( $javascript_uid, $position );
+	return RegisterJS::instance()->enqueue( $javascript_uid, $position );
 }
 function register_css($css_uid, $url) {
-	return expect('css')->register($css_uid, $url);
+	return RegisterCSS::instance()->register($css_uid, $url);
 }
 function enqueue_css($css_uid) {
-	return expect('css')->enqueue($css_uid);
+	return RegisterCSS::instance()->enqueue($css_uid);
 }
 function add_menu_entries($menuEntries) {
-	expect('menu')->add($menuEntries);
+	Menu::instance()->add($menuEntries);
 }
 function get_menu_entry($uid) {
-	return expect('menu')->getMenuEntry($uid);
+	return Menu::instance()->getMenuEntry($uid);
 }
 function get_children_menu_entries($parentUid) {
-	return expect('menu')->getChildrenMenuEntries($parentUid);
+	return Menu::instance()->getChildrenMenuEntries($parentUid);
 }
 function register_module($module_uid) {
-	return expect('module')->register($module_uid);
+	return RegisterModule::instance()->register($module_uid);
 }
 function inject_in_module($module_uid, $callback) {
-	return expect('module')->injectFunction($module_uid, $callback);
+	return RegisterModule::instance()->injectFunction($module_uid, $callback);
 }
 function load_module($module_uid) {
-	return expect('module')->loadModule($module_uid);
+	return RegisterModule::instance()->loadModule($module_uid);
 }
 function get_table_prefix() {
 	return DB::instance()->getPrefix();
@@ -376,26 +356,26 @@ function logout() {
 	return Session::instance()->destroy();
 }
 function register_language($code, $aliases = [], $encode = null, $iso = null, $human = null) {
-	return expect('registerLanguage')->registerLanguage($code, $aliases, $encode, $iso, $human);
+	return RegisterLanguage::instance()->registerLanguage($code, $aliases, $encode, $iso, $human);
 }
 function register_default_language($default) {
-	return expect('registerLanguage')->setDefaultLanguage($default);
+	return RegisterLanguage::instance()->setDefaultLanguage($default);
 }
 function find_language($language_alias) {
-	return expect('registerLanguage')->getLanguage($language_alias);
+	return RegisterLanguage::instance()->getLanguage($language_alias);
 }
 function apply_language($language_alias = null) {
-	return expect('registerLanguage')->applyLanguage($language_alias);
+	return RegisterLanguage::instance()->applyLanguage($language_alias);
 }
 function latest_language() {
-	return expect('registerLanguage')->getLatestLanguageApplied();
+	return RegisterLanguage::instance()->getLatestLanguageApplied();
 }
 function all_languages() {
-	return expect('registerLanguage')->getAll();
+	return RegisterLanguage::instance()->getAll();
 }
 function get_num_queries() {
-	if( isset( $GLOBALS['db'] ) ) {
-		return $GLOBALS['db']->getNumQueries();
+	if( DB::instanced() ) {
+		return DB::instance()->getNumQueries();
 	}
 	return 0;
 }
@@ -409,20 +389,18 @@ function is_logged() {
  * @return bool
  */
 function has_permission($permission, $user = null) {
-	$session = Session::instance();
-
-	if( $user === null ) {
-		$user = $session->getUser();
+	if( ! $user ) {
+		$user = Session::instance()->getUser();
 	}
 
-	$user_role = false;
-	if($user) {
-		$user_role = $user->user_role;
+	$role = $user
+		? $user->get( 'user_role' )
+		: false;
+
+	if( ! $role ) {
+		$role = DEFAULT_USER_ROLE;
 	}
-	if( ! $user_role ) {
-		$user_role = DEFAULT_USER_ROLE;
-	}
-	return expect('permissions')->hasPermission($user_role, $permission);
+	return Permissions::instance()->hasPermission($role, $permission);
 }
 
 /**
@@ -536,7 +514,9 @@ function URL_protocol() {
  * @see DOMAIN
  */
 function URL_domain() {
-	return empty( $_SERVER['SERVER_NAME'] ) ? 'localhost' : $_SERVER['SERVER_NAME'];
+	return isset( $_SERVER[ 'SERVER_NAME' ] )
+	            ? $_SERVER[ 'SERVER_NAME' ]
+	            : php_uname( 'n' );
 }
 
 /**
@@ -608,7 +588,7 @@ function __( $msgid ) {
 	// does the user want a native GNU GETTEXT implementation? cache it.
 	static $native = null;
 	if( null === $native ) {
-		$native = expect( 'registerLanguage' )->isNative();
+		$native = RegisterLanguage::instance()->isNative();
 	}
 
 	if( $native ) {
@@ -617,7 +597,7 @@ function __( $msgid ) {
 	}
 
 	// high-level GNU Gettext (simpler but slower)
-	return MoLoader::getInstance()->getTranslator()->gettext( $msgid );
+	return MoLoader::instance()->getTranslator()->gettext( $msgid );
 }
 
 /**
@@ -628,10 +608,10 @@ function _e( $s ) {
 }
 
 function http_json_header($charset = null) {
-	if( $charset === null ) {
+	if( null === $charset ) {
 		$charset = CHARSET;
 	}
-	header('Content-Type: application/json; charset=' . $charset);
+	header( "Content-Type: application/json; charset=$charset" );
 }
 
 /**
@@ -641,7 +621,7 @@ function http_json_header($charset = null) {
  * @return array
  */
 function array_unset_empty( $data ) {
-	$is_array  = is_array(  $data );
+	$is_array = is_array( $data );
 	if( $is_array || is_object( $data ) ) {
 		foreach( $data as $k => $v ) {
 			if( is_array( $v ) || is_object( $v ) ) {
@@ -704,14 +684,14 @@ function get_mimetype($filepath, $pure = false) {
  */
 function is_file_in_category($filepath, $category) {
 	$mime = get_mimetype($filepath);
-	return expect('mimeTypes')->isMimetypeInCategory($mime , $category);
+	return MimeTypes::instance()->isMimetypeInCategory($mime , $category);
 }
 
 /**
  * Get the file extension
  */
 function get_file_extension_from_expectations($filename, $category) {
-	return expect('mimeTypes')->getFileExtensionFromExpectations($filename, $category);
+	return MimeTypes::instance()->getFileExtensionFromExpectations($filename, $category);
 }
 
 function is_image($filepath) {
@@ -776,8 +756,7 @@ function search_free_filename( $filepath, $filename, $ext, $args, $build_filenam
  * @param int $max Max length
  */
 function luser_input($s, $max) {
-	$s = trim($s);
-	return mb_strimwidth($s, 0, $max, '');
+	return mb_strimwidth( trim($s), 0, $max, '');
 }
 
 /**

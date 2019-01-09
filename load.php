@@ -80,15 +80,6 @@ spl_autoload_register( function( $c ) {
 	}
 } );
 
-$GLOBALS['G'] = new G();
-$GLOBALS['G']->add('mimeTypes',   'MimeTypes');
-$GLOBALS['G']->add('javascript',  'RegisterJS');
-$GLOBALS['G']->add('css',         'RegisterCSS');
-$GLOBALS['G']->add('permissions', 'Permissions');
-$GLOBALS['G']->add('menu',        'Menu');
-$GLOBALS['G']->add('module',      'RegisterModule');
-$GLOBALS['G']->add('registerLanguage', 'RegisterLanguage');
-
 if( ! defined( 'REQUIRE_LOAD_POST' ) ) {
 	if( defined( 'ABSPATH' ) ) {
 		define( 'REQUIRE_LOAD_POST', ABSPATH . __ . 'load-post.php' );

@@ -49,16 +49,31 @@ class DB {
 	private $lastResult = false;
 
 	/**
+	 * Singleton instance
+	 *
+	 * @var self
+	 */
+	private static $_instance;
+
+	/**
 	 * Get an instance of this class
 	 *
 	 * @return self
 	 */
 	public function instance() {
-		static $me = null;
-		if( ! $me ) {
-			$me = new self();
+		if( ! self::$_instance ) {
+			self::$_instance = new self();
 		}
-		return $me;
+		return self::$_instance;
+	}
+
+	/**
+	 * Check if ::instance() was called
+	 *
+	 * @return boolean
+	 */
+	public function instanced() {
+		return isset( self::$_instance );
 	}
 
 	/**

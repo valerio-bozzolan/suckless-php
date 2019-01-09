@@ -32,6 +32,19 @@ class Menu {
 	}
 
 	/**
+	 * Get the singleton instance
+	 *
+	 * @return self
+	 */
+	public function instance() {
+		static $me = false;
+		if( ! $me ) {
+			$me = new self();
+		}
+		return $me;
+	}
+
+	/**
 	 * Append a single or an array of menu entries.
 	 *
 	 * @param array|MenuEntry $menuEntries
@@ -63,7 +76,6 @@ class Menu {
 		if( ! isset( $this->tree[ $parentUid ] ) || ! is_array( $this->tree[ $parentUid ] ) ) {
 			 $this->tree[ $parentUid ] = [];
 		}
-
 		$this->tree[ $parentUid ][] = $uid;
 	}
 
@@ -77,13 +89,7 @@ class Menu {
 		if( isset( $this->menuEntries[ $uid ] ) ) {
 			return $this->menuEntries[ $uid ];
 		}
-
-		DEBUG && error( sprintf(
-			__("La voce di menu '%s' non è stata ancora creata."),
-			esc_html($uid)
-		) );
-
-		return null;
+		error( "the menu entry $uid was not found" );
 	}
 
 	/**

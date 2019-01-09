@@ -29,8 +29,7 @@ class DynamicQuery {
 
 	function __construct(& $db = null) {
 		if(!$db) {
-			expect('db');
-			$db = & $GLOBALS['db'];
+			$db = DB::instance();
 		}
 		$this->db = $db; // Dipendency injection
 	}

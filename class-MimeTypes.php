@@ -34,8 +34,23 @@ class MimeTypes {
 	 */
 	private $mimeTypes;
 
-	function __construct($defaults = true) {
-		$defaults && $this->loadDefaults();
+	function __construct( $defaults = true ) {
+		if( $defaults ) {
+			$this->loadDefaults();
+		}
+	}
+
+	/**
+	 * Get the singleton instance
+	 *
+	 * @return self
+	 */
+	public function instance() {
+		static $me = false;
+		if( ! $me ) {
+			$me = new self();
+		}
+		return $me;
 	}
 
 	/**
@@ -129,7 +144,7 @@ class MimeTypes {
 			// MIME types from selected categories
 			foreach($categories as $category) {
 				if( ! isset( $this->mimeTypes[ $category ]  ) ) {
-					DEBUG && self::printErrorUnknownCategory( $category );
+					self::errorUnknownCategory( $category );
 					continue;
 				}
 
@@ -183,7 +198,7 @@ class MimeTypes {
 			// Search *that* category if exists
 			foreach($categories as $category) {
 				if( ! isset( $this->mimeTypes[ $category ] ) ) {
-					DEBUG && self::printErrorUnknownCategory($category);
+					self::errorUnknownCategory($category);
 					continue;
 				}
 
@@ -236,19 +251,17 @@ class MimeTypes {
 	public static function fileMimetype( $filepath, $pure = false ) {
 		$finfo = finfo_open( FILEINFO_MIME, MAGIC_MIME_FILE );
 		if( ! $finfo ) {
-			DEBUG && error( sprintf(
-				__("Errore aprendo il database fileinfo situato in '%s'."),
+			return error( sprintf(
+				'error opening the fileinfo database expected in %s',
 				MAGIC_MIME_FILE
 			) );
-			return false;
 		}
 		$mime = finfo_file( $finfo, $filepath );
 		if( ! $mime ) {
-			DEBUG && error( sprintf(
-				__("Impossibile ottenere il MIME del file '%s'."),
-				esc_html( $filepath )
+			return error( sprintf(
+				"can't detect the mime of the file %s",
+				$filepath
 			) );
-			return false;
 		}
 		if( ! $pure ) {
 			$mime = explode(';', $mime, 2); // Split "; charset"
@@ -257,10 +270,10 @@ class MimeTypes {
 		return $mime;
 	}
 
-	private static function printErrorUnknownCategory($category) {
+	private static function errorUnknownCategory($category) {
 		error( sprintf(
-			__("Categoria di MIME <em>%s</em> non registrata."),
-			esc_html( $category )
+			'the MIME category %s is not registered"),
+			$category
 		) );
 	}
 }
