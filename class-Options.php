@@ -32,14 +32,16 @@ class Options {
 	private $optionsRegistered = [];
 
 	/**
-	 * Get the instance
+	 * Get the singleton instance
+	 *
+	 * @return self
 	 */
 	public static function instance() {
-		static $self = null;
-		if( ! $self ) {
-			$self = new self();
+		static $me = false;
+		if( ! $me ) {
+			$me = new self();
 		}
-		return $self;
+		return $me;
 	}
 
 	/**
