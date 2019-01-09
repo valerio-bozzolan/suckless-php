@@ -1,5 +1,5 @@
 <?php
-# Copyright (C) 2015, 2016, 2017 Valerio Bozzolan
+# Copyright (C) 2015, 2016, 2017, 2018 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,12 +15,12 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Enfatize a substring.
+ * Enfatize a substring
  */
 class EnfatizeSubstr {
 
 	/**
-	 * Enfatize a substring.
+	 * Enfatize a substring
 	 *
 	 * @param $s string Heystack
 	 * @param $q string Needle
@@ -29,30 +29,36 @@ class EnfatizeSubstr {
 	 * @return string Enfatized string
 	 * @todo Move in it's own class
 	 */
-	static function get($s, $q, $pre = "<b>", $post = "</b>") {
-		$s_length = strlen($s);
-		$q_length = strlen($q);
+	static function get( $s, $q, $pre = "<b>", $post = "</b>" ) {
+
+		// no needle? that's quick
+		if( empty( $q ) ) {
+			return $s;
+		}
+
+		$s_length = strlen( $s );
+		$q_length = strlen( $q );
 		$offset = 0;
 		do {
-			// Find position
-			$pos = stripos($s, $q, $offset);
+			// find occurrence
+			$pos = stripos( $s, $q, $offset );
 			if($pos === false) {
 				break;
 			}
 
-			// Enfatize query
-			$enfatized = $pre . substr($s, $pos, $q_length) . $post;
-			$enfatized_length = strlen($enfatized);
+			// enfatize query
+			$enfatized = $pre . substr( $s, $pos, $q_length ) . $post;
+			$enfatized_length = strlen( $enfatized );
 
-			// Pre-query and post-query strings
-			$s_pre = substr($s, 0, $pos);
-			$s_post = substr($s, $pos + $q_length);
+			// pre-query and post-query strings
+			$s_pre  = substr( $s, 0, $pos );
+			$s_post = substr( $s, $pos + $q_length );
 
-			// Save
+			// save
 			$s = $s_pre . $enfatized . $s_post;
 
 			$offset = $pos + $enfatized_length;
-		} while($offset < $s_length);
+		} while( $offset < $s_length );
 
 		return $s;
 	}
