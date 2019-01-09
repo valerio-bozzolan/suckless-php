@@ -8,12 +8,13 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+// error defaults
 define('UPLOAD_EXTRA_ERR_INVALID_REQUEST', 101);
 define('UPLOAD_EXTRA_ERR_GENERIC_ERROR', 102);
 define('UPLOAD_EXTRA_ERR_CANT_READ_MIMETYPE', 103);
@@ -24,11 +25,11 @@ define('UPLOAD_EXTRA_ERR_FILENAME_TOO_SHORT', 107);
 define('UPLOAD_EXTRA_ERR_FILENAME_TOO_LONG', 108);
 define('UPLOAD_EXTRA_ERR_CANT_SAVE_FILE', 109);
 
-defined('MAGIC_MIME_FILE')
-	or define('MAGIC_MIME_FILE', null); // Fifo system default
+// fifo system default
+define_default( 'MAGIC_MIME_FILE', null );
 
 /**
- * Manage upload exceptions.
+ * Manage uploads with security in mind
  */
 class FileUploader {
 
@@ -171,10 +172,7 @@ class FileUploader {
 				// It's OK
 				break;
 			default:
-				DEBUG && error( sprintf(
-					__("FileUploader ha ottenuto un errore sconosciuto: %d."),
-					$status
-				) );
+				error( "unexpected FileUploader error status: $status" );
 				$status = UPLOAD_EXTRA_ERR_GENERIC_ERROR;
 				return false;
 		}
@@ -278,7 +276,6 @@ class FileUploader {
 					human_filesize( self::uploadMaxFilesize() )
 				);
 			case UPLOAD_ERR_FORM_SIZE:
-				DEBUG && error( __("Non affidarti a UPLOAD_ERR_FORM_SIZE!") );
 				return __("Il file eccede i limiti imposti.");
 			case UPLOAD_EXTRA_ERR_OVERSIZE:
 				$size = $this->getFileInfo( 'size' );
@@ -324,10 +321,7 @@ class FileUploader {
 			case UPLOAD_EXTRA_ERR_GENERIC_ERROR:
 				return __("Errore di caricamento sconosciuto.");
 		}
-		DEBUG and error( sprintf(
-			__("Stato di errore non previsto: '%d'"),
-			$status
-		) );
+		error( "unexpected FileUploader error status: $status" );
 		return __("Errore di caricamento alquanto sconosciuto.");
 	}
 
@@ -382,20 +376,11 @@ class FileUploader {
 	 * @return string File name (with extension)
 	 */
 	public static function buildFilename( $filename, $ext, $args, $i = null ) {
-		if( ! isset( $args['autoincrement'] ) ) {
+		if( empty( $args['autoincrement'] ) ) {
 			$args['autoincrement'] = '-%d';
-			DEBUG && error( sprintf(
-				__("Arg [autoincrement] atteso in %s. Assunto '%s'."),
-				__FUNCTION__,
-				'-%d'
-			) );
 		}
-		if( ! isset( $args['post-filename']  ) ) {
+		if( empty( $args['post-filename']  ) ) {
 			$args['post-filename'] = '';
-			DEBUG && error( sprintf(
-				__("Arg [post-filename] atteso in %s. Assunto vuoto."),
-				__FUNCTION__
-			) );
 		}
 		$suffix = ( $i === null ) ? '' : sprintf( $args['autoincrement'], $i );
 		return $filename . $suffix . $args['post-filename'];
@@ -412,18 +397,15 @@ class FileUploader {
 	public static function fileMimetype( $filepath, $pure = false ) {
 		$finfo = finfo_open(FILEINFO_MIME, MAGIC_MIME_FILE);
 		if( ! $finfo ) {
-			DEBUG and error( sprintf(
-				__("Errore aprendo il database fileinfo situato in '%s'."),
+			error( sprintf(
+				'error opening fileinfo database placed in %s',
 				MAGIC_MIME_FILE
 			) );
 			return false;
 		}
 		$mime = finfo_file( $finfo, $filepath );
 		if( ! $mime ) {
-			DEBUG && error( sprintf(
-				__("Impossibile ottenere il MIME del file '%s'."),
-				esc_html( $filepath )
-			) );
+			error( "can't detect MIME of file $filepath" );
 			return false;
 		}
 		if( ! $pure ) {
