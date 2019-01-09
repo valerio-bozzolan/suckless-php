@@ -557,14 +557,14 @@ function http_build_get_query( $url, $data ) {
  * HTTP 503 headers
  */
 function http_503() {
-	return Shit::header503();
+	OutputUtilities::header503();
 }
 
 /**
  * It scares the user with an error message (and dies).
  */
 function error_die( $msg ) {
-	Shit::WSOD( $msg );
+	OutputUtilities::WSOD( $msg );
 }
 
 /**
@@ -573,7 +573,7 @@ function error_die( $msg ) {
  * @return void
  */
 function error( $msg ) {
-	Shit::error( $msg );
+	OutputUtilities::error( $msg );
 }
 
 /**
