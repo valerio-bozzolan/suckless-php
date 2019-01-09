@@ -101,7 +101,7 @@ function enfatize_substr($heystack, $needle, $pre = '<b>', $post = '</b>') {
  * @see DB#escapeString()
  */
 function esc_sql($s) {
-	return expect('db')->escapeString($s);
+	return DB::instance()->escapeString($s);
 }
 
 /**
@@ -140,7 +140,7 @@ function _esc_html($s) {
  * @see DB#getResults()
  */
 function query($query) {
-	return expect('db')->query($query);
+	return DB::instance()->query($query);
 }
 
 /**
@@ -152,7 +152,7 @@ function query($query) {
  * @see DB#getResults()
  */
 function query_results($query, $class = null, $args = [] ) {
-	return expect('db')->getResults($query, $class, $args);
+	return DB::instance()->getResults($query, $class, $args);
 }
 
 /**
@@ -164,7 +164,7 @@ function query_results($query, $class = null, $args = [] ) {
  * @see DB#getGenerator()
  */
 function query_generator( $query, $class = null, $args = [] ) {
-	return expect( 'db' )->getGenerator( $query, $class, $args );
+	return DB::instance()->getGenerator( $query, $class, $args );
 }
 
 /**
@@ -176,7 +176,7 @@ function query_generator( $query, $class = null, $args = [] ) {
  * @see DB#getRow()
  */
 function query_row($query, $class = null, $args = [] ) {
-	return expect('db')->getRow($query, $class, $args);
+	return DB::instance()->getRow($query, $class, $args);
 }
 
 /**
@@ -184,7 +184,7 @@ function query_row($query, $class = null, $args = [] ) {
  * @see DB#getValue()
  */
 function query_value($query, $value, $class = null) {
-	return expect('db')->getValue($query, $value, $class);
+	return DB::instance()->getValue($query, $value, $class);
 }
 
 /**
@@ -192,7 +192,7 @@ function query_value($query, $value, $class = null) {
  * @see DB#multiQuery()
  */
 function multiquery( $queries ) {
-	return expect('db')->multiQuery( $queries );
+	return DB::instance()->multiQuery( $queries );
 }
 
 /**
@@ -203,7 +203,7 @@ function multiquery( $queries ) {
  * @see DB#getTable()
  */
 function T($t, $as = false) {
-	return expect('db')->getTable($t, $as);
+	return DB::instance()->getTable($t, $as);
 }
 
 define('T', 'T');
@@ -215,7 +215,7 @@ $GLOBALS[T] = function($t, $as = false) {
 
 // Stupid shortcut for string context for listing tables
 $GLOBALS[JOIN] = function($t) {
-	return expect('db')->getTables( func_get_args() );
+	return DB::instance()->getTables( func_get_args() );
 };
 
 /**
@@ -226,7 +226,7 @@ $GLOBALS[JOIN] = function($t) {
  * @see DB#insertRow()
  */
 function insert_row( $table, $cols, $args = [] ) {
-	return expect('db')->insertRow( $table, $cols, $args );
+	return DB::instance()->insertRow( $table, $cols, $args );
 }
 
 /**
@@ -239,7 +239,7 @@ function last_inserted_ID() {
 	isset( $GLOBALS['db'] )
 		|| error_die( __("Manca la connessione al database. Come ottenere l'ultimo indice?") );
 
-	return expect('db')->getLastInsertedID();
+	return DB::instance()->getLastInsertedID();
 }
 
 /**
@@ -250,7 +250,7 @@ function last_inserted_ID() {
  * @see DB#insert()
  */
 function insert_values($table, $cols, $values) {
-	return expect('db')->insert($table, $cols, $values);
+	return DB::instance()->insert($table, $cols, $values);
 }
 
 /**
@@ -261,7 +261,7 @@ function insert_values($table, $cols, $values) {
  * @see DB#update()
  */
 function query_update($table, $cols, $condition, $after = '') {
-	expect('db')->update($table, $cols, $condition, $after);
+	DB::instance()->update($table, $cols, $condition, $after);
 }
 
 /**
@@ -336,10 +336,10 @@ function load_module($module_uid) {
 	return expect('module')->loadModule($module_uid);
 }
 function get_table_prefix() {
-	return expect('db')->getPrefix();
+	return DB::instance()->getPrefix();
 }
 function register_option($option_name) {
-	return expect('db')->registerOption($option_name);
+	return DB::instance()->registerOption($option_name);
 }
 function get_option( $name, $default = '' ) {
 	return Options::instance()->get( $name, $default );
@@ -357,7 +357,7 @@ function remove_option( $name ) {
  * @return mixed|Sessionuser Property, or entire Sessionuser object.
  */
 function get_user( $property = null ) {
-	$user = expect('session')->getUser();
+	$user = Session::instance()->getUser();
 	if( null === $property ) {
 		return $user;
 	}
@@ -370,10 +370,10 @@ function get_user( $property = null ) {
  * @see Session::login()
  */
 function login(& $status = null, $user_uid = null, $user_password = null) {
-	return expect('session')->login($status, $user_uid, $user_password);
+	return Session::instance()->login($status, $user_uid, $user_password);
 }
 function logout() {
-	return expect('session')->destroy();
+	return Session::instance()->destroy();
 }
 function register_language($code, $aliases = [], $encode = null, $iso = null, $human = null) {
 	return expect('registerLanguage')->registerLanguage($code, $aliases, $encode, $iso, $human);
@@ -400,11 +400,8 @@ function get_num_queries() {
 	return 0;
 }
 function is_logged() {
-	return expect('session')->isLogged();
+	return Session::instance()->isLogged();
 }
-
-defined('DEFAULT_USER_ROLE')
-	or define('DEFAULT_USER_ROLE', 'UNREGISTERED');
 
 /**
  * @param string $permission Permission uid
@@ -412,7 +409,7 @@ defined('DEFAULT_USER_ROLE')
  * @return bool
  */
 function has_permission($permission, $user = null) {
-	$session = expect('session');
+	$session = Session::instance();
 
 	if( $user === null ) {
 		$user = $session->getUser();
@@ -572,17 +569,13 @@ function generate_slug($s, $max_length = -1, $glue = '-', & $truncated = false) 
 	return Slug::get($s, $max_length, $glue, $truncated);
 }
 
-function http_build_get_query($url, $data) {
-	$data = http_build_query($data);
-	if( $data ) {
-		return "$url?$data";
-	}
-	return $url;
+function http_build_get_query( $url, $data ) {
+	$data = http_build_query( $data );
+	return $data ? "$url?$data" : $url;
 }
 
 /**
- * HTTP 503 headers.
- * @see Shit::header503()
+ * HTTP 503 headers
  */
 function http_503() {
 	return Shit::header503();
@@ -590,14 +583,18 @@ function http_503() {
 
 /**
  * It scares the user with an error message (and dies).
- * @see Shit::SWOD()
  */
 function error_die( $msg ) {
 	Shit::WSOD( $msg );
 }
 
+/**
+ * It logs an error message and eventually prints it when DEBUG
+ *
+ * @return void
+ */
 function error( $msg ) {
-	echo Shit::getErrorMessage( $msg );
+	Shit::error( $msg );
 }
 
 /**
@@ -761,10 +758,7 @@ function create_path($path, $chmod = CHMOD_WRITABLE_DIRECTORY) {
 	if( file_exists($path) || mkdir($path, $chmod, true) ) {
 		return true;
 	}
-	DEBUG && error( sprintf(
-		__("Impossibile scrivere il percorso '%s'."),
-		esc_html( $path )
-	) );
+	error( "unable to create path $path" );
 	return false;
 }
 

@@ -1,5 +1,5 @@
 <?php
-# Copyright (C) 2015, 2018 Valerio Bozzolan
+# Copyright (C) 2015, 2018, 2019 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,8 +14,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('SESSION_DURATION')  || define('SESSION_DURATION', 604800);   // Just something 60s * 60m * 24h * 7d
-defined('SESSIONUSER_CLASS') || define('SESSIONUSER_CLASS', 'Sessionuser');
+// 60s * 60m * 24h * 7d
+define_default( 'SESSION_DURATION',  604800 );
+
+// the default user logged-in class
+define_default( 'SESSIONUSER_CLASS', 'Sessionuser' );
 
 /**
  * Session handler class
@@ -35,6 +38,19 @@ class Session {
 	 * @var Sessionuser
 	 */
 	private $user = null;
+
+	/**
+	 * Get the singleton instance
+	 *
+	 * @return self
+	 */
+	public function instance() {
+		static $me = false;
+		if( ! $me ) {
+			$me = new self();
+		}
+		return $me;
+	}
 
 	/**
 	 * Constructor
@@ -111,8 +127,7 @@ class Session {
 
 		if( ! $user ) {
 			$status = self::LOGIN_FAILED;
-			error_log( sprintf( "Login failed by '%s' using POST", $userClass::sanitizeUID( $user_uid ) ) );
-			return false;
+			return self::failed( $userClass::sanitizeUID( $user_uid ), 'POST' );
 		}
 
 		if( ! $user->isSessionuserActive() ) {
@@ -167,8 +182,7 @@ class Session {
 		}
 
 		if( $_COOKIE['token'] !== $user->generateSessionuserCookieToken() ) {
-			error_log( sprintf( "Login failed by '%s' using cookies", $userClass::sanitizeUID( $_COOKIE['user_uid'] ) ) );
-			return false;
+			return self::failed( $userClass::sanitizeUID( $_COOKIE['user_uid'] ), 'cookies' );
 		}
 
 		$this->user = $user;
@@ -187,5 +201,21 @@ class Session {
 
 		$this->loginVerified = true;
 		$this->user = null;
+	}
+
+	/**
+	 * Log in syslog a login fail
+	 *
+	 * @param $uid string
+	 * @param $from string
+	 * @return false
+	 */
+	public static function failed( $uid, $from ) {
+		error_log( sprintf(
+			"Login failed by '%s' using %s",
+			$uid,
+			$from
+		) );
+		return false;
 	}
 }

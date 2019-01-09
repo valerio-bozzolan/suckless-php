@@ -1,5 +1,5 @@
 <?php
-# Copyright (C) 2015, 2016, 2017 Valerio Bozzolan
+# Copyright (C) 2015, 2016, 2017, 2019 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,32 +15,16 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This file is completly full of shit.
+ * This file is completly full of shit
  */
 class Shit {
-	/**
-	 * A shitty phrase.
-	 */
-	static function getErrorMessage( $msg ) {
-		return "\n\n\t<!-- ERROR: -->\n\t<p style='background:red'>Error: $msg</p>\n\n";
-	}
 
 	/**
-	 * Soap of 503 headers.
+	 * Spawn the white screen of death
+	 *
+	 * @param $msg string
 	 */
-	static function header503() {
-		if( headers_sent() ) {
-			return false;
-		}
-		header('HTTP/1.1 503 Service Temporarily Unavailable');
-		header('Status: 503 Service Temporarily Unavailable');
-		header('Retry-After: 300');
-	}
-
-	/**
-	 * Spawn the white screen of death.
-	 */
-	static function WSOD( $msg ) {
+	public static function WSOD( $msg ) {
 		self::header503();
 		?>
 		<!DOCTYPE html>
@@ -52,15 +36,41 @@ class Shit {
 		</head>
 		<body>
 			<h1><?php printf(
-				__("Ci dispiace! C'è qualche piccolo problema! <small>(DEBUG: %s)</small>"),
+				__("Ci dispiace! C'è qualche piccolo problema tecnico! (DEBUG: %s)"),
 				DEBUG ? __("sì") : __("no")
 			) ?></h1>
-			<p><?php _e("Si è verificato il seguente errore durante l'avvio del framework:") ?></p>
-			<p>&laquo; <?php echo $msg ?> &raquo;</p>
-			<p><?php _e("Sai che cosa significhi tutto ciò...") ?></p>
+			<?php self::error( $msg ) ?>
+			<p><?php _e("Potrebbe essere utile comunicarci questo problema affinchè non si ripresenti in futuro. Grazie per la collaborazione.") ?></p>
 		</body>
 		</html>
 		<?php
 		exit( 1 );
 	}
+
+	/**
+	 * Soap of 503 headers
+	 */
+	public static function header503() {
+		if( headers_sent() ) {
+			return false;
+		}
+		header( 'HTTP/1.1 503 Service Temporarily Unavailable' );
+		header( 'Status: 503 Service Temporarily Unavailable' );
+		header( 'Retry-After: 300' );
+	}
+
+	/**
+	 * A shitty phrase logged in the syslog and eventually printed when DEBUG
+	 *
+	 * @param $msg string
+	 * @return void
+	 */
+	public static function error( $msg ) {
+		error_log( $msg );
+		if( DEBUG ) {
+			echo "\n<!-- ERROR: -->\n";
+			echo '<p style="color:red;">' . esc_html( $msg ) . '</p>';
+		}
+	}
+
 }

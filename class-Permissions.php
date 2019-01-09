@@ -14,77 +14,115 @@
 # You should have received a copy of the GNU General License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * Handle roles and their permissions
+ */
 class Permissions {
-	var $rolePermissions = [];
 
-	public function __construct() {
-		// expect('session'); it is unnecessary at this time
+	/**
+	 * Permissions indexed by user roles
+	 */
+	public $roles = [];
+
+	/**
+	 * Get the singleton instance
+	 */
+	public function instance() {
+		static $me = false;
+		if( ! $me ) {
+			$me = new self();
+		}
+		return $me;
 	}
 
+	/**
+	 * Register specific permissions to the wanted role
+	 *
+	 * @param $role string
+	 * @param $permissions array
+	 */
 	public function registerPermissions( $role, $permissions ) {
 		force_array( $permissions );
 		if( ! $this->roleExists( $role ) ) {
-			$this->rolePermissions[ $role ] = [];
+			$this->roles[ $role ] = [];
 		}
-		$this->rolePermissions[ $role ] = array_merge( $this->rolePermissions[ $role ], $permissions );
+		$this->roles[ $role ] = array_merge( $this->roles[ $role ], $permissions );
 	}
 
+	/**
+	 * Check if a role has a permission
+	 *
+	 * @param $role string
+	 * @param $permissions string
+	 * @return boolean
+	 */
 	public function hasPermission( $role, $permission ) {
 		if( $this->roleExists( $role ) ) {
-			foreach( $this->rolePermissions[ $role ] as $rolePermission ) {
-				if( $rolePermission === $permission ) {
-					return true;
-				}
-			}
+			return in_array( $this->roles[ $role ], $permission, true );
+		} else {
+			error( "unknown role $role" );
 		}
 		return false;
 	}
 
-	public function inheritPermissions( $new_role, $existing_role, $new_role_permissions = [] ) {
-		if( ! $this->roleExists( $existing_role ) ) {
-			self::errorRole( $existing_role );
-			return false;
+	/**
+	 * Inherit permissions from an existing role, and extend it
+	 *
+	 * @param $new_role string
+	 * @param $existing string
+	 * @param $permissions array
+	 */
+	public function inheritPermissions( $new_role, $existing, $permissions = [] ) {
+		if( ! $this->roleExists( $existing ) ) {
+			throw new InvalidArgumentException( 'unknown role' );
 		}
-		$this->registerPermissions( $new_role, $this->rolePermissions[ $existing_role ] );
-		if( $new_role_permissions ) {
-			$this->registerPermissions( $new_role, $new_role_permissions );
-		}
-		return true;
+		$this->registerPermissions( $new_role, $this->roles[ $existing ] );
+		$this->registerPermissions( $new_role, $permissions );
 	}
 
+	/**
+	 * Check if a role formally exists
+	 *
+	 * @param $role string
+	 * @return boolean
+	 */
 	public function roleExists( $role ) {
-		return isset( $this->rolePermissions[ $role ] );
+		return isset( $this->roles[ $role ] );
 	}
 
+	/**
+	 * Get all the known permissions
+	 *
+	 * @return array
+	 */
 	public function getPermissions() {
 		$all = [];
-		foreach( $this->rolePermissions as $permissions ) {
+		foreach( $this->roles as $permissions ) {
 			$all = array_merge( $all, $permissions );
 		}
 		return array_unique( $permissions );
 	}
 
+	/**
+	 * Get all the roles
+	 *
+	 * @return array
+	 */
 	public function getRoles() {
-		return array_keys( $this->rolePermissions );
+		return array_keys( $this->roles );
 	}
 
 	/**
-	 * To avoid duplicate permissions
-	 * Only useful when someone want to list all the permissions.
+	 * Avoid duplicate permissions
+	 *
+	 * Well, it's only useful when you want to list all the permissions without duplicates.
 	 *
 	 * @return self
 	 */
 	public function clean() {
-		foreach( $this->rolePermissions as $role => $permissions ) {
-			$this->rolePermissions[ $role ] = array_unique( $permissions );
+		foreach( $this->roles as $role => $permissions ) {
+			$this->roles[ $role ] = array_unique( $permissions );
 		}
 		return $this;
-	}
-
-	private static function errorRole( $role ) {
-		DEBUG && error( sprintf(
-			__("Il ruolo %s non è stato ancora registrato"),
-			esc_html( $role )
-		) );
 	}
 }

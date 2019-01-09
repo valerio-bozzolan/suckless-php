@@ -49,6 +49,19 @@ class DB {
 	private $lastResult = false;
 
 	/**
+	 * Get an instance of this class
+	 *
+	 * @return self
+	 */
+	public function instance() {
+		static $me = null;
+		if( ! $me ) {
+			$me = new self();
+		}
+		return $me;
+	}
+
+	/**
 	 * Prepare the DB object.
 	 *
 	 * @param type $username Database username
@@ -57,7 +70,7 @@ class DB {
 	 * @param type $database Database name
 	 * @param type $prefix Table Prefix
 	 */
-	function __construct($username = null, $password = null, $location = null, $database = null, $prefix = '', $charset = 'utf8') {
+	function __construct( $username = null, $password = null, $location = null, $database = null, $prefix = '', $charset = 'utf8' ) {
 		if( func_num_args() === 0 ) {
 			$username  = @$GLOBALS['username'];
 			$password  = @$GLOBALS['password'];
