@@ -49,7 +49,7 @@ class MoStringReader {
 	 */
 	public function read( $pos, $bytes ) {
 		if( $pos + $bytes > $this->len ) {
-			throw new MoReaderException( 'not enough bytes' );
+			throw new Exception( 'not enough bytes' );
 		}
 		return substr( $this->str, $pos, $bytes );
 	}
