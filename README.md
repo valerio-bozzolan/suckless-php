@@ -110,16 +110,10 @@ register_mimetypes('pdf', [
 
 // Custom menu tree declaration
 add_menu_entries( [
-	new MenuEntry('home', URL . '/home.php', _("Home") ),
-	new MenuEntry('services', URL . '/services.php', _("Our services") ),
-	new MenuEntry('meet', URL . '/meet.php', _("Meet us"), 'services'),
-	new MenuEntry('colorado', URL . '/meet.php', _("Meet us in Colorado"), 'meet'),
-	new MenuEntry('cast', URL . '/cast.php', _("Cast") )
-] );
-
-// Create a submenu in certain conditions
-has_permission('do-wonderful-things') && add_menu_entries( [
-	new MenuEntry('cast-edit', URL . '/foo.php', _("Cast administration"), 'cast' )
+	new MenuEntry( 'index',     'home.php',         __("Home") ),
+	new MenuEntry( 'services',  'services.php',     __("Our services") ),
+	new MenuEntry( 'contact',   'meet.php',         __("Meet us"),             'services'),
+	new MenuEntry( 'fsf',       'https://fsf.org/', __("Meet us in Colorado"), 'contact'),
 ] );
 
 // Use of custom associative options
