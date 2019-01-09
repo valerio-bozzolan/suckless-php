@@ -69,7 +69,7 @@ define_default( 'CHMOD_WRITABLE_FILE', 0666 );
 // request charset
 define_default( 'CHARSET', 'utf-8' );
 
-// JavaScript / CSS additional GET parameter e.g. '?v=1'
+// trailing JavaScript / CSS parameter e.g. 'v=1' (will be automatically prefixed with &/?)
 define_default( 'CACHE_BUSTER', '' );
 
 // autoload boz-php classes
