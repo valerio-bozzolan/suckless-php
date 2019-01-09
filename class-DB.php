@@ -87,11 +87,11 @@ class DB {
 	 */
 	function __construct( $username = null, $password = null, $location = null, $database = null, $prefix = '', $charset = 'utf8' ) {
 		if( func_num_args() === 0 ) {
-			$username  = @$GLOBALS['username'];
-			$password  = @$GLOBALS['password'];
-			$location  = @$GLOBALS['location'];
-			$database  = @$GLOBALS['database'];
-			$prefix    = @$GLOBALS['prefix'];
+			$username  = $GLOBALS['username'];
+			$password  = $GLOBALS['password'];
+			$location  = $GLOBALS['location'];
+			$database  = $GLOBALS['database'];
+			$prefix    = $GLOBALS['prefix'];
 		}
 
 		$this->prefix = $prefix;
