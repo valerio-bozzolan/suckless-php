@@ -1,5 +1,5 @@
 <?php
-# Copyright (C) 2015, 2016, 2017 Valerio Bozzolan
+# Copyright (C) 2015, 2016, 2017, 2019 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,11 +14,29 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * A database column
+ *
+ * This class is useful to sanitize values before inserting them into the database
+ */
 class DBCol {
+
 	public $column;
 	public $forceType;
 	public $value;
 
+	/**
+	 * @param $column string Name of the column e.g. 'user_ID'
+	 * @param $value string Related value e.g. '1'
+	 * @param $forceType string
+	 * 	's'     string
+	 *  'snull' string or NULL
+	 *  'd'     integer
+	 *  'dnull' integer or NULL
+	 *  'f'     float
+	 *  'fnull' float or NULL
+	 *  '-'     no sanitization at ALL
+	 */
 	function __construct( $column, $value, $forceType ) {
 		$this->column = $column;
 		$this->value = $value;
