@@ -762,12 +762,7 @@ function luser_input($s, $max) {
  * Used to know much is the page load
  *
  * @return mixed Execution time
- * @deprecated
  */
-function get_page_load($decimals = 6) {
-	static $start_microtime = 0; // Please let me take advantage of PHP features
-	if($start_microtime == 0) {
-		$start_microtime = microtime(true);
-	}
-	return substr(microtime(true) - $start_microtime, 0, 2 + $decimals);
+function get_page_load( $decimals = 6 ) {
+	return round( microtime( true ) - $_SERVER[ 'REQUEST_TIME_FLOAT' ], $decimals );
 }

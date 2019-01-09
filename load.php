@@ -19,7 +19,7 @@
  */
 
 // URL slash
-defined('_')  or define('_', '/');
+defined('_') or define('_', '/');
 
 // directory separator
 defined('__') or define('__', DIRECTORY_SEPARATOR);
@@ -29,9 +29,6 @@ define('BOZ_PHP', __DIR__ );
 
 // load the functions
 require BOZ_PHP . __ . 'functions.php';
-
-// start stopwatch
-get_page_load();
 
 // default anonymous user role
 define_default( 'DEFAULT_USER_ROLE', 'UNREGISTERED' );
