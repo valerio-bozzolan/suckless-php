@@ -91,6 +91,27 @@ class OutputUtilities {
 	}
 
 	/**
+	 * Get the human filesize from bytes
+	 *
+	 * @param $filesize int bytes
+	 * @param $glue string
+	 * @return string
+	 */
+	public function humanFilesize( $filesize, $glue = ' ' ){
+		if( ! is_numeric( $filesize ) ) {
+			return __( "NaN" );
+		}
+		$decr = 1024;
+		$step = 0;
+		$prefix = [ 'B', 'KB', 'MB', 'GB', 'TB', 'PB' ];
+		while( $filesize / $decr > 0.9 ) {
+			$filesize /= $decr;
+			$step++;
+		}
+		return round( $filesize, 2 ) . $glue . $prefix[ $step ];
+	}
+
+	/**
 	 * Strip accents.
 	 *
 	 * @param $s string

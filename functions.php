@@ -1,5 +1,5 @@
 <?php
-# Copyright (C) 2015, 2016, 2017, 2018 Valerio Bozzolan
+# Copyright (C) 2015, 2016, 2017, 2018, 2019 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 // unuseful shortcuts when you want a SELECT * query
 define('DOT',  '.');
@@ -713,21 +713,15 @@ function is_closure($t) {
 	return is_object($t) && ($t instanceof Closure);
 }
 
-/*
- * From http://php.net/manual/en/features.file-upload.php#88591
+/**
+ * Get the human filesize from bytes
+ *
+ * @param $filesize int bytes
+ * @param $glue string
+ * @return string
  */
-function human_filesize($filesize, $separator = ' '){
-	if( ! is_numeric($filesize) ) {
-		return __("NaN");
-	}
-	$decr = 1024;
-	$step = 0;
-	$prefix = ['Byte', 'KB', 'MB', 'GB', 'TB', 'PB'];
-	while(($filesize / $decr) > 0.9) {
-		$filesize /= $decr;
-		$step++;
-	}
-	return round($filesize, 2) . $separator . $prefix[$step];
+function human_filesize( $filesize, $glue = ' ' ) {
+	return OutputUtilities::humanFilesize( $filesize, $glue = ' ' );
 }
 
 /*
