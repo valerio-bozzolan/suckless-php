@@ -580,23 +580,26 @@ function error( $msg ) {
  * Translates a string
  *
  * @param string $msgid String to be translated
- * @return string translated string (or original, if not found)
+ * @return string Translated string (or original)
  */
 function __( $msgid ) {
-
-	// does the user want a native GNU GETTEXT implementation? cache it.
+	// is native GNU GETTEXT implementation?
 	static $native = null;
 	if( null === $native ) {
 		$native = RegisterLanguage::instance()->isNative();
 	}
 
+	// low-level GNU Gettext call
 	if( $native ) {
-		// low-level GNU Gettext call (quicker but the locales must be installed by a sysadmin, and other cache problems)
 		return _( $msgid );
 	}
 
 	// high-level GNU Gettext (simpler but slower)
-	return MoLoader::instance()->getTranslator()->gettext( $msgid );
+	static $instance = false;
+	if( ! $instance ) {
+		$instance = MoLoader::instance()->getTranslator();
+	}
+	return $instance->gettext( $msgid );
 }
 
 /**
