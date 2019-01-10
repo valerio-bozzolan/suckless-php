@@ -1,5 +1,5 @@
 <?php
-# Copyright (C) 2015, 2017 Valerio Bozzolan
+# Copyright (C) 2015, 2017, 2019 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,44 +15,16 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Classes useful to enqueue JS libraries.
+ * To enqueue JS libraries
  */
-class JS {
-	const HEADER = true;
-	const FOOTER = false;
-
-	public $url;
-	public $position = self::HEADER;
-	public $enqueue = false;
-
-	public function __construct($url) {
-		$this->url = $url;
-	}
-
-	/**
-	 * @param boolean $in_head {JS::HEADER, JS::FOOTER}
-	 */
-	public function enqueue($position = self::HEADER) {
-		$this->position = self::filterPosition($position);
-		$this->enqueue = true;
-	}
-
-	public static function filterPosition($position) {
-		if( $position === null ) {
-			return self::HEADER;
-		}
-		return $position;
-	}
-}
-
 class RegisterJS {
 
 	/**
-	 * Script names.
+	 * Script names
 	 */
 	private $javascript = [];
 
-	private $generated = [false, false];
+	private $generated = [ false, false ];
 
 	/**
 	 * Get the singleton instance
@@ -68,63 +40,85 @@ class RegisterJS {
 	}
 
 	/**
-	 * Register a new script name.
+	 * Register a new script name
 	 *
-	 * @param string $name JS name, like: "jquery".
-	 * @param string $url Script url, like "http://example.org/lib/jquery.js".
+	 * @param string $name JS name, like: "jquery"
+	 * @param string $url Script url, like "http://example.org/lib/jquery.js"
 	 */
-	public function register($javascript_uid, $url) {
-		if(isset($this->javascript[$javascript_uid])) {
-			$this->javascript[$javascript_uid]->url = $url;
+	public function register( $uid, $url ) {
+		if( isset( $this->javascript[ $uid ] ) ) {
+			$this->javascript[ $uid ]->url = $url;
 		} else {
-			$this->javascript[$javascript_uid] = new JS($url);
+			$this->javascript[ $uid ] = new JS( $url );
 		}
 	}
 
 	/**
-	 * Enqueue a previous registered JS name.
+	 * Enqueue a previous registered JS name
 	 *
-	 * @param string $name JS name.
-	 * @param bool $in_head Place it in the head of the page or not.
+	 * @param string $name JS name
+	 * @param bool $position Place it in the head of the page or not
 	 */
-	public function enqueue($javascript_uid, $position = null) {
-		$position = JS::filterPosition($position);
-
-		if(isset($this->javascript[$javascript_uid])) {
-			$this->javascript[$javascript_uid]->enqueue($position);
-			return true;
+	public function enqueue( $uid, $position = null ) {
+		$position = JS::filterPosition( $position );
+		if( isset( $this->javascript[ $uid ] ) ) {
+			$this->javascript[ $uid ]->enqueue( $position );
 		} else {
-			DEBUG && error( sprintf(
-				__("La libreria JavaScript %s non può essere incorporata poichè non è ancora stata registrata."),
-				"<em>" . esc_html($javascript_uid) . "</em>"
-			) );
-			return false;
+			error( "unregistered JS $uid" );
 		}
 	}
 
-	public function printAll($position) {
+	public function printAll( $position ) {
 		$cache_burster = CACHE_BUSTER;
-		foreach($this->javascript as $javascript_uid=>$javascript) {
-			if($javascript->enqueue && $javascript->position === $position) {
+		foreach( $this->javascript as $uid => $javascript ) {
+			if( $javascript->enqueue && $javascript->position === $position ) {
 				echo "\n";
-				if($position === JS::HEADER) {
+				if( $position === JS::HEADER ) {
 					echo "\t";
 				}
 				$url = $javascript->url;
 				if( CACHE_BUSTER ) {
-					$url .= false === strpos($url, '?') ? '?' : '&amp;';
+					$url .= false === strpos( $url, '?' ) ? '?' : '&amp;';
 					$url .= CACHE_BUSTER;
 				}
 				echo "<script src=\"$url\"></script>";
-				if(DEBUG) {
-					echo "<!-- $javascript_uid -->";
+				if( DEBUG ) {
+					echo "<!-- $uid -->";
 				}
 			}
 		}
-		$this->generated[(int) $position] = true;
+		$this->generated[ (int) $position ] = true;
 	}
 
-	public function isGenerated($position) {
-		return $this->generated[(int) $position];
+	public function isGenerated( $position ) {
+		return $this->generated[ (int) $position ];
+	}
+}
+
+class JS {
+	const HEADER = true;
+	const FOOTER = false;
+
+	public $url;
+	public $position = self::HEADER;
+	public $enqueue = false;
+
+	public function __construct( $url ) {
+		$this->url = $url;
+	}
+
+	/**
+	 * @param boolean $in_head {JS::HEADER, JS::FOOTER}
+	 */
+	public function enqueue( $position = self::HEADER ) {
+		$this->position = self::filterPosition( $position );
+		$this->enqueue = true;
+	}
+
+	public static function filterPosition( $position ) {
+		if( $position === null ) {
+			return self::HEADER;
+		}
+		return $position;
 	}
 }
