@@ -253,7 +253,7 @@ class RegisterLanguage {
 			textdomain( $domain );
 			bind_textdomain_codeset( $domain, $encode );
 		} else {
-			$loader = MoLoader::getInstance();
+			$loader = MoLoader::instance();
 			$loader->setlocale( "$code.$encode" );
 			$loader->textdomain( $domain );
 			$loader->bindtextdomain( $domain, $directory );

@@ -55,6 +55,19 @@ class RegisterJS {
 	private $generated = [false, false];
 
 	/**
+	 * Get the singleton instance
+	 *
+	 * @return self
+	 */
+	public function instance() {
+		static $me = false;
+		if( ! $me ) {
+			$me = new self();
+		}
+		return $me;
+	}
+
+	/**
 	 * Register a new script name.
 	 *
 	 * @param string $name JS name, like: "jquery".

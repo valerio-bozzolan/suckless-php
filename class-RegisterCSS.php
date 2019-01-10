@@ -32,6 +32,19 @@ class RegisterCSS {
 	private $css = [];
 
 	/**
+	 * Get the singleton instance
+	 *
+	 * @return self
+	 */
+	public function instance() {
+		static $me = false;
+		if( ! $me ) {
+			$me = new self();
+		}
+		return $me;
+	}
+
+	/**
 	 * Register a new style name.
 	 *
 	 * @param string $name CSS name, like: "jquery-ui".
