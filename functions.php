@@ -186,17 +186,18 @@ function T($t, $as = false) {
 	return DB::instance()->getTable($t, $as);
 }
 
+// TODO: remove this shit
 define('T', 'T');
 define('JOIN', 'JOIN');
 // Stupid shurtcut for string context
 $GLOBALS[T] = function($t, $as = false) {
 	return T($t, $as = false);
 };
-
 // Stupid shortcut for string context for listing tables
 $GLOBALS[JOIN] = function($t) {
 	return DB::instance()->getTables( func_get_args() );
 };
+// END TODO
 
 /**
  * Insert a row in the specified database table.
