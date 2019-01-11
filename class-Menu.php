@@ -1,5 +1,5 @@
 <?php
-# Copyright (C) 2015 Valerio Bozzolan
+# Copyright (C) 2015, 2019 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,10 +15,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Handle a menu tree.
+ * Handle a menu tree
  */
 class Menu {
-	private $menuEntries = [];
+	private $entries = [];
 	private $tree = [];
 	private $rootUid;
 
@@ -27,7 +27,7 @@ class Menu {
 	 *
 	 * @param string $rootUid The default menu entry root identifier.
 	 */
-	function __construct($rootUid = 'root') {
+	function __construct( $rootUid = 'root' ) {
 		$this->rootUid = $rootUid;
 	}
 
@@ -47,21 +47,18 @@ class Menu {
 	/**
 	 * Append a single or an array of menu entries.
 	 *
-	 * @param array|MenuEntry $menuEntries
+	 * @param array|MenuEntry $entries
 	 */
-	public function add($menuEntries) {
-		force_array($menuEntries);
-
-		foreach($menuEntries as $menuEntry) {
-			$this->menuEntries[ $menuEntry->uid ] = $menuEntry;
-
+	public function add( $entries ) {
+		force_array( $entries );
+		foreach( $entries as $menuEntry ) {
+			$this->entries[ $menuEntry->uid ] = $menuEntry;
 			force_array( $menuEntry->parentUid );
-
-			foreach($menuEntry->parentUid as $parentUid) {
+			foreach( $menuEntry->parentUid as $parentUid ) {
 				if( $parentUid === null ) {
 					$parentUid = $this->rootUid;
 				}
-				$this->setParent($menuEntry->uid, $parentUid);
+				$this->setParent( $menuEntry->uid, $parentUid );
 			}
 		}
 	}
@@ -80,16 +77,15 @@ class Menu {
 	}
 
 	/**
-	 * Get a single menu entry.
+	 * Get a single menu entry if registered
 	 *
-	 * @param string $uid Menu entry identifier.
+	 * @param string $uid Menu entry identifier
 	 * @return MenuEntry
 	 */
-	public function getMenuEntry($uid) {
-		if( isset( $this->menuEntries[ $uid ] ) ) {
-			return $this->menuEntries[ $uid ];
+	public function getMenuEntry( $uid ) {
+		if( isset( $this->entries[ $uid ] ) ) {
+			return $this->entries[ $uid ];
 		}
-		error( "the menu entry $uid was not found" );
 	}
 
 	/**
@@ -98,19 +94,16 @@ class Menu {
 	 * @param string|null $parentUid Parent menu entry identifier of the parent. The default menu entry root identifier as default.
 	 * @return array
 	 */
-	public function getChildrenMenuEntries($parentUid = null) {
-		if($parentUid === null) {
+	public function getChildrenMenuEntries( $parentUid = null ) {
+		if( $parentUid === null ) {
 			$parentUid = $this->rootUid;
 		}
-
-		$menuEntries = [];
-
+		$entries = [];
 		if( isset( $this->tree[ $parentUid ] ) ) {
-			foreach($this->tree[ $parentUid ] as $uid) {
-				$menuEntries[] = $this->menuEntries[ $uid ];
+			foreach( $this->tree[ $parentUid ] as $uid ) {
+				$entries[] = $this->entries[ $uid ];
 			}
 		}
-
-		return $menuEntries;
+		return $entries;
 	}
 }
