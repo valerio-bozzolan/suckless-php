@@ -136,17 +136,17 @@ class DB {
 	/**
 	 * Select only a row from the database
 	 */
-	public function getRow($query, $class_name = null, $params = [] ) {
-		$results = $this->getResults($query, $class_name, $params);
-		return @$results[0];
+	public function getRow( $query, $class_name = null, $params = [] ) {
+		$results = $this->getResults( $query, $class_name, $params );
+		return isset( $results[ 0 ] ) ? $results[ 0 ] : null;
 	}
 
 	/**
 	 * Select only a column from a single row
 	 */
-	public function getValue($query, $column_name, $class_name = null, $params = [] ) {
-		$row = $this->getRow($query, $class_name, $params);
-		return @$row->{$column_name};
+	public function getValue( $query, $column_name, $class_name = null, $params = [] ) {
+		$row = $this->getRow( $query, $class_name, $params );
+		return isset( $row->{ $column_name } ) ? $row->{ $column_name } : null;
 	}
 
 	/**
