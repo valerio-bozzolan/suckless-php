@@ -127,7 +127,7 @@ class DB {
 		$this->last = $this->mysqli->query( $query );
 		if( !$this->last ) {
 			error_die( $this->getQueryErrorMessage( $query ) );
-		} elseif( DEBUG_EVERY_QUERY ) {
+		} elseif( DEBUG_QUERIES ) {
 			error( "query n. {$this->queries}: $query" );
 		}
 		return $this->last;

@@ -73,7 +73,7 @@ Have to specify these:
 
 Definibles (as  (`type`) `default`):
 * `DEBUG` (`bool`) `false`: Enable verbose debugging.
-* `DEBUG_EVERY_QUERY` (`bool`) `false`: It does what you think. Only if `DEBUG`.
+* `DEBUG_QUERIES` (`bool`) `false`: The queries are logged, and also printed when also `DEBUG`.
 * `PROTOCOL` (`string`): Default is the protocol of the request (`http://` / `https://`). It builds the `URL` constant.
 * `DOMAIN` (`string`): Default is your domain name. You can override it. It builds the `URL` constant.
 * `URL` (`string`): Default is `PROTOCOL . DOMAIN . ROOT`.
