@@ -215,20 +215,6 @@ class MoTranslator
     public $error = self::ERROR_NONE;
 
     /**
-     * Cache header field for plural forms.
-     *
-     * @var string|null
-     */
-    private $pluralequation = null;
-    /**
-     * @var ExpressionLanguage|null Evaluator for plurals
-     */
-    private $pluralexpression = null;
-    /**
-     * @var int|null number of plurals
-     */
-    private $pluralcount = null;
-    /**
      * Array with original -> translation mapping.
      *
      * @var array
