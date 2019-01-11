@@ -57,12 +57,6 @@ define_default( 'BASE_URL', PROTOCOL . DOMAIN . PORT );
 // URL with the ROOT
 define_default( 'URL', BASE_URL . ROOT );
 
-// default permissions for new directories
-define_default( 'CHMOD_WRITABLE_DIRECTORY', 0777 );
-
-// default permissions for new files
-define_default( 'CHMOD_WRITABLE_FILE', 0666 );
-
 // request charset
 define_default( 'CHARSET', 'utf-8' );
 

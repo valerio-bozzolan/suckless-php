@@ -728,14 +728,13 @@ function human_filesize( $filesize, $glue = ' ' ) {
 }
 
 /*
- * Create a pathname in the filesystem
+ * Create a directory
+ *
+ * @param $path string
+ * @param $chmod string
  */
-function create_path($path, $chmod = CHMOD_WRITABLE_DIRECTORY) {
-	if( file_exists($path) || mkdir($path, $chmod, true) ) {
-		return true;
-	}
-	error( "unable to create path $path" );
-	return false;
+function create_path( $path, $chmod = null ) {
+	return FileUploader::createPath( $path, $chmd );
 }
 
 /**

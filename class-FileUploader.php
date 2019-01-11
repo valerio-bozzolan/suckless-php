@@ -28,6 +28,9 @@ define('UPLOAD_EXTRA_ERR_CANT_SAVE_FILE', 109);
 // fifo system default
 define_default( 'MAGIC_MIME_FILE', null );
 
+// default permissions for new directories
+define_default( 'CHMOD_WRITABLE_DIRECTORY', 0755 );
+
 /**
  * Manage uploads with security in mind
  */
@@ -483,5 +486,21 @@ class FileUploader {
 		return empty( $_FILES )
 			&& isset( $_SERVER[ 'CONTENT_LENGTH' ] )
 			&&        $_SERVER[ 'CONTENT_LENGTH' ] > self::uploadMaxFilesize();
+	}
+
+	/*
+	 * Create a pathname in the filesystem
+	 *
+	 * @param $path string
+	 * @param $chmod string
+	 */
+	public static function createPath( $path, $chmod = null ) {
+		if( null === $chmod ) {
+			$chmod = CHMOD_WRITABLE_DIRECTORY;
+		}
+		if( file_exists( $path ) || mkdir( $path, $chmod, true ) ) {
+			return true;
+		}
+		error( "unable to create path $path" );
 	}
 }
