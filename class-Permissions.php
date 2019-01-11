@@ -58,7 +58,7 @@ class Permissions {
 	 */
 	public function hasPermission( $role, $permission ) {
 		if( $this->roleExists( $role ) ) {
-			return in_array( $this->roles[ $role ], $permission, true );
+			return in_array( $permission, $this->roles[ $role ], true );
 		} else {
 			error( "unknown role $role" );
 		}
