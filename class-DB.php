@@ -91,38 +91,23 @@ class DB {
 	function __construct( $username = null, $password = null, $location = null, $database = null, $prefix = '', $charset = 'utf8' ) {
 
 		// default credentials usually defined from your load.php
-		if( func_num_args() === 0 ) {
-			$username  = $GLOBALS['username'];
-			$password  = $GLOBALS['password'];
-			$location  = $GLOBALS['location'];
-			$database  = $GLOBALS['database'];
-			$prefix    = $GLOBALS['prefix'];
+		if( ! func_num_args() ) {
+			$username = $GLOBALS['username'];
+			$password = $GLOBALS['password'];
+			$location = $GLOBALS['location'];
+			$database = $GLOBALS['database'];
+			$prefix   = $GLOBALS['prefix'];
 		}
 
 		$this->prefix = $prefix;
 
 		@$this->mysqli = new mysqli( $location, $username, $password, $database );
 		if( $this->mysqli->connect_errno ) {
-			if(DEBUG) {
-				$password_shown = ($password === '') ? __("nessuna") : sprintf(
-					__("di %d caratteri"),
-					strlen( $password )
-				);
-
-				error_die( sprintf(
-					__("Impossibile connettersi al database '%s' tramite l'utente '%s' e password (%s) sul server MySQL/MariaDB '%s'. Specifica correttamente queste informazioni nel file di configurazione del tuo progetto (usualmente '%s'). %s."),
-					$database,
-					$username,
-					$password_shown,
-					$location,
-					'load.php',
-					HTML::a(
-						'https://github.com/valerio-bozzolan/boz-php-another-php-framework/blob/master/README.md#use-it',
-						__("Documentazione")
-					)
-				) );
+			if( DEBUG ) {
+				$length = strlen( $password );
+				error_die( "unable to connect to the database '$database' using user '$username' and password ($length characters) on MySQL/MariaDB host '$location'" );
 			} else {
-				error_die( __("Errore nello stabilire una connessione al database.") );
+				error_die( "error in establishing a database connection" );
 			}
 		} else {
 			$this->mysqli->set_charset( $charset );
@@ -142,23 +127,10 @@ class DB {
 		$this->last = $this->mysqli->query( $query );
 		if( !$this->last ) {
 			error_die( $this->getQueryErrorMessage( $query ) );
-		} elseif( SHOW_EVERY_SQL ) {
-			$this->debugQuery( $query );
+		} elseif( DEBUG_EVERY_QUERY ) {
+			error( "query n. {$this->queries}: %query" );
 		}
 		return $this->last;
-	}
-
-	/**
-	 * Log the following query
-	 *
-	 * @param $query string
-	 */
-	private function debugQuery( $query ) {
-		error( sprintf(
-			'query n. %d: %s',
-			$this->queries,
-			$SQL
-		) );
 	}
 
 	/**
