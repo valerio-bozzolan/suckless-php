@@ -1,5 +1,5 @@
 <?php
-# Copyright (C) 2015, 2016, 2018 Valerio Bozzolan
+# Copyright (C) 2015, 2016, 2018, 2019 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -106,12 +106,7 @@ class RegisterLanguage {
 		}
 
 		if( ! $encode ) {
-			DEBUG && error( sprintf(
-				___("Non hai specificato una codifica per la lingua '%s' e non ce n'è una predefinita. Impostala con la costante %s."),
-				esc_html($code),
-				'GETTEXT_DEFAULT_ENCODE'
-			) );
-			return false;
+			return error( 'please specify encoding for language $code, or define GETTEXT_DEFAULT_ENCODE' );
 		}
 
 		$this->languages[ ++$this->i ] = new BozPHPLanguage( $code, $encode, $iso, $human, $humanL10n );
@@ -134,12 +129,9 @@ class RegisterLanguage {
 	 * @param string $default
 	 */
 	public function setDefaultLanguage( $default ) {
-		$code = self::normalize($default);
+		$code = self::normalize( $default );
 		if( ! isset( $this->aliases[ $code ] ) ) {
-			error_die( sprintf(
-				___("Default language '%s' have to be registered previously"),
-				esc_html($default)
-			) );
+			error_die( "the default language $default have to be registered previously" );
 		}
 		$this->default = $this->languages[ $this->aliases[ $code ] ];
 	}
@@ -315,18 +307,14 @@ class BozPHPLanguage {
 	 * Can be called statically
 	 */
 	public function guessISO( $code = null, $fallback = 'en' ) {
-		if($code === null) {
+		if( $code === null ) {
 			$code = $this->code;
 		}
 		$p = strpos( $code, '_' );
 		if( false === $p ) {
-			DEBUG && error( sprintf(
-				___("Can't guess the ISO language from language code '%s'. Falling on default '%s'."),
-				esc_html($code),
-				$fallback
-			) );
+			error( "can't guess the ISO language from $code, falling on $fallback" );
 			return $fallback;
 		}
-		return substr($code, 0, $p);
+		return substr( $code, 0, $p );
 	}
 }
