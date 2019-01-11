@@ -1,24 +1,25 @@
 # Boz PHP - Another PHP Framework
-This framework is my laser cannon that serves dozen of very-different Content Management Systems "made from zero" by me in my single Debian GNU/Linux server.
+This framework is my laser cannon that I used to develope dozen of very-different Content Management Systems made from scratch.
 
 Note that I very often deprecate and kill stuff depending on how I feel in the morning.
 
 ## Benefits
-You can create a RDBMS CMS with these features:
+I can create a RDBMS CMS with these features:
 
-* efficient
+* efficient (tiny footprint)
+* on demand resource loader (e.g. DB connection is instantiated only if you use it, etc.)
 * query builder
-* database associative options
-* very small framework with few flat files (BTW not required on startup)
-* implicit support for DB table prefixes
-* login and user capabilities WITHOUT requiring PHP sessions
+* associative options
+* support database table prefixes
+* login and user capabilities (WITHOUT requiring PHP sessions)
 * secure file uploads
+* multilanguage (using the widely used GNU Gettext native or high-level)
 
 ## Requirements
 Obviously a webserver with PHP and MySQL or MariaDB working. Personally I have a simple GLAMP machine (GNU/Linux + Apache + PHP + MySQL or MariaDB). Extra packages suggested:
 * `libmagic-dev`
 
-The `libmagic-dev` package is in the main Debian GNU/Linux repository and so I think it is in all other GNU/Linux distributions. It is needed in order to upload files safetely.
+The `libmagic-dev` package is in the main Debian GNU/Linux repository and so I think it is in all other GNU/Linux distributions. It is needed only if you need to upload files.
 
 ## Simplest shared installation
 As a shared library: one can serve many sites with a simple `require`. Start cloning the source-code in a shared folder as `/usr/share`:
@@ -72,11 +73,11 @@ Have to specify these:
 
 Definibles (as  (`type`) `default`):
 * `DEBUG` (`bool`) `false`: Enable verbose debugging.
-* `SHOW_EVERY_SQL` (`bool`) `false`: It does what you think. Only if `DEBUG`.
-* `REQUIRE_LOAD_POST` (`string|false`) `string`: As default it's `ABSPATH . '/load-post.php` and it's a file that describes your CMS.
+* `DEBUG_EVERY_QUERY` (`bool`) `false`: It does what you think. Only if `DEBUG`.
 * `PROTOCOL` (`string`): Default is the protocol of the request (`http://` / `https://`). It builds the `URL` constant.
 * `DOMAIN` (`string`): Default is your domain name. You can override it. It builds the `URL` constant.
 * `URL` (`string`): Default is `PROTOCOL . DOMAIN . ROOT`.
+* `REQUIRE_LOAD_POST` (`string|false`) `string`: As default it's `ABSPATH . '/load-post.php` and it's a file that describes your CMS.
 
 ## What you have then
 Well. I hope to auto-document it with inline comments. For now you can just see `functions.php` in the framework folder.
