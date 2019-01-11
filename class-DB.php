@@ -128,7 +128,7 @@ class DB {
 		if( !$this->last ) {
 			error_die( $this->getQueryErrorMessage( $query ) );
 		} elseif( DEBUG_EVERY_QUERY ) {
-			error( "query n. {$this->queries}: %query" );
+			error( "query n. {$this->queries}: $query" );
 		}
 		return $this->last;
 	}
