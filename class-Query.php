@@ -157,17 +157,19 @@ class Query {
 			$this->from( $table )->equals( $a, $b );
 		} else {
 			if( $this->tables ) {
-				$latest_table = $this->db->getTable( array_pop( $this->tables ), true );
+				$latest_table = array_pop( $this->tables );
+				$latest_table = $this->db->getTable( $latest_table, true );
 			} elseif( $this->from ) {
 				$latest_table = array_pop( $this->from );
 			} else {
 				throw new InvalidArgumentException( 'not enough tables' );
 			}
+			$table = $this->db->getTable( $table, true );
 			$this->from[] = sprintf(
 				'%s %s JOIN %s ON (%s = %s)',
 				$latest_table,
 				$type,
-				$this->db->getTable( $table ),
+				$table,
 				$a,
 				$b
 			);
