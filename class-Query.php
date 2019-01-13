@@ -147,27 +147,31 @@ class Query {
 	/**
 	 * Append a custom join from the latest selected table
 	 *
-	 * @param $type string join type e.g. LEFT, RIGHT, LEFT OUTHER
+	 * @param $type string join type e.g. LEFT, RIGHT, LEFT OUTHER, INNER etc., and empty string means implicit JOIN in WHERE
 	 * @param $table string table name
 	 * @param $a string column name
 	 * @param $b string column name
 	 */
 	public function joinOn( $type, $table, $a, $b ) {
-		if( $this->tables ) {
-			$latest_table = $this->db->getTable( array_pop( $this->tables ), true );
-		} elseif( $this->from ) {
-			$latest_table = array_pop( $this->from );
+		if( $type === '' ) {
+			$this->from( $table )->equals( $a, $b );
 		} else {
-			throw new InvalidArgumentException( 'not enough tables' );
+			if( $this->tables ) {
+				$latest_table = $this->db->getTable( array_pop( $this->tables ), true );
+			} elseif( $this->from ) {
+				$latest_table = array_pop( $this->from );
+			} else {
+				throw new InvalidArgumentException( 'not enough tables' );
+			}
+			$this->from[] = sprintf(
+				'%s %s JOIN %s ON (%s = %s)',
+				$latest_table,
+				$type,
+				$this->db->getTable( $table ),
+				$a,
+				$b
+			);
 		}
-		$this->from[] = sprintf(
-			'%s %s JOIN %s ON (%s = %s)',
-			$latest_table,
-			$type,
-			$this->db->getTable( $table ),
-			$a,
-			$b
-		);
 		return $this;
 	}
 
