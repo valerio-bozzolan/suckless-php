@@ -1,5 +1,5 @@
 <?php
-# Copyright (C) 2015, 2018 Valerio Bozzolan
+# Copyright (C) 2015, 2018, 2019 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@ class Options {
 	 * List of formally registered options.
 	 * @var array
 	*/
-	private $optionsRegistered = [];
+	private $opts = [];
 
 	/**
 	 * Get the singleton instance
@@ -73,14 +73,10 @@ class Options {
 	 * @return bool Successfully or not
 	 */
 	public function register( $name ) {
-		if( in_array( $name, $this->optionsRegistered, true) ) {
-			DEBUG and error( sprintf(
-				'error registering the option "%s" because it is already registered',
-				$name
-			) );
-			return false;
+		if( in_array( $name, $this->opts, true) ) {
+			return error( "error registering the option $name because it is already registered" );
 		}
-		$this->optionsRegistered[] = $name;
+		$this->opts[] = $name;
 		return true;
 	}
 
@@ -90,7 +86,7 @@ class Options {
 	 *	@return array
 	 */
 	public function getRegistereds() {
-		return $this->optionsRegistered;
+		return $this->opts;
 	}
 
 	/**
