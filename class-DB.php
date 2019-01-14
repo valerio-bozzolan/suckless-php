@@ -63,7 +63,7 @@ class DB {
 	 *
 	 * @return self
 	 */
-	public function instance() {
+	public static function instance() {
 		if( ! self::$_instance ) {
 			self::$_instance = new self();
 		}
@@ -75,7 +75,7 @@ class DB {
 	 *
 	 * @return boolean
 	 */
-	public function instanced() {
+	public static function instanced() {
 		return isset( self::$_instance );
 	}
 

@@ -42,7 +42,7 @@ class RegisterModule {
 	 *
 	 * @return self
 	 */
-	public function instance() {
+	public static function instance() {
 		static $me = false;
 		if( ! $me ) {
 			$me = new self();
