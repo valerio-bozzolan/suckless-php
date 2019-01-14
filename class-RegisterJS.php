@@ -29,8 +29,6 @@ class RegisterJS {
 	 */
 	private $js = [];
 
-	private $generated = [ false, false ];
-
 	/**
 	 * Get the singleton instance
 	 *
@@ -48,7 +46,7 @@ class RegisterJS {
 	 * Register a new script name
 	 *
 	 * @param string $name JS name, like: "jquery"
-	 * @param string $url Script url, like "http://example.org/lib/jquery.js"
+	 * @param mixed $url Script url, like "http://example.org/lib/jquery.js"
 	 * @param string $position header|footer
 	 */
 	public function register( $uid, $url, $position = null ) {
@@ -96,11 +94,6 @@ class RegisterJS {
 				}
 			}
 		}
-		$this->generated[ $position ] = true;
-	}
-
-	public function isGenerated( $position ) {
-		return $this->generated[ $position ];
 	}
 }
 
@@ -112,6 +105,12 @@ class JS {
 
 	public $enqueue = false;
 
+	/**
+	 * Construct
+	 *
+	 * @param $url string
+	 * @param $position string header|footer
+	 */
 	public function __construct( $url, $position = null ) {
 		if( ! $position ) {
 			$position = RegisterJS::$DEFAULT;
