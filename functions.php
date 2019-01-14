@@ -69,7 +69,7 @@ function force_array( & $a ) {
  * Enfatize a substring
  */
 function enfatize_substr( $heystack, $needle, $pre = '<b>', $post = '</b>' ) {
-	return StringStuff::enfatizeSubstr( $heystack, $needle, $pre, $post );
+	return OutputUtilities::enfatizeSubstr( $heystack, $needle, $pre, $post );
 }
 
 /**
@@ -532,7 +532,7 @@ function URL_root() {
  * Get a secured version of a string
  */
 function generate_slug($s, $max_length = -1, $glue = '-', & $truncated = false) {
-	return StringStuff::slug($s, $max_length, $glue, $truncated);
+	return OutputUtilities::slug($s, $max_length, $glue, $truncated);
 }
 
 function http_build_get_query( $url, $data ) {
