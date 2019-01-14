@@ -282,14 +282,14 @@ function register_permissions($role, $permissions) {
  * @param string $role_to New role
  * @param string $role_from Existing role
  */
-function inherit_permissions($role_to, $role_from, $other_permissions = []) {
-	Permissions::instance()->inheritPermissions($role_to, $role_from, $other_permissions);
+function inherit_permissions($role_to, $role_from, $permissions = []) {
+	Permissions::instance()->inheritPermissions($role_to, $role_from, $permissions);
 }
-function register_js($javascript_uid, $url, $position = null) {
-	return RegisterJS::instance()->register( $javascript_uid, $url, $position );
+function register_js($uid, $url, $position = null) {
+	return RegisterJS::instance()->register( $uid, $url, $position );
 }
-function enqueue_js($javascript_uid, $position = null) {
-	return RegisterJS::instance()->enqueue( $javascript_uid, $position );
+function enqueue_js($uid, $position = null) {
+	return RegisterJS::instance()->enqueue( $uid, $position );
 }
 function register_css($css_uid, $url) {
 	return RegisterCSS::instance()->register($css_uid, $url);
