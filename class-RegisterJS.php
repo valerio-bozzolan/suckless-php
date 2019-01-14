@@ -15,14 +15,14 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * To enqueue JS libraries
+ * Register and enqueue JS libraries
  */
 class RegisterJS {
 
 	/**
 	 * Script names
 	 */
-	private $javascript = [];
+	private $js = [];
 
 	private $generated = [ false, false ];
 
@@ -44,39 +44,43 @@ class RegisterJS {
 	 *
 	 * @param string $name JS name, like: "jquery"
 	 * @param string $url Script url, like "http://example.org/lib/jquery.js"
+	 * @param string $position header|footer
 	 */
-	public function register( $uid, $url ) {
-		if( isset( $this->javascript[ $uid ] ) ) {
-			$this->javascript[ $uid ]->url = $url;
+	public function register( $uid, $url, $position = 'header' ) {
+		if( isset( $this->js[ $uid ] ) ) {
+			$this->js[ $uid ]->url = $url;
 		} else {
-			$this->javascript[ $uid ] = new JS( $url );
+			$this->js[ $uid ] = new JS( $url, $position );
 		}
 	}
 
 	/**
 	 * Enqueue a previous registered JS name
 	 *
-	 * @param string $name JS name
-	 * @param bool $position Place it in the head of the page or not
+	 * @param $name string JS name
+	 * @param $position string Place it in the head of the page or not
 	 */
 	public function enqueue( $uid, $position = null ) {
-		$position = JS::filterPosition( $position );
-		if( isset( $this->javascript[ $uid ] ) ) {
-			$this->javascript[ $uid ]->enqueue( $position );
+		if( isset( $this->js[ $uid ] ) ) {
+			$this->js[ $uid ]->enqueue( $position );
 		} else {
 			error( "unregistered JS $uid" );
 		}
 	}
 
+	/**
+	 * Print all the elements from the specified position
+	 *
+	 * @param $position string
+	 */
 	public function printAll( $position ) {
-		$cache_burster = CACHE_BUSTER;
-		foreach( $this->javascript as $uid => $javascript ) {
-			if( $javascript->enqueue && $javascript->position === $position ) {
+		foreach( $this->js as $uid => $js ) {
+			if( $js->enqueue && $js->position === $position ) {
 				echo "\n";
-				if( $position === JS::HEADER ) {
+				if( $position === 'header' ) {
 					echo "\t";
 				}
-				$url = $javascript->url;
+				$url = $js->url;
 				if( CACHE_BUSTER ) {
 					$url .= false === strpos( $url, '?' ) ? '?' : '&amp;';
 					$url .= CACHE_BUSTER;
@@ -87,38 +91,35 @@ class RegisterJS {
 				}
 			}
 		}
-		$this->generated[ (int) $position ] = true;
+		$this->generated[ $position ] = true;
 	}
 
 	public function isGenerated( $position ) {
-		return $this->generated[ (int) $position ];
+		return $this->generated[ $position ];
 	}
 }
 
 class JS {
-	const HEADER = true;
-	const FOOTER = false;
 
 	public $url;
-	public $position = self::HEADER;
+
+	public $position;
+
 	public $enqueue = false;
 
-	public function __construct( $url ) {
+	public function __construct( $url, $position = 'header' ) {
 		$this->url = $url;
+		$this->position = $position;
 	}
 
 	/**
-	 * @param boolean $in_head {JS::HEADER, JS::FOOTER}
+	 * @param $position string header|footer
 	 */
-	public function enqueue( $position = self::HEADER ) {
-		$this->position = self::filterPosition( $position );
+	public function enqueue( $position = null ) {
 		$this->enqueue = true;
+		if( $position !== null ) {
+			$this->position = $position;
+		}
 	}
 
-	public static function filterPosition( $position ) {
-		if( $position === null ) {
-			return self::HEADER;
-		}
-		return $position;
-	}
 }
