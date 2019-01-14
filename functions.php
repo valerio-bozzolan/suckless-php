@@ -18,8 +18,8 @@
 define('DOT',  '.');
 define('STAR', '*');
 
-function define_default( $constant_name, $default_value ) {
-	defined( $constant_name ) or define( $constant_name, $default_value );
+function define_default( $name, $value ) {
+	defined( $name ) or define( $name, $value );
 }
 
 function selected( $helper = PHP_INT_MAX, $current = PHP_INT_MAX, $force = false ) {
@@ -297,29 +297,29 @@ function register_css($css_uid, $url) {
 function enqueue_css($css_uid) {
 	return RegisterCSS::instance()->enqueue($css_uid);
 }
-function add_menu_entries($menuEntries) {
-	Menu::instance()->add($menuEntries);
+function add_menu_entries($entries) {
+	Menu::instance()->add($entries);
 }
 function get_menu_entry($uid) {
 	return Menu::instance()->getMenuEntry($uid);
 }
-function get_children_menu_entries($parentUid) {
-	return Menu::instance()->getChildrenMenuEntries($parentUid);
+function get_children_menu_entries($uid) {
+	return Menu::instance()->getChildrenMenuEntries($uid);
 }
-function register_module($module_uid) {
-	return RegisterModule::instance()->register($module_uid);
+function register_module($uid) {
+	return RegisterModule::instance()->register($uid);
 }
-function inject_in_module($module_uid, $callback) {
-	return RegisterModule::instance()->injectFunction($module_uid, $callback);
+function inject_in_module($uid, $callback) {
+	return RegisterModule::instance()->injectFunction($uid, $callback);
 }
-function load_module($module_uid) {
-	return RegisterModule::instance()->loadModule($module_uid);
+function load_module($uid) {
+	return RegisterModule::instance()->loadModule($uid);
 }
 function get_table_prefix() {
 	return DB::instance()->getPrefix();
 }
-function register_option($option_name) {
-	return DB::instance()->registerOption($option_name);
+function register_option($name) {
+	return DB::instance()->registerOption($name);
 }
 function get_option( $name, $default = '' ) {
 	return Options::instance()->get( $name, $default );
@@ -349,8 +349,8 @@ function get_user( $property = null ) {
  * @param int $status
  * @see Session::login()
  */
-function login(& $status = null, $user_uid = null, $user_password = null) {
-	return Session::instance()->login($status, $user_uid, $user_password);
+function login(& $status = null, $uid = null, $pwd = null) {
+	return Session::instance()->login($status, $uid, $pwd);
 }
 function logout() {
 	return Session::instance()->destroy();
@@ -361,11 +361,11 @@ function register_language($code, $aliases = [], $encode = null, $iso = null, $h
 function register_default_language($default) {
 	return RegisterLanguage::instance()->setDefaultLanguage($default);
 }
-function find_language($language_alias) {
-	return RegisterLanguage::instance()->getLanguage($language_alias);
+function find_language($lang) {
+	return RegisterLanguage::instance()->getLanguage($lang);
 }
-function apply_language($language_alias = null) {
-	return RegisterLanguage::instance()->applyLanguage($language_alias);
+function apply_language($lang = null) {
+	return RegisterLanguage::instance()->applyLanguage($lang);
 }
 function latest_language() {
 	return RegisterLanguage::instance()->getLatestLanguageApplied();
@@ -408,14 +408,14 @@ function has_permission($permission, $user = null) {
  * If the base URL it is not defined, a slash ('/') is appended to the URL.
  * The base URL could end with a slash ('/') or not.
  *
- * @param string $base_URL Base URL with/without any slash at start
+ * @param string $base Base URL with/without any slash at start
  * @param string $dir Directory without any slash
  * @return string URL / Pathname
 */
-function append_dir( $base_URL, $dir = '/' ) {
-	$base_URL = rtrim( $base_URL, '/' );
+function append_dir( $base, $dir = '/' ) {
+	$base = rtrim( $base, '/' );
 	$dir = ltrim( $dir, '/' );
-	return $base_URL . _ . $dir;
+	return $base . _ . $dir;
 }
 
 /**
@@ -611,7 +611,7 @@ function _e( $s ) {
 }
 
 function http_json_header($charset = null) {
-	if( null === $charset ) {
+	if( !$charset ) {
 		$charset = CHARSET;
 	}
 	header( "Content-Type: application/json; charset=$charset" );
