@@ -14,10 +14,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-// unuseful shortcuts when you want a SELECT * query
-define('DOT',  '.');
-define('STAR', '*');
-
 function define_default( $name, $value ) {
 	defined( $name ) or define( $name, $value );
 }
@@ -185,19 +181,6 @@ function multiquery( $queries ) {
 function T($t, $as = false) {
 	return DB::instance()->getTable($t, $as);
 }
-
-// TODO: remove this shit
-define('T', 'T');
-define('JOIN', 'JOIN');
-// Stupid shurtcut for string context
-$GLOBALS[T] = function($t, $as = false) {
-	return T($t, $as = false);
-};
-// Stupid shortcut for string context for listing tables
-$GLOBALS[JOIN] = function($t) {
-	return DB::instance()->getTables( func_get_args() );
-};
-// END TODO
 
 /**
  * Insert a row in the specified database table.
@@ -766,3 +749,27 @@ function luser_input($s, $max) {
 function get_page_load( $decimals = 6 ) {
 	return round( microtime( true ) - $_SERVER[ 'REQUEST_TIME_FLOAT' ], $decimals );
 }
+
+// shortcuts to build SELECT * query
+define('DOT',  '.');
+define('STAR', '*');
+
+/*
+ * Deprecated zone
+ *
+ * @TODO remove the shit below this line
+ */
+
+define('T', 'T');
+
+define('JOIN', 'JOIN');
+
+// Stupid shurtcut for string context
+$GLOBALS[T] = function($t, $as = false) {
+	return T($t, $as = false);
+};
+
+// Stupid shortcut for string context for listing tables
+$GLOBALS[JOIN] = function($t) {
+	return DB::instance()->getTables( func_get_args() );
+};
