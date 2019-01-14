@@ -285,7 +285,7 @@ function register_permissions($role, $permissions) {
 function inherit_permissions($role_to, $role_from, $other_permissions = []) {
 	Permissions::instance()->inheritPermissions($role_to, $role_from, $other_permissions);
 }
-function register_js($javascript_uid, $url, $position = 'header') {
+function register_js($javascript_uid, $url, $position = null) {
 	return RegisterJS::instance()->register( $javascript_uid, $url, $position );
 }
 function enqueue_js($javascript_uid, $position = null) {

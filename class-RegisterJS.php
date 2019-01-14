@@ -20,6 +20,11 @@
 class RegisterJS {
 
 	/**
+	 * Default position
+	 */
+	public static $DEFAULT = 'header';
+
+	/**
 	 * Script names
 	 */
 	private $js = [];
@@ -46,7 +51,7 @@ class RegisterJS {
 	 * @param string $url Script url, like "http://example.org/lib/jquery.js"
 	 * @param string $position header|footer
 	 */
-	public function register( $uid, $url, $position = 'header' ) {
+	public function register( $uid, $url, $position = null ) {
 		if( isset( $this->js[ $uid ] ) ) {
 			$this->js[ $uid ]->url = $url;
 		} else {
@@ -107,7 +112,10 @@ class JS {
 
 	public $enqueue = false;
 
-	public function __construct( $url, $position = 'header' ) {
+	public function __construct( $url, $position = null ) {
+		if( ! $position ) {
+			$position = RegisterJS::$DEFAULT;
+		}
 		$this->url = $url;
 		$this->position = $position;
 	}
