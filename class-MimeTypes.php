@@ -271,9 +271,6 @@ class MimeTypes {
 	}
 
 	private static function errorUnknownCategory($category) {
-		error( sprintf(
-			'the MIME category %s is not registered"),
-			$category
-		) );
+		error( "the MIME category $category is not registered" );
 	}
 }
