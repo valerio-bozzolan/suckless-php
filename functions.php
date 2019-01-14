@@ -375,7 +375,7 @@ function all_languages() {
 }
 function get_num_queries() {
 	if( DB::instanced() ) {
-		return DB::instance()->getNumQueries();
+		return DB::instance()->queries;
 	}
 	return 0;
 }

@@ -40,9 +40,11 @@ class DB {
 	/**
 	 * Number of executed queries
 	 *
+	 * Read by get_num_queries()
+	 *
 	 * @var int
 	 */
-	private $queries = 0;
+	public $queries = 0;
 
 	/**
 	 * Last query result
@@ -338,10 +340,6 @@ class DB {
 	 */
 	public function escapeString($s) {
 		return $this->mysqli->real_escape_string($s);
-	}
-
-	public function getqueries() {
-		return $this->queries;
 	}
 
 	public function getPrefix() {
