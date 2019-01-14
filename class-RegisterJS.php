@@ -58,6 +58,16 @@ class RegisterJS {
 	}
 
 	/**
+	 * Register a new inline script (to be run after)
+	 *
+	 * @param $name string
+	 * @param $data string
+	 */
+	public function registerInline( $uid, $data ) {
+		$this->js[ $uid ]->inline[] = $data;
+	}
+
+	/**
 	 * Enqueue a previous registered JS name
 	 *
 	 * @param $name string JS name
@@ -72,25 +82,25 @@ class RegisterJS {
 	}
 
 	/**
-	 * Print all the elements from the specified position
+	 * Print all the JS from a specified position
 	 *
 	 * @param $position string
 	 */
 	public function printAll( $position ) {
+		$glue = $position === 'header' ? "\n\t" : "\n";
 		foreach( $this->js as $uid => $js ) {
 			if( $js->enqueue && $js->position === $position ) {
-				echo "\n";
-				if( $position === 'header' ) {
-					echo "\t";
-				}
 				$url = $js->url;
 				if( CACHE_BUSTER ) {
 					$url .= false === strpos( $url, '?' ) ? '?' : '&amp;';
 					$url .= CACHE_BUSTER;
 				}
-				echo "<script src=\"$url\"></script>";
+				echo "$glue<script src=\"$url\"></script>";
 				if( DEBUG ) {
 					echo "<!-- $uid -->";
+				}
+				if( $js->inline ) {
+					$js->printInline( $glue );
 				}
 			}
 		}
@@ -104,6 +114,8 @@ class JS {
 	public $position;
 
 	public $enqueue = false;
+
+	public $inline = [];
 
 	/**
 	 * Construct
@@ -129,4 +141,14 @@ class JS {
 		}
 	}
 
+	/**
+	 * Print inline JavaScript parts
+	 *
+	 * @param $glue string
+	 */
+	public function printInline( $glue ) {
+		echo "$glue<script>$glue" .
+		     implode( $this->inline, $glue ) .
+		     "$glue</script>";
+	}
 }

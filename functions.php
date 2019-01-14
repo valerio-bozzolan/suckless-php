@@ -288,7 +288,10 @@ function inherit_permissions($role_to, $role_from, $permissions = []) {
 function register_js($uid, $url, $position = null) {
 	return RegisterJS::instance()->register( $uid, $url, $position );
 }
-function enqueue_js($uid, $position = null) {
+function register_js_inline($uid, $data) {
+	return RegisterJS::instance()->registerInline($uid, $data);
+}
+function enqueue_js($uid, $position = null ) {
 	return RegisterJS::instance()->enqueue( $uid, $position );
 }
 function register_css($css_uid, $url) {
