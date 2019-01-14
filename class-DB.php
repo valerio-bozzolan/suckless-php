@@ -105,12 +105,8 @@ class DB {
 
 		@$this->mysqli = new mysqli( $location, $username, $password, $database );
 		if( $this->mysqli->connect_errno ) {
-			if( DEBUG ) {
-				$length = strlen( $password );
-				error_die( "unable to connect to the database '$database' using user '$username' and password ($length characters) on MySQL/MariaDB host '$location'" );
-			} else {
-				error_die( "error in establishing a database connection" );
-			}
+			$length = strlen( $password );
+			error_die( "unable to connect to the database '$database' using user '$username' and password ($length characters) on MySQL/MariaDB host '$location'" );
 		} else {
 			$this->mysqli->set_charset( $charset );
 		}
