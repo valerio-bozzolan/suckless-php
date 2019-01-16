@@ -99,16 +99,29 @@ class Session {
 	 * @return bool
 	 */
 	public function login( & $status = null, $user_uid = null, $user_password = null ) {
+
+		// already logged
 		if( $this->isLogged() ) {
 			$status = self::ALREADY_LOGGED;
 			return true;
 		}
 
-		if( null === $user_uid && isset( $_POST['user_uid'] )  ) {
-			$user_uid = $_POST['user_uid'];
+		// UID from function or POST
+		if( $user_uid === null ) {
+			if( isset( $_POST['user_uid'] ) ) {
+				$user_uid = $_POST['user_uid'];
+			} else {
+				return error( 'login without POST-ing user_uid' );
+			}
 		}
-		if( null === $user_password && isset( $_POST['user_password'] ) ) {
-			$user_password = $_POST['user_password'];
+
+		// password from parameter or POST
+		if( $user_password === null ) {
+			if( isset( $_POST['user_password'] ) ) {
+				$user_password = $_POST['user_password'];
+			} else {
+				return error( 'login without POST-ing user_password' );
+			}
 		}
 
 		if( empty( $user_uid ) ) {
