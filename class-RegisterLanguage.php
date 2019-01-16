@@ -14,6 +14,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+// default encoding for your .mo files (file suffix for it_IT.UTF-8 directory)
+define_default( 'GETTEXT_DEFAULT_ENCODE', 'UTF-8' );
+
+// default directory for your it_IT.UTF-8/LC_MESSAGES/domain.mo files
+define_default( 'GETTEXT_DIRECTORY', ABSPATH . __ . 'l10n' );
+
 /**
  * Handle languages using standard GNU Gettext functionalities
  *
@@ -74,6 +80,8 @@ class RegisterLanguage {
 	 */
 	public function __construct( $domain = null, $directory = null, $default_encode = null, $native = null ) {
 		if( ! $domain ) {
+			// I know why you are here. That warning, you know.
+			// PLEASE create this damn constant in your load-post.php
 			$domain = GETTEXT_DOMAIN;
 		}
 		if( ! $directory ) {
