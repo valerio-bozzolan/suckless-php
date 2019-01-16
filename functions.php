@@ -512,8 +512,8 @@ function URL_domain() {
  */
 function URL_port() {
 	if( isset( $_SERVER[ 'SERVER_PORT' ] ) ) {
-		$p = (int) $_SERVER[ 'SERVER_PORT' ];
-		if( 80 !== $p && 443 !== $p ) {
+		$p = $_SERVER[ 'SERVER_PORT' ];
+		if( '80' !== $p && '443' !== $p ) {
 			return ":$p";
 		}
 	}
@@ -522,7 +522,7 @@ function URL_port() {
 
 function URL_root() {
 	$root = this_folder();
-	if( $root === _ ) {
+	if( $root === '/' ) {
 		return '';
 	}
 	return $root;
