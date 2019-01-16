@@ -17,14 +17,10 @@
 /**
  * Example class used to construct objects from a query
  */
-class MyClass {
+class MyClass extends QUeried {
 	function __construct() {
 
-		// If the property 'miao' is in this object, it's a string
-		if($this->miao) {
-			// But I prefere a DateTime object
-			$this->miao = DateTime::createFromFormat('Y-m-d H:i:s', $this->miao);
-		}
-
+		// I prefere a datetime object, not a string retrieved from MySQL
+		$this->datetimes( 'miao' );
 	}
 }

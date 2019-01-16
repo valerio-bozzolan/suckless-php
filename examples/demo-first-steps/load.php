@@ -17,7 +17,7 @@ $prefix = '';
 // Specify the folder of your site after the domain name.
 // NO TRAILING SLASH
 // E.g. '/blog/01'
-define('ROOT', '/first-steps');
+define('ROOT', '/demo-first-steps');
 
 // It enables extra verbose framework errors like wrong database password
 define('DEBUG', true);
