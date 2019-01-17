@@ -21,7 +21,7 @@ define_default( 'SESSION_DURATION',  604800 );
 define_default( 'SESSIONUSER_CLASS', 'Sessionuser' );
 
 /**
- * Session handler class
+ * Session handler
  */
 class Session {
 
@@ -30,7 +30,7 @@ class Session {
 	 *
 	 * @var bool
 	 */
-	private $loginVerified = false;
+	private $ok = false;
 
 	/**
 	 * User currently logged
@@ -74,7 +74,7 @@ class Session {
 	 * @return Sessionuser
 	 */
 	public function getUser() {
-		if( ! $this->loginVerified ) {
+		if( ! $this->ok ) {
 			$this->validate();
 		}
 		return $this->user;
@@ -94,11 +94,11 @@ class Session {
 	 * Do a login
 	 *
 	 * @param $status int Login status
-	 * @param $user_uid User UID
-	 * @param $user_password User password
+	 * @param $uid User UID
+	 * @param $pwd User password
 	 * @return bool
 	 */
-	public function login( & $status = null, $user_uid = null, $user_password = null ) {
+	public function login( & $status = null, $uid = null, $pwd = null ) {
 
 		// already logged
 		if( $this->isLogged() ) {
@@ -107,40 +107,40 @@ class Session {
 		}
 
 		// UID from function or POST
-		if( $user_uid === null ) {
+		if( $uid === null ) {
 			if( isset( $_POST['user_uid'] ) ) {
-				$user_uid = $_POST['user_uid'];
+				$uid = $_POST['user_uid'];
 			} else {
 				return error( 'login without POST-ing user_uid' );
 			}
 		}
 
 		// password from parameter or POST
-		if( $user_password === null ) {
+		if( $pwd === null ) {
 			if( isset( $_POST['user_password'] ) ) {
-				$user_password = $_POST['user_password'];
+				$pwd = $_POST['user_password'];
 			} else {
 				return error( 'login without POST-ing user_password' );
 			}
 		}
 
-		if( empty( $user_uid ) ) {
+		if( empty( $uid ) ) {
 			$status = self::EMPTY_USER_UID;
 			return false;
 		}
-		if( empty( $user_password ) ) {
+		if( empty( $pwd ) ) {
 			$status = self::EMPTY_USER_PASSWORD;
 			return false;
 		}
 
 		// PHP bug
 		$userClass = SESSIONUSER_CLASS;
-		$user = $userClass::factoryFromLogin( $user_uid, $user_password )
+		$user = $userClass::factoryFromLogin( $uid, $pwd )
 			->queryRow();
 
 		if( ! $user ) {
 			$status = self::LOGIN_FAILED;
-			return self::failed( $userClass::sanitizeUID( $user_uid ), 'POST' );
+			return self::failed( $userClass::sanitizeUID( $uid ), 'POST' );
 		}
 
 		if( ! $user->isSessionuserActive() ) {
@@ -148,7 +148,7 @@ class Session {
 			return false;
 		}
 
-		$this->loginVerified = true;
+		$this->ok = true;
 
 		$this->user = $user;
 
@@ -169,7 +169,7 @@ class Session {
 	 * @return bool
 	 */
 	private function validate() {
-		if( $this->loginVerified ) {
+		if( $this->ok ) {
 			return true;
 		}
 
@@ -183,7 +183,7 @@ class Session {
 		$user = $userClass::factoryFromUID( $_COOKIE['user_uid'] )
 			->queryRow();
 
-		$this->loginVerified = true;
+		$this->ok = true;
 
 		if( ! $user ) {
 			$this->user = null;
@@ -212,7 +212,7 @@ class Session {
 		setcookie( 'user_uid', 'asd', $invalidate );
 		setcookie( 'token',    'asd', $invalidate );
 
-		$this->loginVerified = true;
+		$this->ok = true;
 		$this->user = null;
 	}
 
