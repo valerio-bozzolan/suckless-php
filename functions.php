@@ -378,19 +378,8 @@ function is_logged() {
  * @param User|null $user Specified user
  * @return bool
  */
-function has_permission($permission, $user = null) {
-	if( ! $user ) {
-		$user = Session::instance()->getUser();
-	}
-
-	$role = $user
-		? $user->get( 'user_role' )
-		: false;
-
-	if( ! $role ) {
-		$role = DEFAULT_USER_ROLE;
-	}
-	return Permissions::instance()->hasPermission($role, $permission);
+function has_permission( $permission, $user = null ) {
+	return Permissions::instance()->userHasPermission( $permission, $user );
 }
 
 /**

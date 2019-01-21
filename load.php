@@ -30,9 +30,6 @@ define('BOZ_PHP', __DIR__ );
 // load the functions
 require BOZ_PHP . __ . 'functions.php';
 
-// default anonymous user role
-define_default( 'DEFAULT_USER_ROLE', 'UNREGISTERED' );
-
 // in debug mode you see errors in HTML
 define_default( 'DEBUG', false );
 

@@ -14,6 +14,9 @@
 # You should have received a copy of the GNU General License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+// default anonymous user role
+define_default( 'DEFAULT_USER_ROLE', 'UNREGISTERED' );
+
 /**
  * Handle roles and their permissions
  */
@@ -23,6 +26,13 @@ class Permissions {
 	 * Permissions indexed by user roles
 	 */
 	public $roles = [];
+
+	/**
+	 * Constructor
+	 */
+	public function __construct() {
+		$this->registerPermissions( DEFAULT_USER_ROLE, [] );
+	}
 
 	/**
 	 * Get the singleton instance
@@ -63,6 +73,29 @@ class Permissions {
 			error( "unknown role $role" );
 		}
 		return false;
+	}
+
+	/**
+	 * Check if you, or an user, has a permission
+	 *
+	 * @param $permission string
+	 * @param $user object
+	 * @return boolean
+	 */
+	public function userHasPermission( $permission, $user ) {
+		if( ! $user ) {
+			$user = Session::instance()->getUser();
+		}
+
+		$role = $user
+			? $user->get( 'user_role' )
+			: false;
+
+		if( ! $role ) {
+			$role = DEFAULT_USER_ROLE;
+		}
+
+		return $this->hasPermission( $role, $permission );
 	}
 
 	/**
