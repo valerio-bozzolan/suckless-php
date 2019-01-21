@@ -51,17 +51,16 @@ class RegisterModule {
 	}
 
 	/**
-	 * Load the default modules
+	 * Load the default modules (scripts and styles)
 	 */
 	private function loadDefaults() {
 		$this->register( 'header' );
-		$this->register( 'footer' );
-
-		// Append scripts and styles
 		$this->injectFunction( 'header', function () {
 			RegisterJS ::instance()->printAll( 'header' );
 			RegisterCSS::instance()->printAll();
 		} );
+
+		$this->register( 'footer' );
 		$this->injectFunction( 'footer', function () {
 			RegisterJS::instance()->printAll( 'footer' );
 		} );
@@ -73,7 +72,7 @@ class RegisterModule {
 	 * @param string $name
 	 */
 	public function register( $name ) {
-		if( ! isset( $this->module[ $name ] ) ) {
+		if( empty( $this->module[ $name ] ) ) {
 			$this->module[ $name ] = [];
 		}
 	}
@@ -85,25 +84,25 @@ class RegisterModule {
 	 * @param string $callback The callback
 	 */
 	public function injectFunction( $name, $callback ) {
-		if( ! isset( $this->module[ $name ] ) ) {
-			return error( "can't inject in unknown module $name" );
+		if( isset( $this->module[ $name ] ) ) {
+			$this->module[ $name ][] = $callback;
+		} else {
+			error( "can't inject in unknown module $name" );
 		}
-		$this->module[ $name ][] = $callback;
 	}
 
 	/**
-	 * Load all the functions related to this module name.
+	 * Load all the functions related to this module name
 	 *
 	 * @param string $name Module name
 	 */
 	public function loadModule( $name ) {
-		if( ! isset( $this->module[ $name ] ) ) {
-			return error( "can't load unregistered module $name" );
+		if( isset( $this->module[ $name ] ) ) {
+			foreach( $this->module[ $name ] as $callback ) {
+				$callback();
+			}
+		} else {
+			error( "can't load unregistered module $name" );
 		}
-		$status = true;
-		foreach( $this->module[ $name ] as $callback ) {
-			$status = $status && $callback();
-		}
-		return $status;
 	}
 }
