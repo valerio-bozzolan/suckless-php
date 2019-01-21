@@ -53,7 +53,7 @@ class FileUploader {
 		$this->fileEntry = $fileEntry;
 		$this->setArgs($args);
 		if( null === $mimeTypes ) {
-			$this->mimeTypes = expect( 'mimeTypes' );
+			$this->mimeTypes = MimeTypes::instance();
 		} else {
 			$this->mimeTypes = $mimeTypes;
 		}
@@ -194,13 +194,13 @@ class FileUploader {
 		}
 
 		// Check if MIME type it's allowed
-		if( ! $GLOBALS['mimeTypes']->isMimetypeInCategory( $mime, $this->args['category'] ) ) {
+		if( ! $this->mimeTypes->isMimetypeInCategory( $mime, $this->args['category'] ) ) {
 			$status = UPLOAD_EXTRA_ERR_UNALLOWED_MIMETYPE;
 			return false;
 		}
 
 		// Check original file extension
-		$ext = $GLOBALS['mimeTypes']->getFileExtensionFromExpectations(
+		$ext = $this->mimeTypes->getFileExtensionFromExpectations(
 			$this->getFileInfo( 'name' ),
 			$this->args['category'],
 			$mime
