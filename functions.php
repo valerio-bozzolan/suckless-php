@@ -704,7 +704,7 @@ function is_closure($t) {
  * @return string
  */
 function human_filesize( $filesize, $glue = ' ' ) {
-	return OutputUtilities::humanFilesize( $filesize, $glue = ' ' );
+	return OutputUtilities::humanFilesize( $filesize, $glue );
 }
 
 /*
@@ -721,7 +721,7 @@ function create_path( $path, $chmod = null ) {
  * @see FileUploader::searchFreeFilename()
  */
 function search_free_filename( $filepath, $filename, $ext, $args, $build_filename = null ) {
-	return FileUploader::searchFreeFilename( $filepath, $filename, $ext, $args, $build_filename = null );
+	return FileUploader::searchFreeFilename( $filepath, $filename, $ext, $args, $build_filename );
 }
 
 /**
