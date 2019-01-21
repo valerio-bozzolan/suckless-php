@@ -274,7 +274,7 @@ function register_js($uid, $url, $position = null) {
 function register_js_inline( $uid, $data, $position = 'after' ) {
 	RegisterJS::instance()->registerInline($uid, $data, $position);
 }
-function register_js_l10n( $uid, $variable, $data, $position = 'before' ) {
+function register_js_var( $uid, $variable, $data, $position = 'before' ) {
 	$data = json_encode( $data, DEBUG ? JSON_PRETTY_PRINT : 0 );
 	register_js_inline( $uid, "$variable = $data;", $position );
 }
