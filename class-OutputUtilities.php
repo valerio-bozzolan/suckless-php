@@ -56,7 +56,7 @@ class OutputUtilities {
 	 * @return string Enfatized string
 	 * @todo Move in it's own class
 	 */
-	public static function enfatizeSubstring( $s, $q, $pre = "<b>", $post = "</b>" ) {
+	public static function enfatizeSubstr( $s, $q, $pre = "<b>", $post = "</b>" ) {
 
 		// no needle? that's quick
 		if( empty( $q ) ) {
