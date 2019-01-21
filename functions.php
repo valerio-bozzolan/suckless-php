@@ -393,7 +393,7 @@ function has_permission( $permission, $user = null ) {
 */
 function append_dir( $base, $dir = '/' ) {
 	$base = rtrim( $base, '/' );
-	$dir = ltrim( $dir, '/' );
+	$dir  = ltrim( $dir, '/' );
 	return $base . _ . $dir;
 }
 
