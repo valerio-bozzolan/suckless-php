@@ -229,7 +229,9 @@ class FileUploader {
 		create_path( $pathname );
 
 		// Append a suffix to the filename if it already exists
-		$filename = self::searchFreeFilename( $pathname . _ , $filename, $ext, $this->args );
+		if( $this->args[ 'dont-overwrite' ] ) {
+			$filename = self::searchFreeFilename( $pathname . _ , $filename, $ext, $this->args );
+		}
 
 		// File name with extension
 		$complete_filename = "$filename.$ext";
