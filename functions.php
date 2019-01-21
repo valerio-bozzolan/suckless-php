@@ -269,10 +269,14 @@ function inherit_permissions($role_to, $role_from, $permissions = []) {
 	Permissions::instance()->inheritPermissions($role_to, $role_from, $permissions);
 }
 function register_js($uid, $url, $position = null) {
-	return RegisterJS::instance()->register( $uid, $url, $position );
+	RegisterJS::instance()->register( $uid, $url, $position );
 }
-function register_js_inline($uid, $data) {
-	return RegisterJS::instance()->registerInline($uid, $data);
+function register_js_inline( $uid, $data, $position = 'after' ) {
+	RegisterJS::instance()->registerInline($uid, $data, $position);
+}
+function register_js_l10n( $uid, $variable, $data, $position = 'before' ) {
+	$data = json_encode( $data, DEBUG ? JSON_PRETTY_PRINT : 0 );
+	register_js_inline( $uid, "$variable = $data;", $position );
 }
 function enqueue_js($uid, $position = null ) {
 	return RegisterJS::instance()->enqueue( $uid, $position );

@@ -50,21 +50,21 @@ class RegisterJS {
 	 * @param string $position header|footer
 	 */
 	public function register( $uid, $url, $position = null ) {
-		if( isset( $this->js[ $uid ] ) ) {
-			$this->js[ $uid ]->url = $url;
-		} else {
-			$this->js[ $uid ] = new JS( $url, $position );
+		if( ! $position ) {
+			$position = self::$DEFAULT;
 		}
+		$this->js[ $uid ] = new JS( $uid, $url, $position );
 	}
 
 	/**
-	 * Register a new inline script (to be run after)
+	 * Register an inline script
 	 *
 	 * @param $name string
 	 * @param $data string
+	 * @param $position before|after
 	 */
-	public function registerInline( $uid, $data ) {
-		$this->js[ $uid ]->inline[] = $data;
+	public function registerInline( $uid, $data, $position ) {
+		$this->js[ $uid ]->inline[ $position ][] = $data;
 	}
 
 	/**
@@ -74,10 +74,10 @@ class RegisterJS {
 	 * @param $position string Place it in the head of the page or not
 	 */
 	public function enqueue( $uid, $position = null ) {
-		if( isset( $this->js[ $uid ] ) ) {
-			$this->js[ $uid ]->enqueue( $position );
-		} else {
-			error( "unregistered JS $uid" );
+		$js = $this->js[ $uid ];
+		$js->enqueue = true;
+		if( $position ) {
+			$js->position = $position;
 		}
 	}
 
@@ -88,20 +88,11 @@ class RegisterJS {
 	 */
 	public function printAll( $position ) {
 		$glue = $position === 'header' ? "\n\t" : "\n";
-		foreach( $this->js as $uid => $js ) {
+		foreach( $this->js as $js ) {
 			if( $js->enqueue && $js->position === $position ) {
-				$url = $js->url;
-				if( CACHE_BUSTER ) {
-					$url .= false === strpos( $url, '?' ) ? '?' : '&amp;';
-					$url .= CACHE_BUSTER;
-				}
-				echo "$glue<script src=\"$url\"></script>";
-				if( DEBUG ) {
-					echo "<!-- $uid -->";
-				}
-				if( $js->inline ) {
-					$js->printInline( $glue );
-				}
+				$js->printInline( 'before', $glue );
+				$js->printNormal( $glue );
+				$js->printInline( 'after', $glue );
 			}
 		}
 	}
@@ -109,46 +100,66 @@ class RegisterJS {
 
 class JS {
 
+	public $uid;
+
 	public $url;
 
 	public $position;
 
 	public $enqueue = false;
 
-	public $inline = [];
+	public $inline;
 
 	/**
 	 * Construct
 	 *
+	 * @param $uid string
 	 * @param $url string
 	 * @param $position string header|footer
 	 */
-	public function __construct( $url, $position = null ) {
-		if( ! $position ) {
-			$position = RegisterJS::$DEFAULT;
-		}
+	public function __construct( $uid, $url, $position ) {
+		$this->uid = $uid;
 		$this->url = $url;
 		$this->position = $position;
-	}
-
-	/**
-	 * @param $position string header|footer
-	 */
-	public function enqueue( $position = null ) {
-		$this->enqueue = true;
-		if( $position !== null ) {
-			$this->position = $position;
-		}
+		$this->inline = [
+			'after'  => [],
+			'before' => [],
+		];
 	}
 
 	/**
 	 * Print inline JavaScript parts
 	 *
+	 * @param $position before|after
 	 * @param $glue string
 	 */
-	public function printInline( $glue ) {
-		echo "$glue<script>$glue" .
-		     implode( $this->inline, $glue ) .
-		     "$glue</script>";
+	public function printInline( $position, $glue ) {
+		$parts = $this->inline[ $position ];
+		if( $parts ) {
+			echo "$glue<script>$glue" .
+			     implode( $parts, $glue ) .
+			     "$glue</script>";
+
+			if( DEBUG ) {
+				echo "<!-- {$this->uid} - $position -->";
+			}
+		}
+	}
+
+	/**
+	 * Print the normal JS inclusion
+	 *
+	 * @param $glue string
+	 */
+	public function printNormal( $glue ) {
+		$url = $this->url;
+		if( CACHE_BUSTER ) {
+			$url .= false === strpos( $url, '?' ) ? '?' : '&amp;';
+			$url .= CACHE_BUSTER;
+		}
+		echo "$glue<script src=\"$url\"></script>";
+		if( DEBUG ) {
+			echo "<!-- {$this->uid} -->";
+		}
 	}
 }
