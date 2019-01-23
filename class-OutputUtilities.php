@@ -97,7 +97,7 @@ class OutputUtilities {
 	 * @param $glue string
 	 * @return string
 	 */
-	public function humanFilesize( $filesize, $glue = ' ' ){
+	public static function humanFilesize( $filesize, $glue = ' ' ){
 		if( ! is_numeric( $filesize ) ) {
 			return __( "NaN" );
 		}
