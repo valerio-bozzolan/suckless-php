@@ -714,7 +714,7 @@ function human_filesize( $filesize, $glue = ' ' ) {
  * @param $chmod string
  */
 function create_path( $path, $chmod = null ) {
-	return FileUploader::createPath( $path, $chmd );
+	return FileUploader::createPath( $path, $chmod );
 }
 
 /**
