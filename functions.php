@@ -644,7 +644,7 @@ function json( $data ) {
  * @param $code string Error code
  * @param $msg string Error human message
  */
-function json_error( $http_code, $code, $msg ) {
+function json_error( $http_code, $code, $msg = null ) {
 	http_response_code( $http_code );
 	json( [ 'error' => [
 		'code'    => $code,
