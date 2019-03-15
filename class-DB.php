@@ -19,7 +19,7 @@
  */
 
 /**
- * Database class
+ * A simple but effective database class
  *
  * This class was forked from my defunct project called Open Student.
  */
@@ -193,38 +193,38 @@ class DB {
 	}
 
 	/**
-	 * To insert a single row.
-	 * I have not time to check if $dbCols are DBCol objects.
+	 * Run an INSERT query for a single row
 	 *
-	 * @param string $table_name
+	 * @param string $table
 	 * @param DBCol[] $cols
 	 * @param $args arguments like 'replace-into
 	 */
-	public function insertRow( $table_name, $cols, $args = [] ) {
-		$SQL_columns = '';
-		$n = count($cols);
-		for($i=0; $i<$n; $i++) {
-			if($i !== 0) {
-				$SQL_columns .= ', ';
-			}
-			$SQL_columns .= "`{$cols[$i]->column}`";
+	public function insertRow( $table, $cols, $args = [] ) {
+		// build column names
+		$columns = [];
+		foreach( $cols as $col ) {
+			$columns[] = "`{$col->column}`";
 		}
 
-		$values = '';
-		for($i=0; $i<$n; $i++) {
-			if($i !== 0) {
-				$values .= ', ';
-			}
-			$values .= $this->forceType($cols[$i]->value, $cols[$i]->forceType);
+		// sanitize values
+		$values = [];
+		foreach( $cols as $col ) {
+			$values[] = $this->forceType( $col->value, $col->forceType );
 		}
 
+		// default arguments
 		$args = array_replace( [
 			'replace-into' => false,
 		], $args );
 
 		$what = $args[ 'replace-into' ] ? 'REPLACE' : 'INSERT';
 
-		return $this->query("$what INTO {$this->getTable($table_name)} ($SQL_columns) VALUES ($values)");
+		$table = $this->getTable( $table );
+
+		$columns_comma = implode( ', ', $columns );
+		$values_comma  = implode( ', ', $values  );
+
+		return $this->query("$what INTO $table ($columns_comma) VALUES ($values_comma)");
 	}
 
 	/**
@@ -237,86 +237,93 @@ class DB {
 	}
 
 	/**
-	 * To execute clean insert SQL queries.
+	 * Run an INSERT query for multiple rows
 	 *
-	 * @param string $table_name Table Name without prefix
+	 * @param string $table Table Name without prefix
 	 * @param array $columns Assoc array of types ('ID' => 'null', 'name' => 's', ..)
-	 * @param array $rows Array of rows
+	 * @param array $rows Array of rows (or just a row)
 	 * @param array $args Extra arguments
 	 */
-	public function insert($table_name, $columns, $rows, $args = []) {
+	public function insert( $table, $columns, $rows, $args = [] ) {
+
+		// default arguments
 		$args = array_replace( [
-			'replace-into' => false
+			'replace-into' => false,
 		], $args );
 
-		force_array($rows);
+		// backticked column names
+		$column_names = [];
+		foreach( $columns as $column => $type ) {
+			$column_names[] = "`$column`";
+		}
+		$columns_comma = implode( ', ', $column_names );
 
-		if( ! @is_array($rows[0]) ) {
-			$rows = [ $rows ]; // array_columns('value col 1', '..') => array_rows( array_columns( 'value col 1', ..) )
+		// backward compatibility
+		force_array( $rows );
+		if( ! @is_array( $rows[0] ) ) {
+			$rows = [$rows];
 		}
 
-		$n_columns = count($columns);
-		$n_rows = count($rows);
+		// just the types (in order to be indexed numerically)
+		$types = array_values( $columns );
+		$n_columns = count( $types );
 
-		$SQL_columns = '';
+		$value_groups = [];
+		foreach( $rows as $i => $row ) {
+			$query_values = [];
 
-		$first = key($columns);
-		foreach($columns as $column => $type) {
-			if($column !== $first) {
-				$SQL_columns .= ', ';
-			}
-			$SQL_columns .= "`$column`";
-		}
-
-		$insert = ($args['replace-into']) ? 'REPLACE' : 'INSERT';
-
-		$SQL = "$insert INTO {$this->getTable($table_name)} ($SQL_columns) VALUES";
-		for($i=0; $i<$n_rows; $i++) {
-			$SQL .= ($i === 0) ? ' (' : ', (';
-			$SQL_values = [];
-
-			if($n_columns != count($rows[$i])) {
-				error( sprintf(
-					__("Errore inserendo nella tabella <em>%s</em>. Colonne: <em>%d</em>. Colonne values[<em>%d</em>]: <em>%d</em>"),
-					esc_html($table_name),
+			if( $n_columns !== count( $row ) ) {
+				error_die( sprintf(
+					"error using insert() in table %s: %d columns but %d values in row %d",
+					$table,
 					$n_columns,
-					$i,
-					count($rows[$i])
+					count( $row ),
+					$i
 				) );
-				return false;
 			}
 
-			$j = 0;
-			foreach($columns as $column => $type) {
-				$SQL_values[] = $this->forceType($rows[$i][$j], $type);
-				$j++;
+			$values_escaped = [];
+			foreach( $types as $j => $type ) {
+				$values_escaped[] = $this->forceType( $row[ $j ], $type );
 			}
 
-			$SQL .= implode(', ', $SQL_values) . ')';
+			$values_grouped = implode( ', ', $values_escaped );
+			$value_groups[] = "($values_grouped)";
 		}
-		return $this->query($SQL);
+
+		$value_groups_comma = implode( ', ', $value_groups );
+
+		$action = $args['replace-into'] ? 'REPLACE' : 'INSERT';
+
+		$table = $this->getTable( $table );
+
+		return $this->query( "$action INTO $table ($columns_comma) VALUES $value_groups_comma" );
 	}
 
 	/**
-	 * To execute update queries.
+	 * Run an UPDATE query
+	 *
+	 * @param string $table Table name without prefix and backticks
+	 * @param array  $columns array of DBCol(s)
+	 * @param string $conditions part after WHERE
+	 * @param string $after
 	 */
-	public function update($table_name, $dbCols, $conditions, $after = '') {
-		force_array($dbCols);
+	public function update( $table, $columns, $conditions, $after = '' ) {
 
-		$SQL = "UPDATE {$this->getTable($table_name)} SET ";
-		$n_cols = count($dbCols);
-		for($i=0; $i<$n_cols; $i++) {
-			if($i !== 0) {
-				$SQL .= ', ';
-			}
-			$val = $this->forceType($dbCols[$i]->value, $dbCols[$i]->forceType);
-			$SQL .= "`{$dbCols[$i]->column}` = $val";
+		// backward compatibility
+		force_array( $columns );
+
+		$table = $this->getTable( $table );
+
+		$sets = [];
+		foreach( $columns as $column ) {
+			$name  = $column->column;
+			$value = $this->forceType( $column->value, $column->forceType );
+			$sets[] = "`$name` = $value";
 		}
-		if($after !== '') {
-			$after = " $after";
-		}
-		$SQL .= " WHERE {$conditions}{$after}";
-		return $this->query($SQL);
+
+		$sets_comma = implode( ', ', $sets );
+		return $this->query( "UPDATE $table SET $sets_comma WHERE $conditions $after" );
 	}
 
 	/**
@@ -334,8 +341,8 @@ class DB {
 	 * @param string $s String to be escaped
 	 * @return string String escaped.
 	 */
-	public function escapeString($s) {
-		return $this->mysqli->real_escape_string($s);
+	public function escapeString( $s ) {
+		return $this->mysqli->real_escape_string( $s );
 	}
 
 	public function getPrefix() {
@@ -343,27 +350,29 @@ class DB {
 	}
 
 	/**
-	 * Return a table name with it's school prefix
+	 * Get table name with it's prefix (if any)
 	 *
 	 * @param string $name Table name
-	 * @param boolean $as True if you want to access to the table $name in the SQL
+	 * @param boolean $as True if you want to create an alias without the table alias
 	 * @return string Table $name with the prefix
 	 */
-	public function getTable($name, $as = false) {
-		if($this->prefix === '') {
+	public function getTable( $name, $as = false ) {
+		if( $this->prefix === '' ) {
 			$as = false;
 		}
-		$r = "`{$this->prefix}$name`";
-		if($as) {
-			$r .= " AS `$name`";
+		$s = "`{$this->prefix}$name`";
+		if( $as ) {
+			$s .= " AS `$name`";
 		}
-		return $r;
+		return $s;
 	}
 
 	/**
-	 * Return the list of every table name inserted as arguments or as an []
+	 * Get the list of every table name inserted as arguments or as an array
+	 *
+	 * @return string
 	 */
-	public function getTables($args = []) {
+	public function getTables( $args = [] ) {
 		$tables = [];
 		if( ! is_array( $args ) ) {
 			$args = func_get_args();
@@ -375,14 +384,14 @@ class DB {
 	}
 
 	/**
-	 * Force a string to a defined type.
+	 * Force a string to a defined type
 	 *
 	 * @param string $s String to be forced.
 	 * @param string $type Type ('d' for integer, 's' for string, 'f' for float, 'null' for autoincrement values or for "don't care" values).
 	 * @see http://news.php.net/php.bugs/195815
 	 * @return string Forced string
 	 */
-	private function forceType($s, $type) {
+	private function forceType( $s, $type ) {
 
 		if( $type === 'd' )
 			return (int) $s; // Integer
@@ -411,12 +420,8 @@ class DB {
 		if( $type === null || $type === 'null' )
 			return 'NULL'; // 'NULL' literally for indexes
 
-		error( sprintf(
-			"Tipo '%s' non concesso in DB::forceType(). Vedi la documentazione (esiste?). Sarà usato l'escape 's'.",
-			esc_html($type)
-		) );
-
-		return $this->forceType($s, 's');
+		error( "type $type unexpected in DB::forceType() and so it will be seen as 's'" );
+		return $this->forceType( $s, 's' );
 	}
 
 	/**
@@ -447,15 +452,15 @@ class DB {
 	/**
 	 * Used to show "friendly" error.
 	 *
-	 * @param string $SQL SQL query executed during the error.
-	 * @return string Kind message.
+	 * @param string $query SQL query executed during the error
+	 * @return string
 	 */
-	private function getQueryErrorMessage($SQL) {
+	private function getQueryErrorMessage( $query ) {
 		return sprintf(
-			__("Errore eseguendo una query SQL: Query n. %d: <blockquote><pre>%s</pre></blockquote><br />Errore: <pre>%s</pre>"),
+			"error executing the query n. %d |%s| error: %s",
 			$this->queries,
-			$SQL,
-			esc_html($this->mysqli->error)
+			$query,
+			esc_html( $this->mysqli->error )
 		);
 	}
 
