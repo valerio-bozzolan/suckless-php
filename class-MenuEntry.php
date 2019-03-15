@@ -55,7 +55,7 @@ class MenuEntry {
 	 * @see site_page()
 	 * @return string
 	 */
-	public function getSitePage( $full_url = true ) {
+	public function getSitePage( $full_url = false ) {
 		return site_page( $this->url, $full_url );
 	}
 
