@@ -631,9 +631,9 @@ function array_unset_empty( $data ) {
  *
  * @param $data mixed
  */
-function json( $data ) {
+function json( $data, $flags = 0 ) {
 	http_json_header();
-	echo json_encode( array_unset_empty( $data ) );
+	echo json_encode( array_unset_empty( $data ), $flags );
 	exit;
 }
 
