@@ -562,7 +562,7 @@ function error( $msg ) {
  * @param string $msgid String to be translated
  * @return string Translated string (or original)
  */
-function __( $msgid ) {
+function __( $msgid, $domain = '' ) {
 	// is native GNU GETTEXT implementation?
 	static $native = null;
 	if( null === $native ) {
@@ -575,18 +575,14 @@ function __( $msgid ) {
 	}
 
 	// high-level GNU Gettext (simpler but slower)
-	static $instance = false;
-	if( ! $instance ) {
-		$instance = MoLoader::instance()->getTranslator();
-	}
-	return $instance->gettext( $msgid );
+	return MoLoader::instance()->getTranslator( $domain )->gettext( $msgid );
 }
 
 /**
  * Shortcut for echoing a translated string
  */
-function _e( $s ) {
-	echo __( $s );
+function _e( $s, $domain = '' ) {
+	echo __( $s, $domain );
 }
 
 function http_json_header($charset = null) {
