@@ -640,12 +640,12 @@ function json( $data, $flags = 0 ) {
  * @param $code string Error code
  * @param $msg string Error human message
  */
-function json_error( $http_code, $code, $msg = null ) {
+function json_error( $http_code, $code, $msg = null, $flags = 0 ) {
 	http_response_code( $http_code );
 	json( [ 'error' => [
 		'code'    => $code,
 		'message' => $msg,
-	] ] );
+	] ], $flags );
 }
 
 /**
