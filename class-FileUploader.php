@@ -256,7 +256,7 @@ class FileUploader {
 		if( ! $moved ) {
 			error( sprintf(
 				"unable to move file %s to position %s",
-				UPLOAD_EXTRA_ERR_CANT_SAVE_FILE,
+				$this->getFileInfo( 'tmp_name' ),
 				$pathname . __ . $complete_filename
 			) );
 			$status = UPLOAD_EXTRA_ERR_CANT_SAVE_FILE;
