@@ -230,7 +230,7 @@ class FileUploader {
 
 		// Append a suffix to the filename if it already exists
 		if( $this->args[ 'dont-overwrite' ] ) {
-			$filename = self::searchFreeFilename( $pathname . _ , $filename, $ext, $this->args );
+			$filename = self::searchFreeFilename( $pathname . __ , $filename, $ext, $this->args );
 		}
 
 		// File name with extension
@@ -250,10 +250,15 @@ class FileUploader {
 
 		$moved = move_uploaded_file(
 			$this->getFileInfo( 'tmp_name' ),
-			$pathname . _ . $complete_filename
+			$pathname . __ . $complete_filename
 		);
 
 		if( ! $moved ) {
+			error( sprintf(
+				"unable to move file %s to position %s",
+				UPLOAD_EXTRA_ERR_CANT_SAVE_FILE,
+				$pathname . __ . $complete_filename
+			) );
 			$status = UPLOAD_EXTRA_ERR_CANT_SAVE_FILE;
 			return false;
 		}
