@@ -107,7 +107,7 @@ class Permissions {
 	 */
 	public function inheritPermissions( $new_role, $existing, $permissions = [] ) {
 		if( ! $this->roleExists( $existing ) ) {
-			throw new InvalidArgumentException( 'unknown role' );
+			throw new InvalidArgumentException( "unknown role $existing" );
 		}
 		$this->registerPermissions( $new_role, $this->roles[ $existing ] );
 		$this->registerPermissions( $new_role, $permissions );
