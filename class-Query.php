@@ -319,7 +319,23 @@ class Query {
 	}
 
 	/**
+	 * Mark this SELECT query as needed for an UPDATE
+	 *
+	 * «If you use FOR UPDATE with a storage engine that uses page or row locks,
+	 *  rows examined by the query are write-locked until the end of the current transaction.»
+	 *
+	 * @return self
+	 */
+	public function forUpdate() {
+		$this->forUpdate = true;
+		return $this;
+	}
+
+	/**
+	 * Build an SQL SELECT query
+	 *
 	 * @return string SQL query
+	 * @see https://dev.mysql.com/doc/refman/8.0/en/select.html
 	 */
 	public function getQuery() {
 		$sql = "SELECT {$this->getSelect()} FROM {$this->getFrom()}";
@@ -341,6 +357,9 @@ class Query {
 				$sql .= "{$this->offset}, ";
 			}
 			$sql .= $this->rowCount;
+		}
+		if( isset( $this->forUpdate ) ) {
+			$sql .= " FOR UPDATE";
 		}
 		return $sql;
 	}
