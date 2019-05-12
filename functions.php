@@ -14,7 +14,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-
 /*
  * Configuration helpers
  *
@@ -487,15 +486,29 @@ function add_menu_entries( $entries ) {
 	Menu::instance()->add( $entries );
 }
 
-function menu_entry($uid) {
-	return Menu::instance()->getMenuEntry($uid);
+/**
+ * Get a menu entry
+ *
+ * @param string $uid
+ * @return MenuEntry
+ */
+function menu_entry( $uid ) {
+	return Menu::instance()->getMenuEntry( $uid );
 }
+
 function get_children_menu_entries($uid) {
 	return Menu::instance()->getChildrenMenuEntries($uid);
 }
-function register_module($uid) {
+
+/**
+ * Register a module
+ *
+ * @param string $uid
+ */
+function register_module( $uid ) {
 	return RegisterModule::instance()->register($uid);
 }
+
 function inject_in_module($uid, $callback) {
 	return RegisterModule::instance()->injectFunction($uid, $callback);
 }
@@ -517,6 +530,7 @@ function set_option( $name, $value, $autoload = true ) {
 function remove_option( $name ) {
 	return Options::instance()->remove( $name );
 }
+
 /**
  * Get the current logged user.
  *
@@ -530,11 +544,14 @@ function get_user( $property = null ) {
 	}
 	return $user ? $user->get( $property ) : null;
 }
+
 /**
- * Try to login using $_POST['user_uid'] and $_POST['user_password'].
+ * Try to login using POST 'user_uid' and user_password fields
  *
- * @param int $status
- * @see Session::login()
+ * @param  int    $status Login status code
+ * @param  string $uid    User uid
+ * @param  string $pwd    Password
+ * @return boolean        Login successful or not
  */
 function login(& $status = null, $uid = null, $pwd = null) {
 	return Session::instance()->login($status, $uid, $pwd);
@@ -687,6 +704,7 @@ function URL_protocol() {
 
 /**
  * Get the domain of the request
+ *
  * @see DOMAIN
  */
 function URL_domain() {
@@ -697,6 +715,7 @@ function URL_domain() {
 
 /**
  * Get the explicit port of the request
+ *
  * @see PORT
  * @return string
  */
@@ -869,24 +888,53 @@ function get_file_extension_from_expectations($filename, $category) {
 	return MimeTypes::instance()->getFileExtensionFromExpectations($filename, $category);
 }
 
-function is_image($filepath) {
-	return is_file_in_category($filepath, 'image');
+/**
+ * Check if a file is an image
+ *
+ * @param string $filepath
+ * @return boolean
+ */
+function is_image( $path ) {
+	return is_file_in_category( $path, 'image' );
 }
 
-function is_audio($filepath) {
-	return is_file_in_category($filepath, 'audio');
+/**
+ * Check if a file is an audio
+ *
+ * @param string $path
+ * @return boolean
+ */
+function is_audio( $path ) {
+	return is_file_in_category( $path, 'audio' );
 }
 
-function is_video($filepath) {
-	return is_file_in_category($filepath, 'video');
+/**
+ * Check if a file is a video
+ *
+ * @param string $path
+ * @return boolean
+ */
+function is_video( $path ) {
+	return is_file_in_category( $path, 'video' );
 }
 
-function is_document($filepath) {
-	return is_file_in_category($filepath, 'document');
+/**
+ * Check if a file is a document
+ *
+ * @param string $path
+ */
+function is_document( $path ) {
+	return is_file_in_category( $path, 'document' );
 }
 
-function is_closure($t) {
-	return is_object($t) && ($t instanceof Closure);
+/**
+ * Validate a closure
+ *
+ * @param mixed $t
+ * @return boolean
+ */
+function is_closure( $t ) {
+	return is_object( $t ) && ($t instanceof Closure);
 }
 
 /**
@@ -920,11 +968,14 @@ function search_free_filename( $filepath, $filename, $ext, $args, $build_filenam
 /**
  * I use this to clean user input before DB#insert()
  *
+ * This does not mean that it sanitizes the string.
+ *
  * @param string $s Input string
  * @param int $max Max length
+ * @return string
  */
-function luser_input($s, $max) {
-	return mb_strimwidth( trim($s), 0, $max, '');
+function luser_input( $s, $max ) {
+	return mb_strimwidth( trim( $s ), 0, $max, '' );
 }
 
 /**
