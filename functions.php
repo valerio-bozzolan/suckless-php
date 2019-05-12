@@ -487,7 +487,7 @@ function add_menu_entries( $entries ) {
 	Menu::instance()->add( $entries );
 }
 
-function get_menu_entry($uid) {
+function menu_entry($uid) {
 	return Menu::instance()->getMenuEntry($uid);
 }
 function get_children_menu_entries($uid) {
@@ -959,3 +959,8 @@ $GLOBALS[T] = function($t, $as = false) {
 $GLOBALS[JOIN] = function($t) {
 	return DB::instance()->getTables( func_get_args() );
 };
+
+function get_menu_entry( $uid ) {
+	error( "deprecated get_menu_entry()" );
+	return menu_entry( $uid );
+}
