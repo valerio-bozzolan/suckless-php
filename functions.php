@@ -14,50 +14,180 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+
+/*
+ * Configuration helpers
+ *
+ * Shortcuts useful when you declare a configuration file.
+ */
+
+
+/**
+ * Define a constant if it does not exist
+ *
+ * @param string $name  Constant name
+ * @param string $value Constant value
+ */
 function define_default( $name, $value ) {
 	defined( $name ) or define( $name, $value );
 }
 
-function selected( $helper = PHP_INT_MAX, $current = PHP_INT_MAX, $force = false ) {
-	return html_property_when_matching( 'selected', 'selected', $helper, $current, $force);
-}
 
-function checked( $helper = PHP_INT_MAX, $current = PHP_INT_MAX, $force = false ) {
-	return html_property_when_matching( 'checked', 'checked', $helper, $current, $force);
-}
+/*
+ * Template helpers
+ *
+ * Shortcuts useful when you build a page
+ */
 
-function disabled( $helper = PHP_INT_MAX, $current = PHP_INT_MAX, $force = false ) {
-	return html_property_when_matching( 'disabled', 'disabled', $helper, $current, $force );
-}
 
+/**
+ * Print a ' checked="checked"' HTML attribute under some circumstances
+ *
+ * This is useful for the <input type="checkbox" /> HTML tag.
+ *
+ * @param mixed $helper  If this is the only arg, prints
+ * @param mixed $current If this matches $helper, print
+ * @param bool  $force   If this is true, print
+ */
 function _checked( $helper = PHP_INT_MAX, $current = PHP_INT_MAX, $force = false ) {
 	echo checked( $helper, $current, $force );
 }
 
+/**
+ * Print a ' selected="selected"' HTML attribute under some circumstances
+ *
+ * This is useful for the <option> HTML tag.
+ *
+ * @param mixed $helper  If this is the only arg, prints
+ * @param mixed $current If this matches $helper, print
+ * @param bool  $force   If this is true, print
+ */
 function _selected( $helper = PHP_INT_MAX, $current = PHP_INT_MAX, $force = false ) {
 	echo selected( $helper, $current, $force );
 }
 
+/**
+ * Print a ' disabled="disabled"' HTML attribute under some circumstances
+ *
+ * @param mixed $helper  If this is the only arg, prints
+ * @param mixed $current If this matches $helper, print
+ * @param bool  $force   If this is true, print
+ */
 function _disabled( $helper = PHP_INT_MAX, $current = PHP_INT_MAX, $force = false ) {
 	echo disabled( $helper, $current, $force );
 }
 
-function html_property_when_matching( $property, $value, $helper = PHP_INT_MAX, $current = PHP_INT_MAX, $force = false ) {
+/**
+ * Return a ' selected="selected"' HTML attribute under some circumstances
+ *
+ * @param mixed $helper  If this is the only arg, return
+ * @param mixed $current If this matches $helper, return
+ * @param bool  $force   If this is true, return
+ */
+function selected( $helper = PHP_INT_MAX, $current = PHP_INT_MAX, $force = false ) {
+	return html_attribute_when_matching( 'selected', 'selected', $helper, $current, $force);
+}
+
+/**
+ * Return a ' checked="checked"' HTML attribute under some circumstances
+ *
+ * This is useful for the <input type="checkbox" /> HTML tag.
+ *
+ * @param mixed $helper  If this is the only arg, return
+ * @param mixed $current If this matches $helper, return
+ * @param bool  $force   If this is true, return
+ */
+function checked( $helper = PHP_INT_MAX, $current = PHP_INT_MAX, $force = false ) {
+	return html_attribute_when_matching( 'checked', 'checked', $helper, $current, $force);
+}
+
+/**
+ * Return a ' disabled="disabled"' HTML attribute under some circumstances
+ *
+ * @param mixed $helper  If this is the only arg, return
+ * @param mixed $current If this matches $helper, return
+ * @param bool  $force   If this is true, return
+ */
+function disabled( $helper = PHP_INT_MAX, $current = PHP_INT_MAX, $force = false ) {
+	return html_attribute_when_matching( 'disabled', 'disabled', $helper, $current, $force );
+}
+
+/**
+ * Return an HTML attribute under some circumstances
+ *
+ * @param string $attribute HTML attribute name e.g. 'disabled'
+ * @param string $value     HTML attribute value e.g.
+ * @param mixed  $helper    If this is the only arg, return
+ * @param mixed  $current   If this matches $helper, return
+ * @param bool   $force     If this is true, return
+ */
+function html_attribute_when_matching( $attribute, $value, $helper = PHP_INT_MAX, $current = PHP_INT_MAX, $force = false ) {
 	if( $helper === $current || $helper && PHP_INT_MAX === $current || $force ) {
-		return HTML::property( $property, $value );
+		return HTML::property( $attribute, $value );
 	}
 	return '';
 }
 
+/**
+ * Print the HTML attribute ' value="$v"'
+ *
+ * The value will be sanitized.
+ *
+ * @param string $v
+ */
 function _value( $v ) {
 	echo HTML::property( 'value', $v );
 }
 
 /**
- * Force something to be an array.
+ * Shortcut for htmlentities()
  *
- * @return mixed|array
- * @return array
+ * Return an HTML-sanitized untrusted string to be safe from XSS.
+ *
+ * @param  string $s e.g. 'Hello<script>...'
+ * @return string e.g. 'Hello&lt;script&gt;...'
+ */
+function esc_html( $s ) {
+	return htmlentities( $s );
+}
+
+/**
+ * Shortcut for echoing htmlentities()
+ *
+ * Print an HTML-sanitized untrusted string to be safe from XSS
+ *
+ * @param  string $s e.g. 'Hello<script>...'
+ * @return string e.g. 'Hello&lt;script&gt;...'
+ */
+function _esc_html( $s ) {
+	echo htmlentities( $s );
+}
+
+/**
+ * Enfatize a sub-string
+ *
+ * This is helpful when highlighting search results
+ *
+ * @param  string $heystack e.g. 'The quick brown fox'
+ * @param  string $needle   e.g. 'quick'
+ * @param  string $pre      HTML markup put before the found $needle
+ * @param  string $post     HTML markup put after fhe found $needle
+ * @return string e.g. 'The <b>quick</b> brown fox'
+ */
+function enfatize_substr( $heystack, $needle, $pre = '<b>', $post = '</b>' ) {
+	return OutputUtilities::enfatizeSubstr( $heystack, $needle, $pre, $post );
+}
+
+
+/*
+ * Conversion shortcuts
+ */
+
+
+/**
+ * Force a variable to be an array
+ *
+ * @return mixed|array $a
  */
 function force_array( & $a ) {
 	if( ! is_array( $a ) ) {
@@ -65,139 +195,130 @@ function force_array( & $a ) {
 	}
 }
 
-/**
- * Enfatize a substring
+
+/*
+ * Database shourtcuts
  */
-function enfatize_substr( $heystack, $needle, $pre = '<b>', $post = '</b>' ) {
-	return OutputUtilities::enfatizeSubstr( $heystack, $needle, $pre, $post );
-}
 
 /**
- * SQL query escape string
- * @see DB#escapeString()
- */
-function esc_sql($s) {
-	return DB::instance()->escapeString($s);
-}
-
-/**
- * Same as esc_sql() but also avoid '%'s.
+ * Sanitize an SQL value to be safe from SQL injections
  *
- * @param string $s
+ * @param  string $s
  * @return string
  */
-function esc_sql_like($s) {
-	$s = str_replace('%', '\%', $s);
-	return esc_sql($s);
+function esc_sql( $s ) {
+	return DB::instance()->escapeString( $s );
 }
 
 /**
- * HTML escape
+ * Sanitize an SQL value to be safe from SQL injections and escape also '%'
  *
- * @param string $s
+ * @param  string $s
  * @return string
  */
-function esc_html($s) {
-	return htmlspecialchars($s);
+function esc_sql_like( $s ) {
+	$s = str_replace( '%', '\%', $s );
+	return esc_sql( $s );
 }
 
 /**
- * HTML escape print
- *
- * @param string
- * @return void
- */
-function _esc_html($s) {
-	echo htmlentities($s);
-}
-
-/**
- * Execute a simple query.
- * @see DB#getResults()
- */
-function query($query) {
-	return DB::instance()->query($query);
-}
-
-/**
- * Execute a query and return an array of objects.
+ * Execute whatever query
  *
  * @param string $query SQL query
- * @param string $class Class name to encapsulate the result set
+ * @see DB#query()
+ * @return object
+ */
+function query( $query ) {
+	return DB::instance()->query( $query );
+}
+
+/**
+ * Execute a query and return an array of objects
+ *
+ * Note: Use query_generator() if you do not need the entire array.
+ *
+ * @param  string $query      SQL query
+ * @param  string $class_name Class name to encapsulate the result set
+ * @param  array  $args       Arguments to be passed to the constructor of $class_name
  * @return array
- * @see DB#getResults()
  */
-function query_results($query, $class = null, $args = [] ) {
-	return DB::instance()->getResults($query, $class, $args);
+function query_results( $query, $class_name = null, $args = [] ) {
+	return DB::instance()->getResults( $query, $class_name, $args );
 }
 
 /**
- * Execute a query and return a Generator
+ * Execute a query and return a generator
+ *
+ * Note: Use query_results() if you need the entire array.
+ *
+ * @param  string $query      SQL query
+ * @param  string $class_name Class name to encapsulate the result set
+ * @param  array  $args       Arguments to be passed to the constructor of $class_name
+ * @return array
+ */
+function query_generator( $query, $class_name = null, $args = [] ) {
+	return DB::instance()->getGenerator( $query, $class_name, $args );
+}
+
+/**
+ * Execute a query and return a single row, as an object
+ *
+ * @param  string       $query SQL  query
+ * @param  string       $class_name Class name to encapsulate the result set
+ * @return object|null              Arguments to be passed to the constructor of $class_name
+ */
+function query_row( $query, $class_name = null, $args = [] ) {
+	return DB::instance()->getRow( $query, $class_name, $args );
+}
+
+/**
+ * Execute a query and return a single column from a single row
  *
  * @param string $query SQL query
- * @param string $class Class name to encapsulate the result set
- * @generator
- * @see DB#getGenerator()
- */
-function query_generator( $query, $class = null, $args = [] ) {
-	return DB::instance()->getGenerator( $query, $class, $args );
-}
-
-/**
- * Execute a query and return an object.
- *
- * @param string $query SQL query
- * @param string $class Class name to encapsulate the result set
- * @return null|Object
- * @see DB#getRow()
- */
-function query_row($query, $class = null, $args = [] ) {
-	return DB::instance()->getRow($query, $class, $args);
-}
-
-/**
- * Execute a query and return a single value.
+ * @param string $field Field to be returned
  * @see DB#getValue()
  */
-function query_value($query, $value, $class = null) {
-	return DB::instance()->getValue($query, $value, $class);
+function query_value( $query, $field, $class_name = null ) {
+	return DB::instance()->getValue( $query, $field, $class_name );
 }
 
 /**
- * Executes one or multiple queries which are concatenated by a semicolon
- * @see DB#multiQuery()
+ * Executes multiple queries concatenated by a semicolon
+ *
+ * @param string $queries SQL queries
  */
 function multiquery( $queries ) {
 	return DB::instance()->multiQuery( $queries );
 }
 
 /**
- * Database table full with prefix.
+ * Get a database table name, full with its prefix, eventually aliased
  *
- * @param string $t Table name (as 'test')
- * @return string Table name with prefix (as '`site01_test`')
- * @see DB#getTable()
+ * Note that the prefix is declared in your configuration file as $prefix.
+ *
+ * @param  string  $table Table name e.g. 'test'
+ * @param  boolean        If true, eventually strip the prefix with an alias
+ * @return string         Table name e.g. 'site01_test'
  */
-function T($t, $as = false) {
-	return DB::instance()->getTable($t, $as);
+function T( $table, $as = false ) {
+	return DB::instance()->getTable( $table, $as );
 }
 
 /**
- * Insert a row in the specified database table.
- * @param string $table
- * @param DBCols[]
- * @param $args array
- * @see DB#insertRow()
+ * Insert a row in a database table
+ *
+ * @param string  $table  Table name
+ * @param DBCol[] $cols   Array of DBCol objects (with column, value and type)
+ * @param array   $args   Extra arguments for the query
  */
 function insert_row( $table, $cols, $args = [] ) {
 	return DB::instance()->insertRow( $table, $cols, $args );
 }
 
 /**
- * If the table has an AUTOINCREMENT you can get the last inserted index
- * after an insert_row().
+ * Get the last AUTOINCREMENT value created after an INSERT query
+ *
  * @return int
- * @see DB#getLastInsertedID()
  */
 function last_inserted_ID() {
 	if( ! DB::instanced() ) {
@@ -207,89 +328,165 @@ function last_inserted_ID() {
 }
 
 /**
- * Insert multiple values in the specified database table
- * @param string $table
- * @param array $cols
- * @param array $values
- * @see DB#insert()
+ * Insert multiple rows in a database table
+ *
+ * @param string $table  Table name
+ * @param array  $cols   Array of columns with their escape e.g. [ 'id' => 'd', 'name' => 's' ]
+ * @param array  $values Array of rows e.g. [ [ 1, 'stallman' ], [ 2, 'torvalds' ]
  */
-function insert_values($table, $cols, $values) {
-	return DB::instance()->insert($table, $cols, $values);
+function insert_values( $table, $cols, $values ) {
+	return DB::instance()->insert( $table, $cols, $values );
 }
 
 /**
  * Update rows in the specified database table
- * @param string $table
- * @param DBCol[] $cols
- * @param string $condition
+ *
+ * @param string  $table Table name
+ * @param DBCol[] $cols  Array of DBCol objects (with column, value and type)
+ * @param string  $cond  SQL condition (after the WHERE part)
  * @see DB#update()
  */
-function query_update($table, $cols, $condition, $after = '') {
-	DB::instance()->update($table, $cols, $condition, $after);
+function query_update( $table, $cols, $cond, $after = '' ) {
+	DB::instance()->update( $table, $cols, $cond, $after );
 }
 
 /**
- * Alias for htmlspecialchars().
+ * Shortcut for htmlspecialchars()
+ *
+ * Get a sanitized value for an HTML attribute value (in double quotes).
+ *
  * @param string $s
  * @return string
  */
-function esc_attr($s) {
-	return htmlspecialchars($s);
+function esc_attr( $s ) {
+	return htmlspecialchars( $s );
 }
 
 /**
- * @param string
- * @return void
+ * Shortcut for echoing htmlspecialchars()
+ *
+ * Print a sanitized value for an HTML attribute value (in double quotes).
+ *
+ * @param string $s
  */
-function _esc_attr($s) {
-	echo htmlspecialchars($s);
+function _esc_attr( $s ) {
+	echo htmlspecialchars( $s );
 }
 
-/*
- * Friendly symlinks
+/**
+ * Associate some MIME types to a category
+ *
+ * @param string $category  e.g. 'compressed'
+ * @param string $mimetypes e.g. [ 'tgz' => 'application/x-tar', 'gzip' => 'application/x-bzip', ]
  */
-function register_mimetypes($category, $mimetypes) {
+function register_mimetypes( $category, $mimetypes ) {
 	MimeTypes::instance()->registerMimetypes($category, $mimetypes);
 }
-function get_mimetypes($category = null) {
-	return MimeTypes::instance()->getMimetypes($category);
-}
+
 /**
- * @param string $role User role
- * @param string|string[] $permissions Permissions
+ * Get the MIME types of a category, or all the accepteds
+ *
+ * @param  string $category e.g. 'image'
+ * @return string
+ */
+function get_mimetypes( $category = null ) {
+	return MimeTypes::instance()->getMimetypes( $category );
+}
+
+/**
+ * Register permissions to a role
+ *
+ * @param string       $role        User role
+ * @param array|string $permissions Permissions
  */
 function register_permissions($role, $permissions) {
 	Permissions::instance()->registerPermissions($role, $permissions);
 }
+
 /**
- * @param string $role_to New role
- * @param string $role_from Existing role
+ * Give some permissions to a role, inheriting from an old one
+ *
+ * @param string       $role_to     Role to give permissions
+ * @param string       $role_from   Role from inheriting permissions
+ * @param array|string $permissions Extra permissions to be add to $role_to
  */
-function inherit_permissions($role_to, $role_from, $permissions = []) {
-	Permissions::instance()->inheritPermissions($role_to, $role_from, $permissions);
+function inherit_permissions( $role_to, $role_from, $permissions = [] ) {
+	Permissions::instance()->inheritPermissions( $role_to, $role_from, $permissions );
 }
-function register_js($uid, $url, $position = null) {
+
+/**
+ * Register a JavaScript file to be enqueued later
+ *
+ * @param string $uid      Script name e.g. 'jquery'
+ * @param string $url      Script URL e.g. '/javascript/jquery/jquery.min.js'
+ * @param string $position Choose between 'header' or 'footer'
+ */
+function register_js( $uid, $url, $position = null ) {
 	RegisterJS::instance()->register( $uid, $url, $position );
 }
+
+/**
+ * Register an inline JavaScript script and attach to a registered script
+ *
+ * @param string $uid      Dependent script name e.g. 'jquery'
+ * @param string $data     Script body e.g. '$(document).find()...'
+ * @param string $position Choose between 'after' or 'before' related to $uid execution
+ */
 function register_js_inline( $uid, $data, $position = 'after' ) {
 	RegisterJS::instance()->registerInline($uid, $data, $position);
 }
-function register_js_var( $uid, $variable, $data, $position = 'before' ) {
-	$data = json_encode( $data, DEBUG ? JSON_PRETTY_PRINT : 0 );
+
+/**
+ * Register an inline JavaScript variable and attach to a registered script
+ *
+ * @param string $uid      Dependent script name e.g. 'my-map'
+ * @param string $variable Variable declaration e.g. 'var coordinates'
+ * @param mixed  $value    Variable content (can be an array, an object, etc.)
+ * @param string $position Choose between 'after' or 'before' related to $uid execution
+ */
+function register_js_var( $uid, $variable, $value, $position = 'before' ) {
+	$data = json_encode( $value, DEBUG ? JSON_PRETTY_PRINT : 0 );
 	register_js_inline( $uid, "$variable = $data;", $position );
 }
-function enqueue_js($uid, $position = null ) {
+
+/**
+ * Mark a registered script for usage
+ *
+ * @param string $uid      Dependent script name e.g. 'my-map'
+ * @param string $position Choose between 'header' or 'footer'
+ */
+function enqueue_js( $uid, $position = null ) {
 	return RegisterJS::instance()->enqueue( $uid, $position );
 }
-function register_css($css_uid, $url) {
-	return RegisterCSS::instance()->register($css_uid, $url);
+
+/**
+ * Register a CSS stylesheet
+ *
+ * @param string $uid Stylesheet name e.g. 'materializecss'
+ * @param string $url Stylesheet URL
+ */
+function register_css( $uid, $url ) {
+	return RegisterCSS::instance()->register( $uid, $url );
 }
-function enqueue_css($css_uid) {
-	return RegisterCSS::instance()->enqueue($css_uid);
+
+/**
+ * Mark a registered stylesheet for usage
+ *
+ * @param string $uid Stylesheet name e.g. 'materializecss'
+ */
+function enqueue_css( $uid ) {
+	return RegisterCSS::instance()->enqueue( $uid );
 }
-function add_menu_entries($entries) {
-	Menu::instance()->add($entries);
+
+/**
+ * Register some menu entries
+ *
+ * @param MenuEntry[] $entries
+ */
+function add_menu_entries( $entries ) {
+	Menu::instance()->add( $entries );
 }
+
 function get_menu_entry($uid) {
 	return Menu::instance()->getMenuEntry($uid);
 }
