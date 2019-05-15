@@ -503,50 +503,106 @@ function get_children_menu_entries($uid) {
 /**
  * Register a module
  *
- * @param string $uid
+ * @param string $uid Module position
  */
 function register_module( $uid ) {
 	return RegisterModule::instance()->register($uid);
 }
 
-function inject_in_module($uid, $callback) {
+/**
+ * Inject a closure into a module
+ *
+ * @param string $uid
+ * @param closure $callback
+ */
+function inject_in_module( $uid, $callback ) {
 	return RegisterModule::instance()->injectFunction($uid, $callback);
 }
-function load_module($uid) {
+
+/**
+ * Run the actions registered in the specified module
+ *
+ * @param string $uid
+ */
+function load_module( $uid ) {
 	return RegisterModule::instance()->loadModule($uid);
 }
+
+/**
+ * Get the database table prefix
+ *
+ * @return string
+ */
 function get_table_prefix() {
 	return DB::instance()->getPrefix();
 }
-function register_option($name) {
+
+/**
+ * Register an option to be used later
+ *
+ * The options are stored in the database.
+ *
+ * @param string $name
+ */
+function register_option( $name ) {
 	return DB::instance()->registerOption($name);
 }
+
+/**
+ * Get the value of an option
+ *
+ * The options are stored in the database.
+ *
+ * @param string $name Option name
+ * @param string $default Option default value
+ * @return string Option value
+ */
 function get_option( $name, $default = '' ) {
 	return Options::instance()->get( $name, $default );
 }
+
+/**
+ * Set the value of an option
+ *
+ * The options are stored in the database.
+ *
+ * @param string  $name     Option name
+ * @param string  $value    Option value
+ * @param boolean $autoload Set to false if this option is not used on the majority of the requests
+ */
 function set_option( $name, $value, $autoload = true ) {
 	return Options::instance()->set( $name, $value, $autoload );
 }
+
+/**
+ * Remove an option
+ *
+ * The options are stored in the database.
+ *
+ * @param string $name Option name
+ */
 function remove_option( $name ) {
 	return Options::instance()->remove( $name );
 }
 
 /**
- * Get the current logged user.
+ * Get the current logged user, or just a property
  *
- * @param null|string $property Property name
- * @return mixed|Sessionuser Property, or entire Sessionuser object.
+ * @param  string $property Property name or NULL to retrieve the whole object
+ * @return object           Value of $property, or entire user (Sessionuser) object if $property is NULL
  */
 function get_user( $property = null ) {
 	$user = Session::instance()->getUser();
-	if( null === $property ) {
+	if( $property === null ) {
 		return $user;
 	}
 	return $user ? $user->get( $property ) : null;
 }
 
 /**
- * Try to login using POST 'user_uid' and user_password fields
+ * Try to login using POST 'user_uid' and 'user_password' fields
+ *
+ * Note that this will not involve sessions.
  *
  * @param  int    $status Login status code
  * @param  string $uid    User uid
@@ -556,40 +612,98 @@ function get_user( $property = null ) {
 function login(& $status = null, $uid = null, $pwd = null) {
 	return Session::instance()->login($status, $uid, $pwd);
 }
+
+/**
+ * Destroy user cookies
+ */
 function logout() {
 	return Session::instance()->destroy();
 }
-function register_language($code, $aliases = [], $encode = null, $iso = null, $human = null) {
-	return RegisterLanguage::instance()->registerLanguage($code, $aliases, $encode, $iso, $human);
+
+/**
+ * Register a language
+ *
+ * @param string $code    Language code e.g. 'en_US'
+ * @param array  $aliases Language aliases e.g. [ 'en_GB' ]
+ * @param string $iso     Language iso code e.g. 'en'
+ * @param string $human   Human language name e.g. 'English'
+ */
+function register_language( $code, $aliases = [], $encode = null, $iso = null, $human = null ) {
+	return RegisterLanguage::instance()->registerLanguage( $code, $aliases, $encode, $iso, $human );
 }
-function register_default_language($default) {
-	return RegisterLanguage::instance()->setDefaultLanguage($default);
+
+/**
+ * Register the default language
+ *
+ * @param string $lang Language code, language alias, etc. e.g. 'en'
+ */
+function register_default_language( $lang ) {
+	return RegisterLanguage::instance()->setDefaultLanguage( $code );
 }
-function find_language($lang) {
-	return RegisterLanguage::instance()->getLanguage($lang);
+
+/**
+ * Find a language
+ *
+ * @param string $lang Language code, language alias, etc. e.g. 'en'
+ */
+function find_language( $lang ) {
+	return RegisterLanguage::instance()->getLanguage( $lang );
 }
+
+/**
+ * Apply a language to the next translations
+ *
+ * @param  string $lang Language code, language alias, etc e.g. 'en'
+ * @return object       Language object
+ */
 function apply_language($lang = null) {
 	return RegisterLanguage::instance()->applyLanguage($lang);
 }
+
+/**
+ * Retrieve the latest language applied
+ *
+ * @return object
+ */
 function latest_language() {
 	return RegisterLanguage::instance()->getLatestLanguageApplied();
 }
+
+/**
+ * Get a list of all the registered languages
+ *
+ * @return array
+ */
 function all_languages() {
 	return RegisterLanguage::instance()->getAll();
 }
+
+/**
+ * Get the number of queries run
+ *
+ * @return int
+ */
 function get_num_queries() {
 	if( DB::instanced() ) {
 		return DB::instance()->queries;
 	}
 	return 0;
 }
+
+/**
+ * Check if the user is authenticated
+ *
+ * @return boolean
+ */
 function is_logged() {
 	return Session::instance()->isLogged();
 }
 
 /**
- * @param string $permission Permission uid
- * @param User|null $user Specified user
+ * Check if the user has a permission
+ *
+ * @param string $permission Permission code
+ * @param object $user       An user object, different from the current one
  * @return bool
  */
 function has_permission( $permission, $user = null ) {
@@ -597,13 +711,14 @@ function has_permission( $permission, $user = null ) {
 }
 
 /**
- * Add a directory to a base URL or a pathname.
+ * Add a directory to a base URL or a pathname
+ *
  * If the base URL it is not defined, a slash ('/') is appended to the URL.
  * The base URL could end with a slash ('/') or not.
  *
- * @param string $base Base URL with/without any slash at start
- * @param string $dir Directory without any slash
- * @return string URL / Pathname
+ * @param  string $base Base URL with/without any slash at start
+ * @param  string $dir  Directory without any slash
+ * @return string       URL / Pathname
 */
 function append_dir( $base, $dir = '/' ) {
 	$base = rtrim( $base, '/' );
@@ -612,53 +727,45 @@ function append_dir( $base, $dir = '/' ) {
 }
 
 /**
- * Normalize a site page
+ * Normalize a partial URI to a complete one, or an absolute one
  *
- * @param $page string Whatever, a full URL, a relative pathname e.g. 'page', an absolute one, etc.
- * @param $full_url boolean As default it try to avoid full URLs
+ * Few examples:
+ *   * If the URI is an anchor, keep it as-is
+ *   * If the URI starts with a protocol, keep it as-is
+ *   * If the URI starts with a slash, keep it as-is or, if $full_url, append protocol and domain
+ *   * If the URI it's a word like 'page.html', prepend ROOT or, if $full_url, append also protocol and domain
+ *
+ * @param $page     string  Whatever, a full URL, a relative pathname e.g. 'page.html', an absolute one, etc.
+ * @param $full_url boolean Set to true if you want an URI with it's protocol and domain, and not just the pathname
  */
 function site_page( $page, $full_url = false ) {
 	$first = @$page[ 0 ];
+
 	if( $first === '#' ) {
-		return $page; // '#anchor'
+		return $page; // an anchor e.g. '#contacts'
 	}
+
 	if( $first === '/' ) {
 		if( @$page[ 1 ] === '/' ) {
-			return $page; // "//example.org"
+			return $page; // URI with relative protocol e.g. '//example.org'
 		}
+
 		return append_dir( $full_url ? BASE_URL : '', $page );
 	} elseif( preg_match( '#^[a-z]+://#', $page ) === 1 ) {
-		return $page; // "ftp://example.org"
+		return $page; // URI with full protocol e.g. 'ftp://example.org'
 	}
+
+	// URI not starting with a slash e.g. 'contact.html'
 	return append_dir( $full_url ? URL : ROOT, $page );
 }
 
-function single_quotes($s) {
-	return "'$s'";
-}
-
-function double_quotes($s) {
-	return '"' . $s . '"';
-}
-
+/**
+ * Get the directory of the current request
+ *
+ * @return string
+ */
 function this_folder() {
 	return dirname( $_SERVER['PHP_SELF'] );
-}
-
-/**
- * Truncate a string if it's over a specific length.
- * You can specify the end of the string if it's truncated.
- *
- * @param string %s Input string
- * @param int $max_length Max string length
- * @param string $blabla Optional. If string length is over $max_length, $blabla it's appended after $string
- * @deprecated Use mb_strimwidth
- */
-function str_truncate($s, $max_length, $blabla = '', $encoding = null ) {
-	if( ! $encoding ) {
-		$encoding = mb_internal_encoding();
-	}
-	return mb_strimwidth($s, 0, $max_length, $blabla, $encoding);
 }
 
 /**
@@ -680,15 +787,20 @@ function multi_text($n, $text_multi, $text_one, $text_no = '') {
 }
 
 /**
- * Simple HTTP redirects.
+ * Do an HTTP redirects and die
+ *
+ * @param string $url           Absolute URL
+ * @param string $response_code HTTP response code (PHP's default it's 302)
  */
-function http_redirect($url, $http_response_code = 0) {
-	header("Location: $url", true, $http_response_code);
+function http_redirect( $url, $response_code = 0 ) {
+	header( "Location: $url", true, $response_code );
 	exit;
 }
 
 /**
  * Check if the request is under HTTPS
+ *
+ * @return boolean
  */
 function is_https() {
 	return ! empty( $_SERVER['HTTPS'] );
@@ -696,7 +808,10 @@ function is_https() {
 
 /**
  * Get the protocol of the request
- * @see use PROTOCOL
+ *
+ * Note that there is a PROTOCOL constant. Use it instead.
+ *
+ * @return string e.g. 'https://'
  */
 function URL_protocol() {
 	return is_https() ? 'https://' : 'http://';
@@ -705,7 +820,9 @@ function URL_protocol() {
 /**
  * Get the domain of the request
  *
- * @see DOMAIN
+ * Note that there is a DOMAIN constant. Use it instead.
+ *
+ * @return string e.g. 'example.com'
  */
 function URL_domain() {
 	return isset( $_SERVER[ 'SERVER_NAME' ] )
@@ -716,8 +833,9 @@ function URL_domain() {
 /**
  * Get the explicit port of the request
  *
- * @see PORT
- * @return string
+ * Note that there is a PORT constant. Use it instead.
+ *
+ * @return string e.g. ':443'
  */
 function URL_port() {
 	if( isset( $_SERVER[ 'SERVER_PORT' ] ) ) {
@@ -729,6 +847,15 @@ function URL_port() {
 	return '';
 }
 
+/**
+ * Get the directory root of the request
+ *
+ * Note that there is the ROOT constant. Use it instead.
+ *
+ * Note that it never ends with a slash.
+ *
+ * @return string e.g. '/installation' or just ''
+ */
 function URL_root() {
 	$root = this_folder();
 	if( $root === '/' ) {
@@ -738,34 +865,54 @@ function URL_root() {
 }
 
 /**
- * Get a secured version of a string
+ * Get a search-engine friendly version of any string
+ *
+ * @param  string  $s          Input string
+ * @param  int     $max_length Maximum string length
+ * @param  string  $glue       Word separator
+ * @param  boolean $truncated  Flag to know if the string was truncated
+ * @return string
  */
-function generate_slug($s, $max_length = -1, $glue = '-', & $truncated = false) {
-	return OutputUtilities::slug($s, $max_length, $glue, $truncated);
+function generate_slug( $s, $max_length = -1, $glue = '-', & $truncated = false ) {
+	return OutputUtilities::slug( $s, $max_length, $glue, $truncated );
 }
 
+/**
+ * Build an HTTP GET URL from an associative array of arguments
+ *
+ * Note that NULL arguments will be automatically stripped out.
+ *
+ * @param  string $url  Input URL e.g. 'https://example.com/page.html'
+ * @param  array  $data Associative array of parameters e.g. [ 'p' => '1' ]
+ * @return string URL with GET data e.g. 'https://example.com/page.html?p=1'
+ */
 function http_build_get_query( $url, $data ) {
 	$data = http_build_query( $data );
 	return $data ? "$url?$data" : $url;
 }
 
 /**
- * HTTP 503 headers
+ * HTTP 503 header
+ *
+ * Spawn a 503 HTTP status code
  */
 function http_503() {
 	OutputUtilities::header503();
 }
 
 /**
- * It scares the user with an error message (and dies).
+ * Scare the user with an error message and die
+ *
+ * @param string $msg
  */
 function error_die( $msg ) {
 	OutputUtilities::WSOD( $msg );
 }
 
 /**
- * It logs an error message and eventually prints it when DEBUG
+ * Log an error message and eventually print it when DEBUG
  *
+ * @param string $msg
  * @return void
  */
 function error( $msg ) {
@@ -773,10 +920,13 @@ function error( $msg ) {
 }
 
 /**
- * Translates a string
+ * Translate a string
  *
- * @param string $msgid String to be translated
- * @return string Translated string (or original)
+ * You should understand the amazing GNU Gettext workflow.
+ *
+ * @param  string $msgid  String to be translated
+ * @param  string $domain Translation domain
+ * @return string         Translated string (or original one)
  */
 function __( $msgid, $domain = '' ) {
 	// is native GNU GETTEXT implementation?
@@ -796,12 +946,21 @@ function __( $msgid, $domain = '' ) {
 
 /**
  * Shortcut for echoing a translated string
+ *
+ * @param  string $msgid  String to be translated
+ * @param  string $domain Translation domain
+ * @return string         Translated string (or original one)
  */
-function _e( $s, $domain = '' ) {
-	echo __( $s, $domain );
+function _e( $msgid, $domain = '' ) {
+	echo __( $msgid, $domain );
 }
 
-function http_json_header($charset = null) {
+/**
+ * Declare a JSON document
+ *
+ * @param string $charset Document charset, if different from the default one
+ */
+function http_json_header( $charset = null ) {
 	if( !$charset ) {
 		$charset = CHARSET;
 	}
@@ -809,7 +968,7 @@ function http_json_header($charset = null) {
 }
 
 /**
- * Unset the empty values in an array or an object as well recursively
+ * Unset the empty values in an array or in an object recursively
  *
  * @param $data mixed
  * @return array
@@ -837,9 +996,9 @@ function array_unset_empty( $data ) {
 }
 
 /**
- * Send a JSON (stripping out unuseful values) and quit
+ * Send a JSON (stripping out unuseful values) and die
  *
- * Falsy elements are not returned
+ * For performance related to data transfer, falsy elements are stripped out.
  *
  * @param $data mixed
  */
@@ -850,11 +1009,15 @@ function json( $data, $flags = 0 ) {
 }
 
 /**
- * Send a JSON error and quit
+ * Send a JSON error and die
  *
- * @param $http_code int HTTP response code
- * @param $code string Error code
- * @param $msg string Error human message
+ * Note that in the real world it does not exist a JSON error,
+ * this method is just a way to standardize it a bit.
+ *
+ * @param int    $http_code HTTP response status code e.g. '403'
+ * @param string $code      Human error code e.g. 'unauthorized'
+ * @param string $msg       Human error message e.g. 'You are not authorized to....'
+ * @param int    $flags     Flags passed to json_encode()
  */
 function json_error( $http_code, $code, $msg = null, $flags = 0 ) {
 	http_response_code( $http_code );
@@ -865,27 +1028,34 @@ function json_error( $http_code, $code, $msg = null, $flags = 0 ) {
 }
 
 /**
- * Get the MIME type of a file.
+ * Get the MIME type of a file
+ *
+ * @param string $filepath Filesystem file path
  * @see MimeTypes::fileMimetype()
  */
-function get_mimetype($filepath, $pure = false) {
+function get_mimetype( $filepath, $pure = false ) {
 	return MimeTypes::fileMimetype( $filepath, $pure = false );
 }
 
 /**
- * Know if a file belongs to a certain category
+ * Check if a file belongs to a certain category
+ *
+ * @param string $filepath Filesystem file path
+ * @param string $category File category e.g. 'image'
  * @see MimeTypes::isMimetypeInCategory()
  */
-function is_file_in_category($filepath, $category) {
-	$mime = get_mimetype($filepath);
-	return MimeTypes::instance()->isMimetypeInCategory($mime , $category);
+function is_file_in_category( $filepath, $category ) {
+	$mime = get_mimetype( $filepath );
+	return MimeTypes::instance()->isMimetypeInCategory( $mime , $category );
 }
 
 /**
- * Get the file extension
+ * Get a file extension
+ *
+ * @param string $filename Filesystem file path
  */
-function get_file_extension_from_expectations($filename, $category) {
-	return MimeTypes::instance()->getFileExtensionFromExpectations($filename, $category);
+function get_file_extension_from_expectations( $filename, $category ) {
+	return MimeTypes::instance()->getFileExtensionFromExpectations( $filename, $category );
 }
 
 /**
@@ -979,9 +1149,10 @@ function luser_input( $s, $max ) {
 }
 
 /**
- * Used to know much is the page load
+ * Get the number of milliseconds of this request age
  *
- * @return mixed Execution time
+ * @param int $precision number of decimal digits to round to
+ * @return Execution time
  */
 function get_page_load( $decimals = 6 ) {
 	return round( microtime( true ) - $_SERVER[ 'REQUEST_TIME_FLOAT' ], $decimals );
@@ -996,6 +1167,34 @@ define('STAR', '*');
  *
  * @TODO remove the shit below this line
  */
+
+/**
+ * Truncate a string if it's over a specific length
+ *
+ * You can specify the end of the string if it's truncated.
+ *
+ * @param string $s          Input string
+ * @param int    $max_length Max string length
+ * @param string $blabla     Optional. If $s length is over $max_length, $blabla it's appended after $s
+ * @deprecated Use mb_strimwidth
+ */
+function str_truncate($s, $max_length, $blabla = '', $encoding = null ) {
+	error( "deprecated str_truncate() use mb_strimwidth() instead" );
+	if( ! $encoding ) {
+		$encoding = mb_internal_encoding();
+	}
+	return mb_strimwidth($s, 0, $max_length, $blabla, $encoding);
+}
+
+function single_quotes( $s ) {
+	error( "deprecated single_quotes()" );
+	return "'$s'";
+}
+
+function double_quotes($s) {
+	error( "deprecated double_quotes()" );
+	return '"' . $s . '"';
+}
 
 define('T', 'T');
 
