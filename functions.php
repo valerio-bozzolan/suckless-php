@@ -308,7 +308,8 @@ function T( $table, $as = false ) {
  *
  * @param string  $table  Table name
  * @param DBCol[] $cols   Array of DBCol objects (with column, value and type)
- * @param array   $args   Extra arguments for the query
+ * @param array   $args   Associative arguments for the query
+ *                          * 'replace-into' boolean Run a REPLACE INTO instead of just an INSERT INTO
  */
 function insert_row( $table, $cols, $args = [] ) {
 	return DB::instance()->insertRow( $table, $cols, $args );
