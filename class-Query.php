@@ -397,7 +397,7 @@ class Query {
 	}
 
 	/**
-	 * Build an SQL DELETE query
+	 * Run an SQL DELETE query
 	 *
 	 * @see https://dev.mysql.com/doc/refman/8.0/en/delete.html
 	 */
@@ -427,6 +427,20 @@ class Query {
 		$query = "UPDATE {$this->getFrom()} SET $sets_comma WHERE {$this->conditions}";
 		$query .= $this->getLimitClause();
 		return $this->runDangerousQuery( $query );
+	}
+
+	/**
+	 * Run an INSERT query
+	 *
+	 * @param array $data Array of DBCol sanitized data
+	 * @param array $args Associative array of arguments
+	 *                      'replace-into' boolean Run this query as a REPLACE INTO
+	 */
+	public function insertRow( $data, $args = [] ) {
+		if( empty( $this->tables[0] ) ) {
+			error_die( "cannot insert without a table" );
+		}
+		return $this->db->insertRow( $this->tables[0], $data, $args );
 	}
 
 	/**
