@@ -211,6 +211,21 @@ class Query {
 	}
 
 	/**
+	 * Get the LIMIT SQL clause (if any)
+	 *
+	 * @return string
+	 */
+	public function getLimitClause() {
+		if( $this->rowCount !== null ) {
+			$query = ' LIMIT ';
+			if( $this->offset ) {
+				$query .= "{$this->offset}, ";
+			}
+			return $sql . $this->rowCount;
+		}
+	}
+
+	/**
 	 * Handy shortcut for `something IN (values)` condition.
 	 *
 	 * @param string $heystack Field.
@@ -280,6 +295,11 @@ class Query {
 		return $tables;
 	}
 
+	/**
+	 * Get the SELECT clause
+	 *
+	 * @return string
+	 */
 	public function getSelect() {
 		if( $this->selectFields ) {
 			return implode( ', ', $this->selectFields );
@@ -287,6 +307,11 @@ class Query {
 		return '*';
 	}
 
+	/**
+	 * Get the WHERE clause
+	 *
+	 * @return string
+	 */
 	public function getWhere() {
 		return $this->conditions;
 	}
@@ -301,10 +326,10 @@ class Query {
 	}
 
 	/**
-	 * Order by
+	 * Order by a field
 	 *
-	 * @param $order_by string Field to sort
-	 * @param $how string DESC|ASC, failing to ASC
+	 * @param string $order_by Field to sort
+	 * @param string $how      Choose 'DESC' or 'ASC', failing to ASC
 	 * @return self
 	 */
 	public function orderBy( $order_by, $how = null ) {
@@ -351,17 +376,41 @@ class Query {
 		if( $this->orders ) {
 			$sql .= " ORDER BY {$this->orders}";
 		}
-		if( null !== $this->rowCount ) {
-			$sql .= ' LIMIT ';
-			if( $this->offset ) {
-				$sql .= "{$this->offset}, ";
-			}
-			$sql .= $this->rowCount;
-		}
+		$sql .= $this->getLimitClause();
 		if( isset( $this->forUpdate ) ) {
 			$sql .= " FOR UPDATE";
 		}
 		return $sql;
+	}
+
+	/**
+	 * Get a DELETE query
+	 *
+	 * @return string SQL DELETE query
+	 */
+	public function getDeleteQuery() {
+		$sql = "DELETE FROM {$this->getFrom()}";
+		if( $this->conditions ) {
+			$sql .= " WHERE {$this->getWhere()}";
+		}
+		$sql .= $this->getLimitClause();
+		return $sql;
+	}
+
+	/**
+	 * Build an SQL DELETE query
+	 *
+	 * @see https://dev.mysql.com/doc/refman/8.0/en/delete.html
+	 */
+	public function delete() {
+		$query = $this->getDeleteQuery();
+		if( !$this->isSimpleFrom() ) {
+			if( DEBUG_QUERIES ) {
+				error( $query );
+			}
+			error_die( "for security reasons you cannot build a DELETE query involving multiple tables" );
+		}
+		return $this->db->query( $query );
 	}
 
 	/**
@@ -440,6 +489,7 @@ class Query {
 
 	/**
 	 * Get the specified column from the first result set.
+	 *
 	 * @param string $column_name
 	 * @see DB#getValue()
 	 * @return mixed
@@ -448,8 +498,15 @@ class Query {
 		return $this->db->getValue( $this->getQuery(), $column_name );
 	}
 
+	/**
+	 * Append a value or some values into an array
+	 *
+	 * @param  array|string $values An array of values or just a value
+	 * @param  array        $array  Array that will be modified
+	 * @return self
+	 */
 	private function appendInArray( $values, & $array ) {
-		// Retrocompatibility patch
+		// retro-compatibility feature
 		if( isset( $values[ 0 ] ) && is_array( $values[ 0 ] ) ) {
 			$values = $values[ 0 ];
 		}
@@ -470,5 +527,14 @@ class Query {
 	public static function filterDirection( $dir ) {
 		$dir = strtoupper( $dir );
 		return $dir === 'DESC' ? 'DESC' : 'ASC';
+	}
+
+	/**
+	 * Check if this query is involving just a single table
+	 *
+	 * @return bool
+	 */
+	private function isSimpleFrom() {
+		return count( $this->from ) + count( $this->tables ) === 1;
 	}
 }
