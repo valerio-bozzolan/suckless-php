@@ -65,7 +65,7 @@ function print_menu( $uid = null, $level = 0, $args = [] ) {
  */
 function print_menu_link($uid, $text = null, $classes = null, $intag = null) {
 
-	if( ! $menu  = get_menu_entry($uid) ) {
+	if( ! $menu  = menu_entry($uid) ) {
 		return null;
 	}
 
