@@ -639,7 +639,7 @@ function register_language( $code, $aliases = [], $encode = null, $iso = null, $
  * @param string $lang Language code, language alias, etc. e.g. 'en'
  */
 function register_default_language( $lang ) {
-	return RegisterLanguage::instance()->setDefaultLanguage( $code );
+	return RegisterLanguage::instance()->setDefaultLanguage( $lang );
 }
 
 /**
@@ -657,8 +657,8 @@ function find_language( $lang ) {
  * @param  string $lang Language code, language alias, etc e.g. 'en'
  * @return object       Language object
  */
-function apply_language($lang = null) {
-	return RegisterLanguage::instance()->applyLanguage($lang);
+function apply_language( $lang = null ) {
+	return RegisterLanguage::instance()->applyLanguage( $lang );
 }
 
 /**
@@ -778,13 +778,11 @@ function this_folder() {
  * @param string $text_one Text displayed if n == 1
  * @param string $text_no Text displayed if n < 1
  */
-function multi_text($n, $text_multi, $text_one, $text_no = '') {
-	if($n > 1) {
-		return str_replace('%', $n, $text_multi);
-	} elseif($n == 1) {
-		return $text_one;
+function multi_text( $n, $text_multi, $text_one, $text_no = '' ) {
+	if( $n > 1 ) {
+		return str_replace( '%', $n, $text_multi );
 	}
-	return $text_no;
+	return $n == 1 ? $text_one : $text_no;
 }
 
 /**
@@ -1202,12 +1200,12 @@ define('T', 'T');
 define('JOIN', 'JOIN');
 
 // Stupid shurtcut for string context
-$GLOBALS[T] = function($t, $as = false) {
+$GLOBALS[T] = function( $t, $as = false ) {
 	return T($t, $as = false);
 };
 
 // Stupid shortcut for string context for listing tables
-$GLOBALS[JOIN] = function($t) {
+$GLOBALS[JOIN] = function( $t ) {
 	return DB::instance()->getTables( func_get_args() );
 };
 
