@@ -1211,6 +1211,6 @@ $GLOBALS[JOIN] = function($t) {
 };
 
 function get_menu_entry( $uid ) {
-	error( "deprecated get_menu_entry()" );
+	error( "deprecated get_menu_entry() use menu_entry() instead" );
 	return menu_entry( $uid );
 }
