@@ -308,7 +308,7 @@ class Query {
 	}
 
 	/**
-	 * Get the WHERE clause
+	 * Get the WHERE clause body
 	 *
 	 * @return string
 	 */
@@ -344,7 +344,7 @@ class Query {
 	}
 
 	/**
-	 * Mark this SELECT query as needed for an UPDATE
+	 * Mark a SELECT query as needed for an UPDATE
 	 *
 	 * «If you use FOR UPDATE with a storage engine that uses page or row locks,
 	 *  rows examined by the query are write-locked until the end of the current transaction.»
@@ -365,7 +365,7 @@ class Query {
 	public function getQuery() {
 		$sql = "SELECT {$this->getSelect()} FROM {$this->getFrom()}";
 		if( $this->conditions ) {
-			$sql .= " WHERE {$this->getWhere()}";
+			$sql .= " WHERE {$this->conditions}";
 		}
 		if( $this->groups ) {
 			$sql .= " GROUP BY {$this->getGroupBy()}";
@@ -386,13 +386,12 @@ class Query {
 	/**
 	 * Get a DELETE query
 	 *
+	 * Note that you MUST specify a condition.
+	 *
 	 * @return string SQL DELETE query
 	 */
 	public function getDeleteQuery() {
-		$sql = "DELETE FROM {$this->getFrom()}";
-		if( $this->conditions ) {
-			$sql .= " WHERE {$this->getWhere()}";
-		}
+		$sql  = "DELETE FROM {$this->getFrom()} WHERE {$this->conditions}";
 		$sql .= $this->getLimitClause();
 		return $sql;
 	}
@@ -403,18 +402,35 @@ class Query {
 	 * @see https://dev.mysql.com/doc/refman/8.0/en/delete.html
 	 */
 	public function delete() {
-		$query = $this->getDeleteQuery();
-		if( !$this->isSimpleFrom() ) {
-			if( DEBUG_QUERIES ) {
-				error( $query );
-			}
-			error_die( "for security reasons you cannot build a DELETE query involving multiple tables" );
-		}
-		return $this->db->query( $query );
+		return $this->runDangerousQuery( $this->getDeleteQuery() );
 	}
 
 	/**
-	 * Set the default class to incapsulate the result set.
+	 * Build and run an SQL UPDATE query
+	 *
+	 * Note that you MUST specify a condition.
+	 *
+	 * @param array $columns
+	 * @return array
+	 */
+	public function update( $columns ) {
+		force_array( $columns );
+
+		$sets = [];
+		foreach( $columns as $column ) {
+			$name  = $column->column;
+			$value = $this->db->forceType( $column->value, $column->forceType );
+			$sets[] = "`$name` = $value";
+		}
+
+		$sets_comma = implode( ', ', $sets );
+		$query = "UPDATE {$this->getFrom()} SET $sets_comma WHERE {$this->conditions}";
+		$query .= $this->getLimitClause();
+		return $this->runDangerousQuery( $query );
+	}
+
+	/**
+	 * Set the default class to incapsulate the result set
 	 *
 	 * @param string $class_name Class name
 	 * @return self
@@ -536,5 +552,25 @@ class Query {
 	 */
 	private function isSimpleFrom() {
 		return count( $this->from ) + count( $this->tables ) === 1;
+	}
+
+	/**
+	 * Run a query that MUST involve just a single table and have a condition
+	 *
+	 * @param string $query SQL query
+	 * @param string $kind  Kind of query (just for the debug message)
+	 */
+	private function runDangerousQuery( $query ) {
+		if( !$this->conditions || !$this->isSimpleFrom() ) {
+			if( DEBUG_QUERIES ) {
+				error( $query );
+			}
+			if( !$this->conditions ) {
+				error_die( "for security reasons you cannot build this kind of query without a condition" );
+			} else {
+				error_die( "for security reasons you cannot build this kind of query involving multiple tables" );
+			}
+		}
+		return $this->db->query( $query );
 	}
 }

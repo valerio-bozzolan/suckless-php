@@ -391,7 +391,7 @@ class DB {
 	 * @see http://news.php.net/php.bugs/195815
 	 * @return string Forced string
 	 */
-	private function forceType( $s, $type ) {
+	public function forceType( $s, $type ) {
 
 		if( $type === 'd' )
 			return (int) $s; // Integer
