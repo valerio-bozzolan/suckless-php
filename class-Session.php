@@ -8,11 +8,11 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 // 60s * 60m * 24h * 7d
 define_default( 'SESSION_DURATION',  604800 );
@@ -22,6 +22,8 @@ define_default( 'SESSIONUSER_CLASS', 'Sessionuser' );
 
 /**
  * Session handler
+ *
+ * Note that actually we do NOT need server sessions <3
  */
 class Session {
 
