@@ -14,12 +14,23 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * Check if the user do not want to be tracked
+ *
+ * See the HTTP 'DNT' header.
+ *
+ * @return boolean
+ */
+function do_not_track() {
+	return isset( $_SERVER['HTTP_DNT'] ) && $_SERVER['HTTP_DNT'] === '1';
+}
+
+
 /*
  * Configuration helpers
  *
  * Shortcuts useful when you declare a configuration file.
  */
-
 
 /**
  * Define a constant if it does not exist
@@ -834,6 +845,8 @@ function URL_domain() {
  *
  * Note that there is a PORT constant. Use it instead.
  *
+ * The function may return void.
+ *
  * @return string e.g. ':443'
  */
 function URL_port() {
@@ -843,7 +856,6 @@ function URL_port() {
 			return ":$p";
 		}
 	}
-	return '';
 }
 
 /**
@@ -857,10 +869,7 @@ function URL_port() {
  */
 function URL_root() {
 	$root = this_folder();
-	if( $root === '/' ) {
-		return '';
-	}
-	return $root;
+	return $root === '/' ?  '' : $root;
 }
 
 /**
@@ -1103,7 +1112,7 @@ function is_document( $path ) {
  * @return boolean
  */
 function is_closure( $t ) {
-	return is_object( $t ) && ($t instanceof Closure);
+	return is_object( $t ) && $t instanceof Closure;
 }
 
 /**
