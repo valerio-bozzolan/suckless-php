@@ -195,6 +195,7 @@ class Session {
 		}
 
 		if( $_COOKIE['token'] !== $user->generateSessionuserCookieToken() ) {
+			$this->destroy();
 			return self::failed( $userClass::sanitizeUID( $_COOKIE['user_uid'] ), 'cookies' );
 		}
 
