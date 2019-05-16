@@ -316,10 +316,21 @@ class Query {
 		return $this->conditions;
 	}
 
+	/**
+	 * Get the GROUP BY clause body
+	 *
+	 * @return string
+	 */
 	public function getGroupBy() {
 		return implode(', ', $this->groups);
 	}
 
+	/**
+	 * Set the HAVING clause
+	 *
+	 * @param string $having
+	 * @return self
+	 */
 	public function having( $having ) {
 		$this->having = $having;
 		return $this;
@@ -466,6 +477,8 @@ class Query {
 	}
 
 	/**
+	 * Run the SELECT query
+	 *
 	 * @see DB#query()
 	 */
 	public function query() {

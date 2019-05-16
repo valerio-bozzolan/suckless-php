@@ -345,6 +345,11 @@ class DB {
 		return $this->mysqli->real_escape_string( $s );
 	}
 
+	/**
+	 * Get the table prefix
+	 *
+	 * @return string
+	 */
 	public function getPrefix() {
 		return $this->prefix;
 	}
