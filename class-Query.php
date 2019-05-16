@@ -32,20 +32,28 @@ class Query {
 	private $rowCount;
 	private $orders;
 
-	public function __construct( $db = null ) {
-		$this->db = $db ? $db : DB::instance(); // Dipendency injection
+	/**
+	 * Constructor
+	 *
+	 * @param object $db         Database object (class DB)
+	 * @param string $class_name Class to encapsulate the database result
+	 */
+	public function __construct( $db = null, $class_name = null ) {
+		$this->db = $db ? $db : DB::instance(); // Dependency injection
+		if( $class_name ) {
+			$t->defaultClass( $class_name );
+		}
 	}
 
 	/**
-	 * Construct shortcut.
+	 * Constructor shortcut from class name
 	 *
 	 * @param string $class_name Class to encapsulate the database result
+	 * @param object $db         Database object (class DB)
 	 * @return self
 	 */
-	public static function factory( $class_name = null ) {
-		$t = new self();
-		$class_name and $t->defaultClass( $class_name );
-		return $t;
+	public static function factory( $class_name = null, $db = null ) {
+		return new self( $db, $class_name );
 	}
 
 	/**
