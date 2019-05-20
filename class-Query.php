@@ -41,7 +41,7 @@ class Query {
 	public function __construct( $db = null, $class_name = null ) {
 		$this->db = $db ? $db : DB::instance(); // Dependency injection
 		if( $class_name ) {
-			$t->defaultClass( $class_name );
+			$this->defaultClass( $class_name );
 		}
 	}
 
