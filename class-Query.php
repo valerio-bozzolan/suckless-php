@@ -407,12 +407,15 @@ class Query {
 	 *
 	 * Note that you MUST specify a condition.
 	 *
+	 * Note that the SQL DELETE query has a strange syntax for
+	 * table aliases. See https://stackoverflow.com/a/11005244
+	 *
 	 * @return string SQL DELETE query
 	 */
 	public function getDeleteQuery() {
-		$sql  = "DELETE FROM {$this->getFrom()} WHERE {$this->conditions}";
-		$sql .= $this->getLimitClause();
-		return $sql;
+		$table = reset( $this->tables ); // just the only one
+		$table_full = $this->db->getTable( $table, true );
+		return "DELETE `$table` FROM $table_full WHERE {$this->conditions} {$this->getLimitClause()}";
 	}
 
 	/**
