@@ -358,18 +358,20 @@ class DB {
 	 * Get table name with it's prefix (if any)
 	 *
 	 * @param string $name Table name
-	 * @param boolean $as True if you want to create an alias without the table alias
-	 * @return string Table $name with the prefix
+	 * @param mixed  $as   True to create an alias without the table prefix, or your alias
+	 * @return string Table eventually with the alias
 	 */
-	public function getTable( $name, $as = false ) {
-		if( $this->prefix === '' ) {
-			$as = false;
-		}
-		$s = "`{$this->prefix}$name`";
+	public function getTable( $name, $as = null ) {
+		$table = "`{$this->prefix}$name`";
 		if( $as ) {
-			$s .= " AS `$name`";
+			if( $as === true ) {
+				$as = $name;
+			}
+			if( $as !== $name || $this->prefix !== '' ) {
+				$table .= " AS `$as`";
+			}
 		}
-		return $s;
+		return $table;
 	}
 
 	/**
