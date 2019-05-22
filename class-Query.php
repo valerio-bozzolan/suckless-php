@@ -155,12 +155,13 @@ class Query {
 	/**
 	 * Append a custom join from the latest selected table
 	 *
-	 * @param $type string join type e.g. LEFT, RIGHT, LEFT OUTHER, INNER etc., and empty string means implicit JOIN in WHERE
-	 * @param $table string table name
-	 * @param $a string column name
-	 * @param $b string column name
+	 * @param $type  string Join type e.g. LEFT, RIGHT, etc., and empty string means implicit JOIN in WHERE
+	 * @param $table string Table name
+	 * @param $a     string First column name for the ON clause
+	 * @param $b     string First column name for the ON clause
+	 * @param $alias mixed  Table alias. As default is true, and the table prefix is removed.
 	 */
-	public function joinOn( $type, $table, $a, $b ) {
+	public function joinOn( $type, $table, $a, $b, $alias = true ) {
 		if( $type === '' ) {
 			$this->from( $table )->equals( $a, $b );
 		} else {
@@ -172,7 +173,7 @@ class Query {
 			} else {
 				throw new InvalidArgumentException( 'not enough tables' );
 			}
-			$table = $this->db->getTable( $table, true );
+			$table = $this->db->getTable( $table, $alias );
 			$this->from[] = sprintf(
 				'%s %s JOIN %s ON (%s = %s)',
 				$latest_table,
