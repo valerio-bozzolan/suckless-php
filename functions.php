@@ -88,6 +88,17 @@ function _disabled( $helper = PHP_INT_MAX, $current = PHP_INT_MAX, $force = fals
 }
 
 /**
+ * Print a ' required="required"' HTML attribute under some circumstances
+ *
+ * @param mixed $helper  If this is the only arg, prints
+ * @param mixed $current If this matches $helper, print
+ * @param bool  $force   If this is true, print
+ */
+function _required( $helper = PHP_INT_MAX, $current = PHP_INT_MAX, $force = false ) {
+	echo html_attribute_when_matching( 'disabled', 'disabled', $helper, $current, $force );
+}
+
+/**
  * Return a ' selected="selected"' HTML attribute under some circumstances
  *
  * @param mixed $helper  If this is the only arg, return
