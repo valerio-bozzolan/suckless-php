@@ -95,7 +95,7 @@ function _disabled( $helper = PHP_INT_MAX, $current = PHP_INT_MAX, $force = fals
  * @param bool  $force   If this is true, print
  */
 function _required( $helper = PHP_INT_MAX, $current = PHP_INT_MAX, $force = false ) {
-	echo html_attribute_when_matching( 'disabled', 'disabled', $helper, $current, $force );
+	echo html_attribute_when_matching( 'required', 'required', $helper, $current, $force );
 }
 
 /**
