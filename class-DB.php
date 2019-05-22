@@ -219,7 +219,7 @@ class DB {
 
 		$what = $args[ 'replace-into' ] ? 'REPLACE' : 'INSERT';
 
-		$table = $this->getTable( $table );
+		$table = $this->getTable( $table, false );
 
 		$columns_comma = implode( ', ', $columns );
 		$values_comma  = implode( ', ', $values  );
@@ -295,7 +295,7 @@ class DB {
 
 		$action = $args['replace-into'] ? 'REPLACE' : 'INSERT';
 
-		$table = $this->getTable( $table );
+		$table = $this->getTable( $table, false );
 
 		return $this->query( "$action INTO $table ($columns_comma) VALUES $value_groups_comma" );
 	}
@@ -313,7 +313,7 @@ class DB {
 		// backward compatibility
 		force_array( $columns );
 
-		$table = $this->getTable( $table );
+		$table = $this->getTable( $table, false );
 
 		$sets = [];
 		foreach( $columns as $column ) {
@@ -361,7 +361,7 @@ class DB {
 	 * @param mixed  $as   True to create an alias without the table prefix, or specify your alias
 	 * @return string Table eventually with the alias
 	 */
-	public function getTable( $name, $as = false ) {
+	public function getTable( $name, $as = true ) {
 		$table = "`{$this->prefix}$name`";
 		if( $as ) {
 			if( $as === true ) {
