@@ -26,7 +26,7 @@ class Options {
 	private $cache = [];
 
 	/**
-	 * List of formally registered options.
+	 * List of formally registered options
 	 * @var array
 	*/
 	private $opts = [];
@@ -73,7 +73,7 @@ class Options {
 	 * @return bool Successfully or not
 	 */
 	public function register( $name ) {
-		if( in_array( $name, $this->opts, true) ) {
+		if( in_array( $name, $this->opts, true ) ) {
 			return error( "error registering the option $name because it is already registered" );
 		}
 		$this->opts[] = $name;
@@ -81,9 +81,9 @@ class Options {
 	}
 
 	/**
-	 *	Get all formally registered options
+	 * Get all formally registered options
 	 *
-	 *	@return array
+	 * @return array
 	 */
 	public function getRegistereds() {
 		return $this->opts;
@@ -101,12 +101,12 @@ class Options {
 		if( array_key_exists( $name, $this->cache ) ) {
 			$value = $this->cache[ $name ];
 		} else {
+			$this->override( $name, $value );
+
 			$value = Query::factory()
 				->from( 'option' )
 				->whereStr( 'option_name', $name )
 				->queryValue( 'option_value' );
-
-			$this->override( $name, $value );
 		}
 		return empty( $value ) ? $default : $value;
 	}
@@ -124,14 +124,13 @@ class Options {
 	/**
 	 * Set the value of an option into the database (updating or inserting) and cache
 	 *
-	 * @param string $name Option name
-	 * @param string $value Option value
-	 * @param true $autoload If the option it's automatically requested on every page-request
+	 * @param string  $name     Option name
+	 * @param string  $value    Option value
+	 * @param boolean $autoload If the option it's automatically requested on every page-request
 	 */
 	public function set( $name, $value, $autoload = true ) {
 		$this->override( $name, $value );
 
-		$autoload = $autoload ? 1 : 0;
 		insert_row( 'option', [
 			new DBCol( 'option_name',     $name,     's' ),
 			new DBCol( 'option_value',    $value,    's' ),
@@ -145,12 +144,12 @@ class Options {
 	 * @param string $name Option name
 	 */
 	public function remove( $name ) {
-		query( sprintf(
-			"DELETE FROM %s WHERE option_name LIKE '%s' LIMIT 1",
-			T( 'option' ),
-			esc_sql( $name )
-		) );
 		$this->override( $name, null );
+
+		Query::factory()
+			->from( 'option' )
+			->whereStr( 'option_name', $name )
+			->delete();
 	}
 
 }
