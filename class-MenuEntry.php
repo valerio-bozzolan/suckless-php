@@ -70,10 +70,10 @@ class MenuEntry {
 	 * @param string $url        Page URL e.g. 'home.html'
 	 * @param string $name       Page name
 	 * @param string $parent_uid Parent menu user identifier
-	 * @param string $permission Permission required to see this page
+	 * @param string $permission Permission required to see this page (true: always, false: never, string: check the permission name)
 	 * @param string $extram     Extra metadata
 	 */
-	function __construct( $uid, $url = null, $name = null, $parent_uid = null, $permission = null, $extra = null ) {
+	function __construct( $uid, $url = null, $name = null, $parent_uid = null, $permission = true, $extra = null ) {
 		$this->uid        = $uid;
 		$this->url        = $url;
 		$this->name       = $name;
@@ -107,7 +107,10 @@ class MenuEntry {
 	 * @return boolean
 	 */
 	public function isVisible() {
-		return $this->permission ? has_permission( $this->permission ) : true;
+		if( is_string( $this->permission ) ) {
+			return has_permission( $this->permission );
+		}
+		return $this->permission;
 	}
 
 	/**
