@@ -1,5 +1,5 @@
 <?php
-# Copyright (C) 2015, 2018 Valerio Bozzolan
+# Copyright (C) 2015, 2018, 2019 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,57 +15,111 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Create a menu entry and define it's parent.
+ * Define a menu entry
+ *
+ * Some menu entries define a menu tree and can be displayed later.
  */
 class MenuEntry {
+
 	/**
-	 * Menu unique identifier.
-	 * @type string
+	 * Menu user identifier
+	 *
+	 * e.g. 'home'
+	 *
+	 * @var string
 	 */
 	public $uid;
 
 	/**
-	 * Identifier of the parent menu.
-	 * @type array|string|null
+	 * Identifier of the parent menu
+	 *
+	 * @var array|string|null
 	 */
 	public $parentUid;
 
 	/**
-	 * Do whatever you want with this.
+	 * URI of the menu
+	 *
+	 * @var string
 	 */
 	public $url;
+
+	/**
+	 * Menu title
+	 *
+	 * @var string
+	 */
 	public $name;
+
+	/**
+	 * Permission to show this menu
+	 *
+	 * @var string
+	 */
+	public $permission;
+
+	/**
+	 * Extra metadata
+	 */
 	public $extra;
 
 	/**
-	 * Create a menu entry.
+	 * Constructor
+	 *
+	 * @param string $uid        Menu user identifier e.g. 'home'
+	 * @param string $url        Page URL e.g. 'home.html'
+	 * @param string $name       Page name
+	 * @param string $parent_uid Parent menu user identifier
+	 * @param string $permission Permission required to see this page
+	 * @param string $extram     Extra metadata
 	 */
-	function __construct($uid, $url = null, $name = null, $parentUid = null, $extra = null) {
-		$this->uid       = $uid;
-		$this->url       = $url;
-		$this->name      = $name;
-		$this->parentUid = $parentUid;
-		$this->extra     = $extra;
+	function __construct( $uid, $url = null, $name = null, $parent_uid = null, $permission = null, $extra = null ) {
+		$this->uid        = $uid;
+		$this->url        = $url;
+		$this->name       = $name;
+		$this->parentUid  = $parent_uid;
+
+		// backward compatibility
+		if( is_array( $permission ) ) {
+			error( "deprecated use of MenuEntry: now the #5 argument is \$permission and not $extra" );
+			$extra = $permission;
+			$permission = null;
+		}
+
+		$this->permission = $permission;
+		$this->extra = $extra;
 	}
 
 	/**
-	 * Call site_page() on the URL.
+	 * Call site_page() on the URL
 	 *
 	 * @param $full_url boolean
-	 * @see site_page()
 	 * @return string
+	 * @see site_page()
 	 */
 	public function getSitePage( $full_url = false ) {
 		return site_page( $this->url, $full_url );
 	}
 
-	public function getExtra($arg, $default = null) {
+	/**
+	 * Check if the user has the permission to see this page
+	 *
+	 * @return boolean
+	 */
+	public function isVisible() {
+		return $this->permission ? has_permission( $this->permission ) : true;
+	}
+
+	/**
+	 * Get a metadata by name (alias)
+	 */
+	public function getExtra( $arg, $default = null ) {
 		return $this->get($arg, $default);
 	}
 
-	public function get($arg, $default = null) {
-		if( isset( $this->extra[$arg] ) ) {
-			return $this->extra[$arg];
+	public function get( $arg, $default = null ) {
+		if( isset( $this->extra[ $arg ] ) ) {
+			return $this->extra[ $arg ];
 		}
 		return $default;
 	}
