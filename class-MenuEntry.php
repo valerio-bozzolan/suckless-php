@@ -91,14 +91,24 @@ class MenuEntry {
 	}
 
 	/**
-	 * Call site_page() on the URL
+	 * Get the URL
 	 *
-	 * @param $full_url boolean
+	 * @param $absolute boolean
 	 * @return string
 	 * @see site_page()
 	 */
-	public function getSitePage( $full_url = false ) {
-		return site_page( $this->url, $full_url );
+	public function getURL( $absolute = false ) {
+		return site_page( $this->url, $absolute );
+	}
+
+	/**
+	 * Get an URL that should be absolute
+	 *
+	 * @return string
+	 * @see site_page()
+	 */
+	public function getAbsoluteURL() {
+		return $this->getURL( true );
 	}
 
 	/**
@@ -115,15 +125,31 @@ class MenuEntry {
 
 	/**
 	 * Get a metadata by name (alias)
+	 *
+	 * @param string $arg
+	 * @param $default
+	 * @return mixed
 	 */
-	public function getExtra( $arg, $default = null ) {
-		return $this->get($arg, $default);
-	}
-
 	public function get( $arg, $default = null ) {
 		if( isset( $this->extra[ $arg ] ) ) {
 			return $this->extra[ $arg ];
 		}
 		return $default;
+	}
+
+	/**
+	 * @deprecated
+	 */
+	public function getSitePage( $full_url = false ) {
+		error( "deprecated MenuEntry#getSitePage(), use getURL() instead" );
+		return $this->getURL( $full_url );
+	}
+
+	/**
+	 * @deprecated
+	 */
+	public function getExtra( $arg, $default = null ) {
+		error( "MenuEntry->getExtra() deprecated" );
+		return $this->get($arg, $default);
 	}
 }
