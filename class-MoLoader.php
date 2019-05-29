@@ -89,26 +89,28 @@ class MoLoader {
 	 * @return Translator
 	 */
 	public function getTranslator( $domain = '' ) {
+		$locale = $this->locale;
+
 		if( empty($domain) ) {
 			$domain = $this->default_domain;
 		}
-		if(!isset($this->domains[$this->locale])) {
-			$this->domains[$this->locale] = array();
+		if(!isset($this->domains[$locale])) {
+			$this->domains[$locale] = array();
 		}
-		if(!isset($this->domains[$this->locale][$domain])) {
+		if(!isset($this->domains[$locale][$domain])) {
 			if (isset($this->paths[$domain])) {
 				$base = $this->paths[$domain];
 			} else {
-				$base = '.' . __;
+				$base = './';
 			}
 
-			$filename = $base . __ . $this->locale . __ . 'LC_MESSAGES' . __ . "$domain.mo";
+			$filename = "$base/$locale/LC_MESSAGES/$domain.mo";
 
 			// We don't care about invalid path, we will get fallback
 			// translator here
-			$this->domains[$this->locale][$domain] = new MoTranslator($filename);
+			$this->domains[$locale][$domain] = new MoTranslator($filename);
 		}
-		return $this->domains[$this->locale][$domain];
+		return $this->domains[$locale][$domain];
 	}
 
 	/**
@@ -265,8 +267,6 @@ class MoTranslator
             }
         } catch (ReaderException $e) {
             $this->error = self::ERROR_READING;
-
-            return;
         }
     }
 
