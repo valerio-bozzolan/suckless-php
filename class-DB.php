@@ -233,7 +233,8 @@ class DB {
 	 * @param $queries string
 	 */
 	public function multiQuery( $queries ) {
-		return $this->mysqli->multi_query( $queries );
+		$this->mysqli->multi_query( $queries );
+		while( $this->mysqli->next_result() );
 	}
 
 	/**
