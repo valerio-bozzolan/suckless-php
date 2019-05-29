@@ -22,7 +22,8 @@
  * @return boolean
  */
 function do_not_track() {
-	return isset( $_SERVER['HTTP_DNT'] ) && $_SERVER['HTTP_DNT'] === '1';
+	return isset( $_SERVER['HTTP_DNT'] )
+	           && $_SERVER['HTTP_DNT'] === '1';
 }
 
 
@@ -39,7 +40,8 @@ function do_not_track() {
  * @param string $value Constant value
  */
 function define_default( $name, $value ) {
-	defined( $name ) or define( $name, $value );
+	defined( $name ) or
+	define(  $name, $value );
 }
 
 
@@ -568,7 +570,7 @@ function get_table_prefix() {
  * @param string $name
  */
 function register_option( $name ) {
-	return DB::instance()->registerOption($name);
+	return DB::instance()->registerOption( $name );
 }
 
 /**
