@@ -220,7 +220,7 @@ class Query {
 			if( $this->offset ) {
 				$query .= "{$this->offset}, ";
 			}
-			return $sql . $this->rowCount;
+			return $query . $this->rowCount;
 		}
 	}
 
