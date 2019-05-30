@@ -155,34 +155,24 @@ class Query {
 	/**
 	 * Append a custom join from the latest selected table
 	 *
-	 * @param $type  string Join type e.g. LEFT, RIGHT, etc., and empty string means implicit JOIN in WHERE
+	 * @param $type  string Join type e.g. INNER, LEFT, RIGHT, etc.
 	 * @param $table string Table name
-	 * @param $a     string First column name for the ON clause
-	 * @param $b     string First column name for the ON clause
+	 * @param $a     string First column name for the ON clause (or complete ON condition if $b is empty)
+	 * @param $b     string Second column name for the ON clause (or complete ON condition if $a is empty)
 	 * @param $alias mixed  Table alias. As default is true, and the table prefix is removed.
 	 */
-	public function joinOn( $type, $table, $a, $b, $alias = true ) {
-		if( $type === '' ) {
-			$this->from( $table )->equals( $a, $b );
+	public function joinOn( $type, $table, $a, $b = null, $alias = true ) {
+		if( $this->tables ) {
+			$previous = array_pop( $this->tables );
+			$previous = $this->db->getTable( $previous, true );
+		} elseif( $this->from ) {
+			$previous = array_pop( $this->from );
 		} else {
-			if( $this->tables ) {
-				$latest_table = array_pop( $this->tables );
-				$latest_table = $this->db->getTable( $latest_table, true );
-			} elseif( $this->from ) {
-				$latest_table = array_pop( $this->from );
-			} else {
-				throw new InvalidArgumentException( 'not enough tables' );
-			}
-			$table = $this->db->getTable( $table, $alias );
-			$this->from[] = sprintf(
-				'%s %s JOIN %s ON (%s = %s)',
-				$latest_table,
-				$type,
-				$table,
-				$a,
-				$b
-			);
+			throw new InvalidArgumentException( 'not enough tables' );
 		}
+		$table = $this->db->getTable( $table, $alias );
+		$on = array_implode( '=', [ $a, $b ] );
+		$this->from[] = "$previous $type JOIN $table ON ($on)";
 		return $this;
 	}
 
