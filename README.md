@@ -1,4 +1,5 @@
-# Boz PHP - Another PHP Framework
+# SucklessPHP - Another PHP framework that sucks less
+
 This framework is my laser cannon that I used to develope dozen of very-different Content Management Systems made from scratch.
 
 Note that I very often deprecate and kill stuff depending on how I feel in the morning.
@@ -6,13 +7,13 @@ Note that I very often deprecate and kill stuff depending on how I feel in the m
 ## Benefits
 I can create a RDBMS CMS with these features:
 
-* efficient (tiny footprint)
+* efficient (very tiny footprint)
 * on demand resource loader (e.g. DB connection is instantiated only if you use it, etc.)
 * query builder
 * associative options
-* support database table prefixes
+* database table prefix
 * login and user capabilities (WITHOUT requiring PHP sessions)
-* secure file uploads
+* secure file uploads with MIME type checks etc.
 * multilanguage (using the widely used GNU Gettext native or high-level)
 
 ## Requirements
@@ -121,5 +122,6 @@ add_menu_entries( [
 // $visits = get_option('visits', 0);
 // set_option('visits', ++$visits);
 ```
+
 ## License
 This is a **Free** as in **Freedom** project. It comes with ABSOLUTELY NO WARRANTY. You are welcome to redistribute it under the terms of the **GNU Affero General Public License v3+**.
