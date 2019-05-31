@@ -15,17 +15,17 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
- * Start the boz-php framework
+ * Start the suckless-php framework
  */
 
 // URL slash
-defined('_') or define('_', '/');
+define( '_', '/' );
 
 // directory separator
-defined('__') or define('__', DIRECTORY_SEPARATOR);
+define( '__', DIRECTORY_SEPARATOR );
 
 // boz-php directory
-define('BOZ_PHP', __DIR__ );
+define( 'BOZ_PHP', __DIR__ );
 
 // load the functions
 require BOZ_PHP . __ . 'functions.php';
