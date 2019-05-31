@@ -1,5 +1,5 @@
 <?php
-# Copyright (C) 2015 Valerio Bozzolan
+# Copyright (C) 2015, 2019 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -8,61 +8,97 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-/*
- * Static classes useful to create some HTML tags.
+/**
+ * Static class useful to create some HTML tags
+ *
  * Use: esc_attr()
  */
-
 class HTML {
 
-	private $tabs;
-
 	/**
-	 * If it contains a list of tag, it return all the tags with a space before.
+	 * If it contains a list of tag, it return all the tags with a space before
 	 *
 	 * @param string $tags The tag list
 	 */
-	public static function spaced($tags) {
-		return ( empty($tags) ) ? '' : " $tags";
+	public static function spaced( $tags ) {
+		return empty( $tags ) ? '' : " $tags";
 	}
 
 	/**
-	 * Closed tag.
-	 */
-	public static function tag($name, $intag = '', $properties = '') {
-		return "<$name$properties>$intag</$name>";
-	}
-
-	/**
-	 * Self closed tag.
-	 */
-	public static function tagc($name, $properties = null) {
-		return "<$name$properties />";
-	}
-
-	public static function a($href, $text = null, $title = null, $class= null, $intag = null) {
-		return self::tag('a', $text, self::property('href', $href) . self::property('title', $title) . self::property('class', $class) . self::spaced($intag) );
-	}
-
-	public static function img($src, $alt = null, $title = null, $class = null, $intag = null) {
-		return self::tagc('img', self::property('src', $src) . self::property('title', $title) . self::property('alt', $alt) . self::property('class', $class) . self::spaced($intag) );
-	}
-
-	/**
-	 * Return the property of a tag, only if the value isn't NULL.
+	 * Generate a closed tag
 	 *
-	 * @param string $name Property's name
-	 * @param string $value Property's value
-	 * @return string $name="$value" (or NULL if $value = '')
+	 * @param string $name       Tag name
+	 * @param string $intag      Tag attributes
+	 * @param string $attributes Tag attributes
 	 */
-	public static function property($name, $value) {
-		return (empty($value)) ? '' : ' ' . $name . '="' . esc_attr( $value ) . '"';
+	public static function tag( $name, $intag = '', $attributes = '' ) {
+		return "<$name$attributes>$intag</$name>";
+	}
+
+	/**
+	 * Generate a self closed tag
+	 */
+	public static function tagc( $name, $attributes = null ) {
+		return "<$name$attributes />";
+	}
+
+	/**
+	 * Generate an <a> tag
+	 *
+	 * @param string $href  The href="" attribute
+	 * @param string $text  Displayed text
+	 * @param string $title The title="" attribute
+	 * @param string $class The class="" attribute
+	 * @param string $intag Something else into the tag
+	 * @return string
+	 */
+	public static function a( $href, $text = null, $title = null, $class= null, $intag = null ) {
+		$s  =  self::property( 'href',  $href  );
+		$s .=  self::property( 'title', $title );
+		$s .=  self::property( 'class', $class );
+		$s .=  self::spaced( $intag );
+		return self::tag( 'a', $text, $s );
+	}
+
+	/**
+	 * Generate an <img> tag
+	 *
+	 * @param string $src   The src="" attribute
+	 * @param string $alt   The alt="" attribute
+	 * @param string $title The title="" attribute
+	 * @param string $class The class="" attribute
+	 * @param string $intag Something else into the tag
+	 * @return string
+	 */
+	public static function img( $src, $alt = null, $title = null, $class = null, $intag = null ) {
+		$s  =  self::property( 'src',   $src   );
+		$s .=  self::property( 'alt',   $alt   );
+		$s .=  self::property( 'title', $title );
+		$s .=  self::property( 'class', $class );
+		$s .=  self::spaced( $intag );
+		return self::tagc( 'img', $s );
+	}
+
+	/**
+	 * Return the property of a tag, only if the value isn't NULL
+	 *
+	 * @param  string $name  Property's name
+	 * @param  string $value Property's value
+	 * @return string
+	 */
+	public static function property( $name, $value ) {
+		$s = '';
+		if( !empty( $value ) ) {
+			$value = esc_attr( $value );
+			$s = " $name=\"$value\"";
+		}
+		return $s;
 	}
 }
 
