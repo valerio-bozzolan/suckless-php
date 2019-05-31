@@ -100,62 +100,32 @@ class HTML {
 		}
 		return $s;
 	}
-}
 
-class Table extends HTML {
-
-    public static function start($intag = '') {
-	return '<table' . self::spaced($intag);
-    }
-
-    public static function stop() {
-	return '</table>';
-    }
-
-    public static function tr($intag = '') {
-	return '<tr' . self::spaced($intag) . '>';
-    }
-
-    public static function tr_stop() {
-	return '</tr>';
-    }
-
-    public static function th($content, $intag = '') {
-	return '<th' . self::spaced($intag) . '>' . $content . '</th>';
-    }
-
-    public static function th_stop($content, $intag = '') {
-	return '<td' . self::spaced($intag) . '>' . $content . '</td>';
-    }
-}
-
-class Form extends HTML {
-
-	public static function start($action = '', $method = '', $intag = '') {
-		if($method != '' && $method != 'get' && $method != 'post') {
-			throw new Exception("Param method must be get or post.");
-		}
-		return '<form' . self::property('action', $action) . self::property('method', $method) . self::spaced($intag) . '>';
+	/**
+	 * Return an <input>
+	 *
+	 * @param string $type  Input type
+	 * @param string $name  Input name
+	 * @param string $value Input value
+	 * @param string $intag Other stuff into the tag
+	 */
+	public static function input( $type, $name, $value = '', $intag = '' ) {
+		$s  =  self::property( 'type',  $type  );
+		$s .=  self::property( 'name',  $name  );
+		$s .=  self::property( 'value', $value );
+		$s .=  self::spaced( $intag );
+		return self::tagc( 'input', $s );
 	}
 
-	public static function stop() {
-		return '</form>';
-	}
-
-	public static function input($type, $name, $value = '', $intag = '') {
-		return '<input type="' . $type . '"' . self::property('name', $name) . self::property('value', $value) . self::spaced($intag) . '>';
-	}
-
-	public static function select($type, $name, $value = '', $intag = '') {
-		$tag = '<select' . self::property('name', $name) . self::spaced($intag);
-		$opt = '';
-		foreach($value as $key=>$val) {
-			$opt .= '<option value="' . $key . '">' . $val . ' </option>';
-		}
-		return $tag . $opt . '</select>';
-	}
-
-	public static function label($for, $text, $intag = '') {
-		return '<label for=' . $for . '"' . self::spaced($intag) . '>' . $text . '</label>';
+	/**
+	 * Return a <label>
+	 *
+	 * @param string $text
+	 * @param string $for
+	 * @return string
+	 */
+	public static function label( $text, $for = null, $intag = '' ) {
+		$s = self::property( 'for', $for );
+		return self::tag( 'label', $text, $s );
 	}
 }
