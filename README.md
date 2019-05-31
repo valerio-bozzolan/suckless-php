@@ -25,7 +25,7 @@ The `libmagic-dev` package is in the main Debian GNU/Linux repository and so I t
 ## Simplest shared installation
 As a shared library: one can serve many sites with a simple `require`. Start cloning the source-code in a shared folder as `/usr/share`:
 
-    bzr branch lp:boz-php-another-php-framework /usr/share/php/boz-php-another-php-framework
+	sudo git clone https://github.com/valerio-bozzolan/suckless-php.git /usr/share/php/suckless-php
 
 That's it! Leave that folder as is, you don't have to touch it anymore.
 
@@ -45,7 +45,7 @@ $prefix = 'blog_';
 // define('REQUIRE_LOAD_POST', false);
 
 // That's it! This will load the framework with the above configurations
-require '/usr/share/php/boz-php-another-php-framework/load.php';
+require '/usr/share/php/suckless-php/load.php';
 ```
 And now create your first file e.g. `index.php`:
 ```php
@@ -124,4 +124,6 @@ add_menu_entries( [
 ```
 
 ## License
+Copyright (c) 2015-2019 [Valerio Bozzolan](http://boz.reyboz.it/)
+
 This is a **Free** as in **Freedom** project. It comes with ABSOLUTELY NO WARRANTY. You are welcome to redistribute it under the terms of the **GNU General Public License v3+**.
