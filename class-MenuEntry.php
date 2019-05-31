@@ -54,7 +54,7 @@ class MenuEntry {
 	/**
 	 * Permission to show this menu
 	 *
-	 * @var string
+	 * @var string|boolean
 	 */
 	public $permission;
 
@@ -66,12 +66,12 @@ class MenuEntry {
 	/**
 	 * Constructor
 	 *
-	 * @param string $uid        Menu user identifier e.g. 'home'
-	 * @param string $url        Page URL e.g. 'home.html'
-	 * @param string $name       Page name
-	 * @param string $parent_uid Parent menu user identifier
-	 * @param string $permission Permission required to see this page (true: always, false: never, string: check the permission name)
-	 * @param string $extram     Extra metadata
+	 * @param string         $uid        Menu user identifier e.g. 'home'
+	 * @param string         $url        Page URL e.g. 'home.html'
+	 * @param string         $name       Page name
+	 * @param string         $parent_uid Parent menu user identifier
+	 * @param string|boolean $permission Permission required to see this page (true: always, false: never, string: check the permission name)
+	 * @param string         $extram     Extra metadata
 	 */
 	function __construct( $uid, $url = null, $name = null, $parent_uid = null, $permission = true, $extra = null ) {
 		$this->uid        = $uid;
