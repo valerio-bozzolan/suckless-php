@@ -812,10 +812,11 @@ function multi_text( $n, $text_multi, $text_one, $text_no = '' ) {
 /**
  * Do an HTTP redirects and die
  *
- * @param string $url           Absolute URL
+ * @param string $url           URL (can be relative)
  * @param string $response_code HTTP response code (PHP's default it's 302)
  */
 function http_redirect( $url, $response_code = 0 ) {
+	$url = site_page( $url, true );
 	header( "Location: $url", true, $response_code );
 	exit;
 }
