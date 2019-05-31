@@ -95,7 +95,7 @@ class MoLoader {
 			$domain = $this->default_domain;
 		}
 		if(!isset($this->domains[$locale])) {
-			$this->domains[$locale] = array();
+			$this->domains[$locale] = [];
 		}
 		if(!isset($this->domains[$locale][$domain])) {
 			if (isset($this->paths[$domain])) {
@@ -181,8 +181,7 @@ class MoLoader {
  *
  * It caches all strings and translations to speed up the string lookup.
  */
-class MoTranslator
-{
+class MoTranslator {
     /**
      * None error.
      */
@@ -221,15 +220,14 @@ class MoTranslator
      *
      * @var array
      */
-    private $cache_translations = array();
+    private $cache_translations = [];
 
     /**
      * Constructor.
      *
      * @param string $filename Name of mo file to load
      */
-    public function __construct($filename)
-    {
+    public function __construct( $filename ) {
 
         if (!is_readable($filename)) {
             $this->error = self::ERROR_DOES_NOT_EXIST;
@@ -260,10 +258,12 @@ class MoTranslator
             $table_translations = $stream->readintarray($unpack, $translations, $total * 2);
 
             /* read all strings to the cache */
-            for ($i = 0; $i < $total; ++$i) {
-                $original = $stream->read($table_originals[$i * 2 + 2], $table_originals[$i * 2 + 1]);
-                $translation = $stream->read($table_translations[$i * 2 + 2], $table_translations[$i * 2 + 1]);
-                $this->cache_translations[$original] = $translation;
+            for($i = 0; $i < $total; ++$i) {
+            	$i2  = $i * 2 + 1;
+            	$i2p = $i2 + 1;
+                $original = $stream->read( $table_originals[ $i2p ], $table_originals[ $i2 ] );
+                $translation = $stream->read( $table_translations[ $i2p ], $table_translations[ $i2 ] );
+                $this->cache_translations[ $original ] = $translation;
             }
         } catch (ReaderException $e) {
             $this->error = self::ERROR_READING;
@@ -274,20 +274,17 @@ class MoTranslator
      * Translates a string.
      *
      * @param string $msgid String to be translated
-     *
      * @return string translated string (or original, if not found)
      */
-    public function gettext($msgid)
-    {
+    public function gettext( $msgid ) {
 		// if $msgid is NULL it gets the entire .po header .___.
 		if( ! $msgid ) {
 			return $msgid;
 		}
 
-        if (array_key_exists($msgid, $this->cache_translations)) {
-            return $this->cache_translations[$msgid];
+        if( isset( $this->cache_translations[ $msgid ] ) ) {
+            return $this->cache_translations[ $msgid ];
         }
-
         return $msgid;
     }
 
@@ -295,13 +292,11 @@ class MoTranslator
      * Check if a string is translated.
      *
      * @param string $msgid String to be checked
-     *
      * @return bool
      */
-    public function exists($msgid)
-    {
-        return array_key_exists($msgid, $this->cache_translations);
-    }
+    public function exists( $msgid ) {
+		return isset( $this->cache_translations[ $msgid ] );
+	}
 
     /**
      * Set translation in place
@@ -311,10 +306,9 @@ class MoTranslator
      *
      * @return void
      */
-    public function setTranslation($msgid, $msgstr)
-    {
-        $this->cache_translations[$msgid] = $msgstr;
-    }
+	public function setTranslation( $msgid, $msgstr ) {
+		$this->cache_translations[ $msgid ] = $msgstr;
+	}
 }
 
 /*
@@ -381,7 +375,7 @@ class MoStringReader {
 	 * @return int Ingerer from the stream
 	 */
 	public function readint( $unpack, $pos ) {
-		$data = unpack( $unpack, $this->read($pos, 4) );
+		$data = unpack( $unpack, $this->read( $pos, 4 ) );
 		$result = $data[1];
 
 		/* We're reading unsigned int, but PHP will happily
