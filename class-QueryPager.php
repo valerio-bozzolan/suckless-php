@@ -378,7 +378,6 @@ abstract class QueryPager {
 	 * @param $query Query Object to be modified directly
 	 * @param $order_by string
 	 * @param $direction string
-	 * @return bool You can return false if it's an unknown field
 	 */
 	protected abstract function applyOrder( & $query, $order_by, $direction );
 
@@ -393,20 +392,7 @@ abstract class QueryPager {
 		$n = $this->getElementsPerPage();
 		$p = $this->getPage() - 1;
 		$q = $this->createQuery();
-		$applied = $this->applyOrder( $q, $this->getOrderBy(), $this->getDirection() );
-		if( false === $applied ) {
-			$applied = $this->applyOrder( $q, $this->getDefaultOrderBy(), $this->getDefaultDirection() );
-			if( false === $applied ) {
-				error( sprintf(
-					"the order by '%s' was unexpected... but also the default '%s'! Check %s.",
-					esc_html( $this->getOrderBy() ),
-					esc_html( $this->getDefaultOrderBy() ),
-					get_class( $this ) . '#applyOrder()'
-				) );
-			} else {
-				$this->setArg( static::ARG_ORDER_BY, $this->getDefaultOrderBy() );
-			}
-		}
+		$this->applyOrder( $q, $this->getOrderBy(), $this->getDirection() );
 		return $q->limit( $n, $n * $p );
 	}
 
