@@ -157,9 +157,10 @@ class Session {
 		$time     = time();
 		$duration = $time + SESSION_DURATION;
 
+		$path = ROOT . _;
 		$force_https = is_https();
-		setcookie( 'user_uid', $user->getSessionuserUID(),              $duration, ROOT, '', $force_https, false );
-		setcookie( 'token',    $user->generateSessionuserCookieToken(), $duration, ROOT, '', $force_https, true  );
+		setcookie( 'user_uid', $user->getSessionuserUID(),              $duration, $path, '', $force_https, false );
+		setcookie( 'token',    $user->generateSessionuserCookieToken(), $duration, $path, '', $force_https, true  );
 
 		$status = self::OK;
 		return true;
@@ -211,9 +212,10 @@ class Session {
 	 */
 	public function destroy() {
 		$invalidate = time() - 8000;
+		$path = ROOT . _;
 
-		setcookie( 'user_uid', 'asd', $invalidate );
-		setcookie( 'token',    'asd', $invalidate );
+		setcookie( 'user_uid', 'asd', $invalidate, $path );
+		setcookie( 'token',    'asd', $invalidate, $path );
 
 		$this->ok = true;
 		$this->user = null;
