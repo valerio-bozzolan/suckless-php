@@ -79,13 +79,13 @@ class Sessionuser extends Queried {
 	/**
 	 * Factory from login
 	 *
-	 * @param $uid string
+	 * @param $uid      string
 	 * @param $password string
-	 * @return query
+	 * @return Query
 	 */
 	public static function factoryFromLogin( $uid, $password ) {
 		return self::factoryFromUID( $uid )
-			->whereStr( self::PASSWORD, self::encryptPassword( $password ) );
+			->whereStr( self::PASSWORD, static::encryptPassword( $password ) );
 	}
 
 	/**
