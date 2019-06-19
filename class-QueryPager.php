@@ -63,6 +63,13 @@ abstract class QueryPager {
 	private $defaultDirection = 'ASC';
 
 	/**
+	 * Count cache
+	 *
+	 * @var int
+	 */
+	private $_countElements;
+
+	/**
 	 * Constructor
 	 *
 	 * @param $args array Arguments
@@ -125,16 +132,6 @@ abstract class QueryPager {
 	}
 
 	/**
-	 * Check if a certain argument exists
-	 *
-	 * @param $arg string Argument name
-	 * @return bool
-	 */
-	public function hasArg( $arg ) {
-		return isset( $this->args[ $arg ] );
-	}
-
-	/**
 	 * Get a single argument
 	 *
 	 * @param $arg string Argument name
@@ -142,7 +139,17 @@ abstract class QueryPager {
 	 * @return string
 	 */
 	public function getArg( $arg, $default = null ) {
-		return $this->args[ $arg ] ? $this->args[ $arg ] : $default;
+		return isset( $this->args[ $arg ] ) ? $this->args[ $arg ] : $default;
+	}
+
+	/**
+	 * Check if a certain argument exists
+	 *
+	 * @param $arg string Argument name
+	 * @return mixed
+	 */
+	public function hasArg( $arg ) {
+		return $this->getArg( $arg, false );
 	}
 
 	/**
@@ -153,11 +160,10 @@ abstract class QueryPager {
 	 * @return self
 	 */
 	public function setArg( $arg, $value ) {
-		if( $value ) {
-			$this->args[ $arg ] = $value;
-		} else {
-			unset( $this->args[ $arg ] );
+		if( !$value ) {
+			$value = null;
 		}
+		$this->args[ $arg ] = $value;
 		return $this;
 	}
 
@@ -201,31 +207,6 @@ abstract class QueryPager {
 	 */
 	public function countPages() {
 		return (int) ceil( $this->countElements() / $this->getElementsPerPage() );
-	}
-
-	/**
-	 * Get the name of the default order by argument
-	 *
-	 * @return null|string
-	 */
-	protected function getDefaultOrderBy() {
-		return $this->defaultOrderBy;
-	}
-
-	/**
-	 * Check if the actual order by is the default
-	 */
-	protected function isDefaultOrderBy() {
-		return $this->getOrderBy() === $this->getDefaultOrderBy();
-	}
-
-	/**
-	 * Get the default direction for the default order by
-	 *
-	 * @return DESC|ASC
-	 */
-	protected function getDefaultDirection() {
-		return $this->defaultDirection;
 	}
 
 	/**
@@ -335,13 +316,6 @@ abstract class QueryPager {
 	}
 
 	/**
-	 * Count cache
-	 *
-	 * @var int
-	 */
-	private $_countElements;
-
-	/**
 	 * Count all the elements
 	 *
 	 * @return int
@@ -354,6 +328,56 @@ abstract class QueryPager {
 			        ->queryValue( 'count' );
 		}
 		return $this->_countElements;
+	}
+
+	/**
+	 * Create a Query to match the records in this page scope
+	 *
+	 * @param $default_order string
+	 * @param $default_direction string
+	 * @return Query
+	 */
+	public function createPagedQuery() {
+		$n = $this->getElementsPerPage();
+		$p = $this->getPage() - 1;
+		$q = $this->createQuery();
+		$this->applyOrder( $q, $this->getOrderBy(), $this->getDirection() );
+		return $q->limit( $n, $n * $p );
+	}
+
+	/**
+	 * Get an URL to this page from arguments
+	 *
+	 * @param $args array Arguments
+	 * @return string Relative URL
+	 */
+	public static function argsURL( $args ) {
+		return $_SERVER[ 'SCRIPT_URL' ] . '?' . http_build_query( $args );
+	}
+
+	/**
+	 * Get the name of the default order by argument
+	 *
+	 * @return null|string
+	 */
+	protected function getDefaultOrderBy() {
+		return $this->defaultOrderBy;
+	}
+
+	/**
+	 * Check if the actual order by is the default
+	 */
+	protected function isDefaultOrderBy() {
+		return $this->getOrderBy() === $this->getDefaultOrderBy();
+	}
+
+	/**
+	 * Get the default direction for the default order by
+	 *
+	 * @return DESC|ASC
+	 */
+	protected function getDefaultDirection() {
+		return $this->defaultDirection;
 	}
 
 	/**
@@ -380,29 +404,4 @@ abstract class QueryPager {
 	 * @param $direction string
 	 */
 	protected abstract function applyOrder( & $query, $order_by, $direction );
-
-	/**
-	 * Create a Query to match the records in this page scope
-	 *
-	 * @param $default_order string
-	 * @param $default_direction string
-	 * @return Query
-	 */
-	public function createPagedQuery() {
-		$n = $this->getElementsPerPage();
-		$p = $this->getPage() - 1;
-		$q = $this->createQuery();
-		$this->applyOrder( $q, $this->getOrderBy(), $this->getDirection() );
-		return $q->limit( $n, $n * $p );
-	}
-
-	/**
-	 * Get an URL to this page from arguments
-	 *
-	 * @param $args array Arguments
-	 * @return string Relative URL
-	 */
-	public static function argsURL( $args ) {
-		return $_SERVER[ 'SCRIPT_URL' ] . '?' . http_build_query( $args );
-	}
 }
