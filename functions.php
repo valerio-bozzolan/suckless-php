@@ -51,55 +51,6 @@ function define_default( $name, $value ) {
  * Shortcuts useful when you build a page
  */
 
-
-/**
- * Print a ' checked="checked"' HTML attribute under some circumstances
- *
- * This is useful for the <input type="checkbox" /> HTML tag.
- *
- * @param mixed $helper  If this is the only arg, prints
- * @param mixed $current If this matches $helper, print
- * @param bool  $force   If this is true, print
- */
-function _checked( $helper = PHP_INT_MAX, $current = PHP_INT_MAX, $force = false ) {
-	echo checked( $helper, $current, $force );
-}
-
-/**
- * Print a ' selected="selected"' HTML attribute under some circumstances
- *
- * This is useful for the <option> HTML tag.
- *
- * @param mixed $helper  If this is the only arg, prints
- * @param mixed $current If this matches $helper, print
- * @param bool  $force   If this is true, print
- */
-function _selected( $helper = PHP_INT_MAX, $current = PHP_INT_MAX, $force = false ) {
-	echo selected( $helper, $current, $force );
-}
-
-/**
- * Print a ' disabled="disabled"' HTML attribute under some circumstances
- *
- * @param mixed $helper  If this is the only arg, prints
- * @param mixed $current If this matches $helper, print
- * @param bool  $force   If this is true, print
- */
-function _disabled( $helper = PHP_INT_MAX, $current = PHP_INT_MAX, $force = false ) {
-	echo disabled( $helper, $current, $force );
-}
-
-/**
- * Print a ' required="required"' HTML attribute under some circumstances
- *
- * @param mixed $helper  If this is the only arg, prints
- * @param mixed $current If this matches $helper, print
- * @param bool  $force   If this is true, print
- */
-function _required( $helper = PHP_INT_MAX, $current = PHP_INT_MAX, $force = false ) {
-	echo html_attribute_when_matching( 'required', 'required', $helper, $current, $force );
-}
-
 /**
  * Return a ' selected="selected"' HTML attribute under some circumstances
  *
@@ -152,14 +103,15 @@ function html_attribute_when_matching( $attribute, $value, $helper = PHP_INT_MAX
 }
 
 /**
- * Print the HTML attribute ' value="$v"'
+ * Get an HTML attribute ' value="$v"'
  *
  * The value will be sanitized.
  *
  * @param string $v
+ * @return string
  */
-function _value( $v ) {
-	echo HTML::property( 'value', $v );
+function value( $v ) {
+	return HTML::property( 'value', $v );
 }
 
 /**
@@ -172,18 +124,6 @@ function _value( $v ) {
  */
 function esc_html( $s ) {
 	return htmlentities( $s );
-}
-
-/**
- * Shortcut for echoing htmlentities()
- *
- * Print an HTML-sanitized untrusted string to be safe from XSS
- *
- * @param  string $s e.g. 'Hello<script>...'
- * @return string e.g. 'Hello&lt;script&gt;...'
- */
-function _esc_html( $s ) {
-	echo htmlentities( $s );
 }
 
 /**
@@ -1235,4 +1175,34 @@ $GLOBALS[JOIN] = function( $t ) {
 function get_menu_entry( $uid ) {
 	error( "deprecated get_menu_entry() use menu_entry() instead" );
 	return menu_entry( $uid );
+}
+
+function _esc_html( $s ) {
+	error( 'deprecated _esc_html' );
+	echo htmlentities( $s );
+}
+
+function _checked( $helper = PHP_INT_MAX, $current = PHP_INT_MAX, $force = false ) {
+	error( 'deprecated _checked() use echo checked()' );
+	echo checked( $helper, $current, $force );
+}
+
+function _selected( $helper = PHP_INT_MAX, $current = PHP_INT_MAX, $force = false ) {
+	error( 'deprecated _selected() use echo selected()' );
+	echo selected( $helper, $current, $force );
+}
+
+function _disabled( $helper = PHP_INT_MAX, $current = PHP_INT_MAX, $force = false ) {
+	error( 'deprecated _disabled() use echo disabled()' );
+	echo disabled( $helper, $current, $force );
+}
+
+function _required( $helper = PHP_INT_MAX, $current = PHP_INT_MAX, $force = false ) {
+	error( 'deprecated _required() print it instead' );
+	echo html_attribute_when_matching( 'required', 'required', $helper, $current, $force );
+}
+
+function _value( $v ) {
+	error( 'deprecated _value() use echo value() insted' );
+	echo value( $v );
 }
