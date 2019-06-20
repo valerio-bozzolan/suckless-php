@@ -158,7 +158,7 @@ class OutputUtilities {
 	 * @return void
 	 */
 	public static function error( $msg ) {
-		error_log( $msg );
+		error_log( "$msg from {$_SERVER['SCRIPT_FILENAME']}" );
 		if( DEBUG ) {
 			echo "\n<!-- ERROR: -->\n";
 			echo '<p style="color:red;">' . esc_html( $msg ) . '</p>';
