@@ -126,6 +126,7 @@ class Session {
 			}
 		}
 
+		// no credentials no party
 		if( empty( $uid ) ) {
 			$status = self::EMPTY_USER_UID;
 			return false;
@@ -161,6 +162,7 @@ class Session {
 		$force_https = is_https();
 		setcookie( 'user_uid', $user->getSessionuserUID(),              $duration, $path, '', $force_https, false );
 		setcookie( 'token',    $user->generateSessionuserCookieToken(), $duration, $path, '', $force_https, true  );
+		setcookie( 'csrf',     $this->generateCSRF(),                   $duration, $path, '', $force_https, true  );
 
 		$status = self::OK;
 		return true;
@@ -235,5 +237,59 @@ class Session {
 			$from
 		) );
 		return false;
+	}
+
+	/**
+	 * Get the CSRF token of the current user
+	 *
+	 * Note that it's valid only for logged-in users.
+	 *
+	 * @return string
+	 */
+	public function getCSRF() {
+		// TODO: remove that '@' put for backward compatibility with old sessions
+		return @$_COOKIE['csrf'];
+	}
+
+	/**
+	 * Print a form action field with the CSRF
+	 *
+	 * @param string $action
+	 */
+	public function formActionWithCSRF( $action ) {
+		echo HTML::input( 'hidden', 'action', $action );
+		echo HTML::input( 'hidden', 'csrf', Session::instance()->getCSRF() );
+	}
+
+	/**
+	 * Check if a form action is valid (with the related CSRF)
+	 *
+	 * @param string $action
+	 * @return boolean
+	 */
+	public function validateActionAndCSRF( $action ) {
+		$csrf = $this->getCSRF();
+		return
+			isset( $_POST['action'], $_POST['csrf'] )
+			&&     $_POST['action'] === $action
+			&&     $_POST['csrf']   === $csrf;
+	}
+
+	/**
+	 * Generate a new CSRF token
+	 *
+	 * @return string
+	 */
+	private function generateCSRF() {
+		return bin2hex( openssl_random_pseudo_bytes( 8 ) );
+	}
+
+	/**
+	 * Check if a CSRF if valid for the current user
+	 *
+	 * @return boolean
+	 */
+	public function validateCSRF( $csrf ) {
+		return $csrf === $this->getCSRF();
 	}
 }

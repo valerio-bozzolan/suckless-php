@@ -586,6 +586,25 @@ function logout() {
 }
 
 /**
+ * To be used inside a form with POST method to contrast CSRF attacks
+ *
+ * @param string $action Your action name e.g. 'save-user'
+ */
+function form_action( $action ) {
+	Session::instance()->formActionWithCSRF( $action );
+}
+
+/**
+ * Check if a POST action is the specified one
+ *
+ * @param string $action Your action name e.g. 'save-user'
+ * @return boolean
+ */
+function is_action( $action ) {
+	return Session::instance()->validateActionAndCSRF( $action );
+}
+
+/**
  * Register a language
  *
  * @param string $code    Language code e.g. 'en_US'
