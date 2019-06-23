@@ -782,34 +782,16 @@ function URL_protocol() {
 }
 
 /**
- * Get the domain of the request
+ * Get the domain of the request and the port used.
  *
  * Note that there is a DOMAIN constant. Use it instead.
  *
  * @return string e.g. 'example.com'
  */
 function URL_domain() {
-	return isset( $_SERVER[ 'SERVER_NAME' ] )
-	            ? $_SERVER[ 'SERVER_NAME' ]
+	return isset( $_SERVER[ 'HTTP_HOST' ] )
+	            ? $_SERVER[ 'HTTP_HOST' ]
 	            : php_uname( 'n' );
-}
-
-/**
- * Get the explicit port of the request
- *
- * Note that there is a PORT constant. Use it instead.
- *
- * The function may return void.
- *
- * @return string e.g. ':443'
- */
-function URL_port() {
-	if( isset( $_SERVER[ 'SERVER_PORT' ] ) ) {
-		$p = $_SERVER[ 'SERVER_PORT' ];
-		if( '80' !== $p && '443' !== $p ) {
-			return ":$p";
-		}
-	}
 }
 
 /**

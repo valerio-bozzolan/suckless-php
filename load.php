@@ -39,17 +39,14 @@ define_default( 'DEBUG_QUERIES', false );
 // HTTP protocol e.g. 'https'
 define_default( 'PROTOCOL', URL_protocol() );
 
-// domain name e.g. 'reyboz.it'
+// domain name e.g. 'reyboz.it' or 'reyboz.it:8080'
 define_default( 'DOMAIN', URL_domain() );
-
-// HTTP port e.g. ':8080'
-define_default( 'PORT', URL_port() );
 
 // absolute URL directory without trailing slash e.g. '/myapp' or ''
 define_default( 'ROOT', URL_root() );
 
 // URL without the ROOT
-define_default( 'BASE_URL', PROTOCOL . DOMAIN . PORT );
+define_default( 'BASE_URL', PROTOCOL . DOMAIN );
 
 // URL with the ROOT
 define_default( 'URL', BASE_URL . ROOT );
