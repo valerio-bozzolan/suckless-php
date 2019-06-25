@@ -56,14 +56,15 @@ class OutputUtilities {
 	 * @return string Enfatized string
 	 * @todo Move in it's own class
 	 */
-	public static function enfatizeSubstr( $s, $q, $pre = "<b>", $post = "</b>" ) {
+	public static function enfatizeSubstr( $s, $q, $pre = '<b>', $post = '</b>' ) {
+
+		$out = '';
 
 		// no needle? that's quick
 		if( empty( $q ) ) {
 			return $s;
 		}
 
-		$s_length = mb_strlen( $s );
 		$q_length = mb_strlen( $q );
 		$offset = 0;
 		do {
@@ -83,6 +84,7 @@ class OutputUtilities {
 
 			// save
 			$s = $s_pre . $enfatized . $s_post;
+			$s_length = mb_strlen( $s );
 
 			$offset = $pos + $enfatized_length;
 		} while( $offset < $s_length );
