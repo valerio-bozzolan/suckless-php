@@ -63,23 +63,23 @@ class OutputUtilities {
 			return $s;
 		}
 
-		$s_length = strlen( $s );
-		$q_length = strlen( $q );
+		$s_length = mb_strlen( $s );
+		$q_length = mb_strlen( $q );
 		$offset = 0;
 		do {
 			// find occurrence
-			$pos = stripos( $s, $q, $offset );
-			if($pos === false) {
+			$pos = mb_stripos( $s, $q, $offset );
+			if( $pos === false ) {
 				break;
 			}
 
 			// enfatize query
-			$enfatized = $pre . substr( $s, $pos, $q_length ) . $post;
-			$enfatized_length = strlen( $enfatized );
+			$enfatized = $pre . mb_substr( $s, $pos, $q_length ) . $post;
+			$enfatized_length = mb_strlen( $enfatized );
 
 			// pre-query and post-query strings
-			$s_pre  = substr( $s, 0, $pos );
-			$s_post = substr( $s, $pos + $q_length );
+			$s_pre  = mb_substr( $s, 0, $pos );
+			$s_post = mb_substr( $s, $pos + $q_length );
 
 			// save
 			$s = $s_pre . $enfatized . $s_post;
