@@ -6,7 +6,7 @@
 ## Sample page
 Here an example of `index.php`:
 
-```
+```php
 <?php
 require 'load.php';
 
@@ -31,13 +31,13 @@ Note that as default no database
 
 ### Query (declarative)
 
-```
+```php
     query( "ALTER TABLE ADD COLUMN `hello` ..." );
 ```
 
 ### Select rows (full list)
 
-```
+```php
 // results as a pure array
 $posts = query_results( "SELECT post_title FROM wp_post" );
 if( $posts ) {
@@ -51,7 +51,7 @@ Note that `query_results()` is better over `query_generator()` if:
 
 ### Select rows (generator)
 
-```
+```php
 // generator of results
 $posts = query_generator( "SELECT post_title FROM wp_post" );
 if( $posts->valid() ) {
@@ -67,21 +67,21 @@ Note that `query_generator()` is better over `query_results()` if:
 
 ### Query builder (object-oriented)
 
-```
+```php
 // get a pure array
 $posts = ( new Query() )
     ->from( 'post' )
     ->queryResults();
 ```
 
-```
+```php
 // generator of results
 $posts = ( new Query() )
     ->from( 'post' )
     ->queryGenerator();
 ```
 
-```
+```php
 $posts = ( new Query() )
     ->from( 'post' )
     ->whereStr( 'post_title', $title )
@@ -101,7 +101,7 @@ $posts = ( new Query() )
 
 Declarative way:
 
-```
+```php
 insert_row( 'post', [
     new DBCol( 'post_ID',                $id, 'd' ),
     new DBCol( 'post_title',          $title, 's' ),
@@ -111,7 +111,7 @@ insert_row( 'post', [
 
 Object-oriented way:
 
-```
+```php
 ( new Query() )
     ->from( 'post' )
     ->insertRow( [
@@ -123,7 +123,7 @@ Object-oriented way:
 
 ## Database object mapping
 
-```
+```php
 // declare a class
 class Post extends Queried {
     const T = 'post'; // table name
@@ -143,4 +143,21 @@ $post = Post::factory()
 if( $post ) {
     $post->safePrintAmazingTitle();
 }
+```
+
+## CSRF protection
+
+To both identify a form and secure it against [Cross-site request forgery](https://en.wikipedia.org/wiki/Cross-site_request_forgery) you can use `form_action()` and `is_action()`:
+
+```php
+<?php
+	if( is_action( 'save-user' ) ) {
+		// do stuff!
+	}
+?>
+
+<form method="post">
+	<?php form_action( 'save-user' ) ?>	
+	<button type="submit">Save</button>
+</form>
 ```

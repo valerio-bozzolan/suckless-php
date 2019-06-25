@@ -7,12 +7,14 @@ Note that I very often deprecate and kill stuff depending on how I feel in the m
 ## Benefits
 I can create a RDBMS CMS with these features:
 
+* stateless
 * efficient (very tiny footprint)
+* [CSRF](https://en.wikipedia.org/wiki/Cross-site_request_forgery)-safe
 * on demand resource loader (e.g. DB connection is instantiated only if you use it, etc.)
 * query builder
 * associative options
 * database table prefix
-* login and user capabilities (WITHOUT requiring PHP sessions)
+* login and user capabilities (WITHOUT the need of PHP sessions)
 * secure file uploads with MIME type checks etc.
 * multilanguage (using the widely used GNU Gettext native or high-level)
 
@@ -122,6 +124,10 @@ add_menu_entries( [
 // $visits = get_option('visits', 0);
 // set_option('visits', ++$visits);
 ```
+
+## Hacking
+
+See [DEVELOPING.md](./DEVELOPING.md).
 
 ## License
 Copyright (c) 2015-2019 [Valerio Bozzolan](http://boz.reyboz.it/)
