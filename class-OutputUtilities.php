@@ -49,47 +49,57 @@ class OutputUtilities {
 	/**
 	 * Enfatize a substring
 	 *
-	 * @param $s string Heystack
-	 * @param $q string Needle
-	 * @param $pre string HTML before query (bold tag as default)
-	 * @param $post string HTML after query (bold tag as default)
-	 * @return string Enfatized string
-	 * @todo Move in it's own class
+	 * The input string is automatically sanitized.
+	 *
+	 * @param  string $s    Heystack
+	 * @param  string $q    Needle, probably the direct user input
+	 * @param  string $pre  HTML before query (bold tag as default)
+	 * @param  string $post HTML after query (bold tag as default)
+	 * @return string       Enfatized string HTML-escaped
 	 */
 	public static function enfatizeSubstr( $s, $q, $pre = '<b>', $post = '</b>' ) {
 
-		$out = '';
+		$q_length = mb_strlen( $q );
+		$s_length = mb_strlen( $s );
 
 		// no needle? that's quick
-		if( empty( $q ) ) {
-			return $s;
+		if( empty( $q_length ) ) {
+			return esc_html( $s );
 		}
 
-		$q_length = mb_strlen( $q );
+		$out = '';
 		$offset = 0;
 		do {
 			// find occurrence
 			$pos = mb_stripos( $s, $q, $offset );
-			if( $pos === false ) {
-				break;
+			$match = $pos !== false;
+			if( $match ) {
+
+				// pre-query
+				$pre_found = mb_substr( $s, $offset, $pos - $offset );
+				$pre_found = esc_html( $pre_found );
+				$out .= $pre_found;
+
+				// enfatize found query
+				$found = mb_substr( $s, $pos, $q_length );
+				$found_length = mb_strlen( $found );
+				$enfatized = $pre . esc_html( $found ) . $post;
+				$out .= $enfatized;
+
+				// next step
+				$offset = $pos + $found_length;
+			} else {
+				$end = mb_substr( $s, $offset );
+				$end = esc_html( $end );
+				$out .= $end;
+
+				// exit;
+				$offset = $s_length;
 			}
 
-			// enfatize query
-			$enfatized = $pre . mb_substr( $s, $pos, $q_length ) . $post;
-			$enfatized_length = mb_strlen( $enfatized );
-
-			// pre-query and post-query strings
-			$s_pre  = mb_substr( $s, 0, $pos );
-			$s_post = mb_substr( $s, $pos + $q_length );
-
-			// save
-			$s = $s_pre . $enfatized . $s_post;
-			$s_length = mb_strlen( $s );
-
-			$offset = $pos + $enfatized_length;
 		} while( $offset < $s_length );
 
-		return $s;
+		return $out;
 	}
 
 	/**
