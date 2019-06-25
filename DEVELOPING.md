@@ -121,27 +121,49 @@ Object-oriented way:
     ] );
 ```
 
-## Database object mapping
+## Delete
 
 ```php
-// declare a class
-class Post extends Queried {
-    const T = 'post'; // table name
+( new Query() )
+    ->from( 'post' )
+    ->whereStr( 'post_author', 'jhon' )
+    ->whereInt( 'post_stub,     1     )
+    ->delete();
+```
 
-    // do something with the attributes (post_title)
-    public function safePrintAmazingTitle() {
-        _esc_html( "Post title: {$this->post_title}" );
-    }
+## Database row → object (mapping)
+
+```php
+/**
+ * Declaration of my custom class
+ */
+class Post extends Queried {
+
+	/**
+	 * Table name without table prefix
+	 */
+	const T = 'post';
+
+	/**
+	 * An example method
+	 *
+	 * @return string
+	 */
+	public function getTitle() {
+		return $this->post_title;
+	}
 }
 
-// retrieve a Post objet (or null)
+
+// retrieve a Post object or null
 $post = Post::factory()
-    ->select( 'post_title' )
-    ->limit( 1 )
-    ->queryRow();
+	->whereInt( 'post_ID', 1 )
+	->queryRow();
 
 if( $post ) {
-    $post->safePrintAmazingTitle();
+	// do stuff
+
+	$title = $post->getTitle();
 }
 ```
 
