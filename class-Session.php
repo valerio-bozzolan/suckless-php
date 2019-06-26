@@ -283,13 +283,4 @@ class Session {
 	private function generateCSRF() {
 		return bin2hex( openssl_random_pseudo_bytes( 8 ) );
 	}
-
-	/**
-	 * Check if a CSRF if valid for the current user
-	 *
-	 * @return boolean
-	 */
-	public function validateCSRF( $csrf ) {
-		return $csrf === $this->getCSRF();
-	}
 }
