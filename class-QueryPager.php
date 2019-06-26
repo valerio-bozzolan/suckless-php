@@ -352,7 +352,7 @@ abstract class QueryPager {
 	 * @return string Relative URL
 	 */
 	public static function argsURL( $args ) {
-		return $_SERVER[ 'SCRIPT_URL' ] . '?' . http_build_query( $args );
+		return $_SERVER[ 'PHP_SELF' ] . '?' . http_build_query( $args );
 	}
 
 	/**
