@@ -25,19 +25,20 @@ class OutputUtilities {
 	 * @param string $s Input string e.g. 'what the hell'
 	 * @param int $max_length Max. length limit
 	 * @param string $glue Slug glue
-	 * @param bool $truncated Flag to indicate if the string is truncated by the $max_length limit
+	 * @param bool $truncated Flag to indicate if the string was truncated by the $max_length limit
 	 * @return 'something-as-this'
 	 */
-	public static function slug( $s, $max_length = -1, $glue = '-', & $truncated ) {
+	public static function slug( $s, $max_length = 0, $glue = '-', & $truncated ) {
 		$truncated = false;
 		$s = strtolower( self::stripAccents($s) );
 		if( $glue !== '_' ) {
 			$s = str_replace( '_',' ', $s );
 		}
-		$s = preg_replace( "/[^a-z0-9\s\\$glue]/", '',  $s );
-		$s = preg_replace( "/[\s\\$glue]+/",       ' ', $s );
+		$glue_safe = preg_quote( $glue );
+		$s = preg_replace( "/[^a-z0-9\s\\$glue_safe]/", '',  $s );
+		$s = preg_replace( "/[\s\\$glue_safe]+/",       ' ', $s );
 		$s = trim( $s, ' ' );
-		if( $max_length !== -1 ) {
+		if( $max_length ) {
 			$len = strlen( $s );
 			$s = substr( $s, 0, $max_length );
 			$truncated = $len !== strlen( $s );
@@ -86,14 +87,13 @@ class OutputUtilities {
 				$enfatized = $pre . esc_html( $found ) . $post;
 				$out .= $enfatized;
 
-				// next step
+				// do not process again this part
 				$offset = $pos + $found_length;
 			} else {
 				$end = mb_substr( $s, $offset );
 				$end = esc_html( $end );
 				$out .= $end;
 
-				// exit;
 				$offset = $s_length;
 			}
 
