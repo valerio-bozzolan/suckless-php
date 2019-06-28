@@ -318,7 +318,7 @@ abstract class QueryPager {
 	 * @return int
 	 */
 	public function countElements() {
-		if( ! $this->_countElements ) {
+		if( null === $this->_countElements ) {
 			$this->_countElements = (int)
 				$this->createQuery()
 					->select( 'COUNT(*) AS count' )
