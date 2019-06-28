@@ -72,10 +72,10 @@ abstract class QueryPager {
 	/**
 	 * Constructor
 	 *
-	 * @param $args array Arguments
+	 * @param $args array Arguments If null, GET is taken
 	 */
-	public function __construct( $args = [] ) {
-		$this->setArgs( $args ? $args : $_GET );
+	public function __construct( $args = null ) {
+		$this->setArgs( $args === null ? $_GET : $args );
 	}
 
 	/**
