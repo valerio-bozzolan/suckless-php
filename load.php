@@ -37,13 +37,13 @@ define_default( 'DEBUG', false );
 define_default( 'DEBUG_QUERIES', false );
 
 // HTTP protocol e.g. 'https'
-define_default( 'PROTOCOL', URL_protocol() );
+define_default( 'PROTOCOL', empty( $_SERVER['HTTPS'] ) ? 'http://' : 'https://' );
 
 // domain name e.g. 'reyboz.it' or 'reyboz.it:8080'
-define_default( 'DOMAIN', URL_domain() );
+define_default( 'DOMAIN', isset( $_SERVER['HTTP_HOST'] ) ? $_SERVER['HTTP_HOST'] : php_uname( 'n' ) );
 
-// absolute URL directory without trailing slash e.g. '/myapp' or ''
-define_default( 'ROOT', URL_root() );
+// absolute URL directory without trailing slash e.g. '/myapp'
+define_default( 'ROOT', '' );
 
 // URL without the ROOT
 define_default( 'BASE_URL', PROTOCOL . DOMAIN );

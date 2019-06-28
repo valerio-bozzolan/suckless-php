@@ -744,15 +744,6 @@ function site_page( $page, $full_url = false ) {
 }
 
 /**
- * Get the directory of the current request
- *
- * @return string
- */
-function this_folder() {
-	return dirname( $_SERVER['PHP_SELF'] );
-}
-
-/**
  * Choose the appropriate string.
  * '%' will be replaced with the input number.
  *
@@ -778,53 +769,6 @@ function http_redirect( $url, $response_code = 0 ) {
 	$url = site_page( $url, true );
 	header( "Location: $url", true, $response_code );
 	exit;
-}
-
-/**
- * Check if the request is under HTTPS
- *
- * @return boolean
- */
-function is_https() {
-	return ! empty( $_SERVER['HTTPS'] );
-}
-
-/**
- * Get the protocol of the request
- *
- * Note that there is a PROTOCOL constant. Use it instead.
- *
- * @return string e.g. 'https://'
- */
-function URL_protocol() {
-	return is_https() ? 'https://' : 'http://';
-}
-
-/**
- * Get the domain of the request and the port used.
- *
- * Note that there is a DOMAIN constant. Use it instead.
- *
- * @return string e.g. 'example.com'
- */
-function URL_domain() {
-	return isset( $_SERVER[ 'HTTP_HOST' ] )
-	            ? $_SERVER[ 'HTTP_HOST' ]
-	            : php_uname( 'n' );
-}
-
-/**
- * Get the directory root of the request
- *
- * Note that there is the ROOT constant. Use it instead.
- *
- * Note that it never ends with a slash.
- *
- * @return string e.g. '/installation' or just ''
- */
-function URL_root() {
-	$root = this_folder();
-	return $root === '/' ?  '' : $root;
 }
 
 /**

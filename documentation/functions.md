@@ -1,21 +1,5 @@
 ## Documentation
 
-### `function expect($global_var)`
-
-Retrieve a required global object.
-
- * **Parameters:** `$global_var` — `string` — Global variable name
- * **Returns:** `Object` — 
- * **See also:** G#expect()
-
-### `function register_expected($name, $class)`
-
-Register a required global object.
-
- * **Parameters:**
-   * `string` — variable name
-   * `string` — name
-
 ### `function force_array( & $a )`
 
 Force something to be an array.
@@ -223,18 +207,6 @@ Choose the appropriate string. '%' will be replaced with the input number.
 
 Simple HTTP redirects.
 
-### `function is_https()`
-
-Check if the request is under HTTPS
-
-### `function URL_protocol()`
-
-Get the protocol of the request (Please use PROTOCOL)
-
-### `function URL_domain()`
-
-Get the domain of the request (Please use PROTOCOL)
-
 ### `function http_503()`
 
 HTTP 503 header
@@ -355,8 +327,3 @@ Used to know much is the page load
 
  * **Returns:** `mixed` — Execution time
  * **Deprecated**
-
-### `function get_human_datetime($datetime, $format = 'd`
-
- * **Deprecated**
-
