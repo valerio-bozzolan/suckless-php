@@ -160,9 +160,6 @@ abstract class QueryPager {
 	 * @return self
 	 */
 	public function setArg( $arg, $value ) {
-		if( !$value ) {
-			$value = null;
-		}
 		$this->args[ $arg ] = $value;
 		return $this;
 	}
