@@ -594,11 +594,10 @@ class Query {
 			if( DEBUG_QUERIES ) {
 				error( $query );
 			}
-			if( !$this->conditions ) {
-				error_die( "for security reasons you cannot build this kind of query without a condition" );
-			} else {
+			if( $this->conditions ) {
 				error_die( "for security reasons you cannot build this kind of query involving multiple tables" );
 			}
+			error_die( "for security reasons you cannot build this kind of query without a condition" );
 		}
 		return $this->db->query( $query );
 	}
