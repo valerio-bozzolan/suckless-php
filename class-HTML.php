@@ -94,7 +94,7 @@ class HTML {
 	 */
 	public static function property( $name, $value ) {
 		$s = '';
-		if( !empty( $value ) ) {
+		if( $value !== null ) {
 			$value = esc_attr( $value );
 			$s = " $name=\"$value\"";
 		}
