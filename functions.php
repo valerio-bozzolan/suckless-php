@@ -1149,16 +1149,6 @@ function str_truncate($s, $max_length, $blabla = '', $encoding = null ) {
 	return mb_strimwidth($s, 0, $max_length, $blabla, $encoding);
 }
 
-function single_quotes( $s ) {
-	error( "deprecated single_quotes()" );
-	return "'$s'";
-}
-
-function double_quotes($s) {
-	error( "deprecated double_quotes()" );
-	return '"' . $s . '"';
-}
-
 define('T', 'T');
 
 define('JOIN', 'JOIN');
