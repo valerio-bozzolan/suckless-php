@@ -159,7 +159,8 @@ class Session {
 		$duration = $time + SESSION_DURATION;
 
 		$path = ROOT . _;
-		$force_https = is_https();
+
+		$force_https = PROTOCOL === 'https://';
 		setcookie( 'user_uid', $user->getSessionuserUID(),              $duration, $path, '', $force_https, false );
 		setcookie( 'token',    $user->generateSessionuserCookieToken(), $duration, $path, '', $force_https, true  );
 		setcookie( 'csrf',     $this->generateCSRF(),                   $duration, $path, '', $force_https, true  );
