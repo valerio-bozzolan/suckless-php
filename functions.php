@@ -775,12 +775,12 @@ function http_redirect( $url, $response_code = 0 ) {
  * Get a search-engine friendly version of any string
  *
  * @param  string  $s          Input string
- * @param  int     $max_length Maximum string length
+ * @param  int     $max_length Maximum string length (or zero for no limit)
  * @param  string  $glue       Word separator
  * @param  boolean $truncated  Flag to know if the string was truncated
  * @return string
  */
-function generate_slug( $s, $max_length = -1, $glue = '-', & $truncated = false ) {
+function generate_slug( $s, $max_length = 0, $glue = '-', & $truncated = false ) {
 	return OutputUtilities::slug( $s, $max_length, $glue, $truncated );
 }
 
