@@ -234,7 +234,9 @@ class DB {
 	 */
 	public function multiQuery( $queries ) {
 		$this->mysqli->multi_query( $queries );
-		while( $this->mysqli->next_result() );
+		while( $this->mysqli->more_results() ) {
+			$this->mysqli->next_result();
+		}
 	}
 
 	/**
