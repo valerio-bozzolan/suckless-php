@@ -77,7 +77,7 @@ class RegisterCSS {
 			$url .= false === strpos( $url, '?' ) ? '?' : '&amp;';
 			$url .= CACHE_BUSTER;
 		}
-		echo "\n\t<link rel=\"stylesheet\" type=\"text/css\" media=\"all\" id=\"$uid\" href=\"$url\" />";
+		echo "\n\t<link rel=\"stylesheet\" type=\"text/css\" media=\"all\" href=\"$url\" />";
 	}
 }
 
