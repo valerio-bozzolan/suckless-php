@@ -28,18 +28,18 @@ define_default( 'SESSIONUSER_CLASS', 'Sessionuser' );
 class Session {
 
 	/**
-	 * Is the login verified?
-	 *
-	 * @var bool
-	 */
-	private $ok = false;
-
-	/**
 	 * User currently logged
 	 *
 	 * @var Sessionuser
 	 */
 	private $user = null;
+
+	/**
+	 * Are the cookies tobe validated?
+	 *
+	 * @var bool
+	 */
+	private $mustValidate = true;
 
 	/**
 	 * Get the singleton instance
@@ -55,19 +55,12 @@ class Session {
 	}
 
 	/**
-	 * Constructor
-	 */
-	public function __construct() {
-		$this->validate();
-	}
-
-	/**
 	 * Is the user logged?
 	 *
-	 * @return bool
+	 * @return boolean
 	 */
 	public function isLogged() {
-		return null !== $this->getUser();
+		return is_object( $this->getUser() );
 	}
 
 	/**
@@ -76,7 +69,7 @@ class Session {
 	 * @return Sessionuser
 	 */
 	public function getUser() {
-		if( ! $this->ok ) {
+		if( $this->mustValidate ) {
 			$this->validate();
 		}
 		return $this->user;
@@ -95,9 +88,9 @@ class Session {
 	/**
 	 * Do a login
 	 *
-	 * @param $status int Login status
-	 * @param $uid User UID
-	 * @param $pwd User password
+	 * @param  int    $status int Login status
+	 * @param  string $uid User UID (if not specified is the 'user_uid' POST field
+	 * @param  string $pwd User password (if not specified is the 'user_password' POST field
 	 * @return bool
 	 */
 	public function login( & $status = null, $uid = null, $pwd = null ) {
@@ -109,105 +102,96 @@ class Session {
 		}
 
 		// UID from function or POST
-		if( $uid === null ) {
-			if( isset( $_POST['user_uid'] ) ) {
-				$uid = $_POST['user_uid'];
-			} else {
-				return error( 'login without POST-ing user_uid' );
-			}
+		if( $uid === null && isset( $_POST['user_uid'] ) ) {
+			$uid = $_POST['user_uid'];
 		}
 
 		// password from parameter or POST
-		if( $pwd === null ) {
-			if( isset( $_POST['user_password'] ) ) {
-				$pwd = $_POST['user_password'];
-			} else {
-				return error( 'login without POST-ing user_password' );
-			}
+		if( $pwd === null && isset( $_POST['user_password'] ) ) {
+			$pwd = $_POST['user_password'];
 		}
 
-		// no credentials no party
+		// no uid no party
 		if( empty( $uid ) ) {
 			$status = self::EMPTY_USER_UID;
 			return false;
 		}
+
+		// no password no party
 		if( empty( $pwd ) ) {
 			$status = self::EMPTY_USER_PASSWORD;
 			return false;
 		}
 
-		// PHP bug
+		// check if the user exists (note that the user class can be customized)
 		$userClass = SESSIONUSER_CLASS;
 		$user = $userClass::factoryFromLogin( $uid, $pwd )
 			->queryRow();
 
+		// check if user exists
 		if( ! $user ) {
 			$status = self::LOGIN_FAILED;
-			return self::failed( $userClass::sanitizeUID( $uid ), 'POST' );
+			self::failed( $userClass::sanitizeUID( $uid ), 'POST' );
+			return false;
 		}
 
+		// check if user is active
 		if( ! $user->isSessionuserActive() ) {
 			$status = self::USER_DISABLED;
 			return false;
 		}
 
-		$this->ok = true;
-
+		// mark as logged
 		$this->user = $user;
 
-		$time     = time();
-		$duration = $time + SESSION_DURATION;
+		// mark cookies as already validated
+		$this->mustValidate = false;
 
-		$path = ROOT . _;
+		// pass login status
+		$status = self::OK;
 
+		// set cookies
+		$duration    = time() + SESSION_DURATION;
+		$path        = ROOT . _;
 		$force_https = PROTOCOL === 'https://';
 		setcookie( 'user_uid', $user->getSessionuserUID(),              $duration, $path, '', $force_https, false );
 		setcookie( 'token',    $user->generateSessionuserCookieToken(), $duration, $path, '', $force_https, true  );
 		setcookie( 'csrf',     $this->generateCSRF(),                   $duration, $path, '', $force_https, true  );
 
-		$status = self::OK;
 		return true;
 	}
 
 	/**
-	 * Validate the user session
-	 *
-	 * @return bool
+	 * Validate the user session from cookies
 	 */
 	private function validate() {
-		if( $this->ok ) {
-			return true;
+
+		// do not call this twice
+		$this->mustValidate = false;
+
+		// no cookies no party
+		if( !isset( $_COOKIE['user_uid'], $_COOKIE['token'] ) ) {
+			return;
 		}
 
-		if( ! isset( $_COOKIE['user_uid'], $_COOKIE['token'] ) ) {
-			return false;
-		}
-
-		// PHP Bug
+		// retrieve the user just from the username (then will check the password)
 		$userClass = SESSIONUSER_CLASS;
-
 		$user = $userClass::factoryFromUID( $_COOKIE['user_uid'] )
 			->queryRow();
 
-		$this->ok = true;
-
-		if( ! $user ) {
-			$this->user = null;
-			return false;
+		// missing user or inactive
+		if( !$user || !$user->isSessionuserActive() ) {
+			return $this->destroy();
 		}
 
-		if( ! $user->isSessionuserActive() ) {
-			return false;
-		}
-
+		// check if the token is OK
 		if( $_COOKIE['token'] !== $user->generateSessionuserCookieToken() ) {
-			$this->destroy();
-			return self::failed( $userClass::sanitizeUID( $_COOKIE['user_uid'] ), 'cookies' );
+			self::failed( $userClass::sanitizeUID( $_COOKIE['user_uid'] ), 'cookies' );
+			return $this->destroy();
 		}
 
+		// now the user is logged
 		$this->user = $user;
-
-		return true;
 	}
 
 	/**
@@ -219,25 +203,11 @@ class Session {
 
 		setcookie( 'user_uid', 'asd', $invalidate, $path );
 		setcookie( 'token',    'asd', $invalidate, $path );
+		setcookie( 'csrf',     'asd', $invalidate, $path );
 
-		$this->ok = true;
+		// logout
 		$this->user = null;
-	}
-
-	/**
-	 * Log in syslog a login fail
-	 *
-	 * @param $uid string
-	 * @param $from string
-	 * @return false
-	 */
-	public static function failed( $uid, $from ) {
-		error_log( sprintf(
-			"Login failed by '%s' using %s",
-			$uid,
-			$from
-		) );
-		return false;
+		$this->mustValidate = false;
 	}
 
 	/**
@@ -279,9 +249,10 @@ class Session {
 	/**
 	 * Generate a new CSRF token
 	 *
+	 * @param int $bytes How much bytes to generate
 	 * @return string
 	 */
-	private function generateCSRF() {
-		return bin2hex( openssl_random_pseudo_bytes( 8 ) );
+	private function generateCSRF( $bytes = 8 ) {
+		return bin2hex( openssl_random_pseudo_bytes( $bytes ) );
 	}
 }
