@@ -255,4 +255,18 @@ class Session {
 	private function generateCSRF( $bytes = 8 ) {
 		return bin2hex( openssl_random_pseudo_bytes( $bytes ) );
 	}
+
+	/**
+	 * Log in syslog a login fail
+	 *
+	 * @param $uid string
+	 * @param $from string
+	 */
+	public static function failed( $uid, $from ) {
+		error_log( sprintf(
+			"Login failed by '%s' using %s",
+			$uid,
+			$from
+		) );
+	}
 }
