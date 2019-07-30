@@ -171,7 +171,16 @@ class Query {
 			throw new InvalidArgumentException( 'not enough tables' );
 		}
 		$table = $this->db->getTable( $table, $alias );
-		$on = implode( '=', [ $a, $b ] );
+
+		$conditions = [];
+		if( $a ) {
+			$conditions[] = $a;
+		}
+		if( $b ) {
+			$conditions[] = $b;
+		}
+		$on = implode( '=', $conditions );
+
 		$this->from[] = "$previous $type JOIN $table ON ($on)";
 		return $this;
 	}
