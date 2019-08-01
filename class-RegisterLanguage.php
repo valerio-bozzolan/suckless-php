@@ -14,6 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+// default gettext domain for this project
+define_default( 'GETTEXT_DOMAIN', 'core' );
+
 // default encoding for your .mo files (file suffix for it_IT.UTF-8 directory)
 define_default( 'GETTEXT_DEFAULT_ENCODE', 'UTF-8' );
 
@@ -117,7 +120,7 @@ class RegisterLanguage {
 			return error( 'please specify encoding for language $code, or define GETTEXT_DEFAULT_ENCODE' );
 		}
 
-		$this->languages[ ++$this->i ] = new BozPHPLanguage( $code, $encode, $iso, $human, $humanL10n );
+		$this->languages[ ++$this->i ] = new SucklessPHPLanguage( $code, $encode, $iso, $human, $humanL10n );
 
 		// Yes, the language code it's an alias to itself. That's a lazy hack!
 		$this->aliases[ self::normalize($code) ] = $this->i;
@@ -188,7 +191,7 @@ class RegisterLanguage {
 	}
 
 	/**
-	 * @return BozPHPLanguage|null
+	 * @return SucklessPHPLanguage|null
 	 */
 	function getLatestLanguageApplied() {
 		return $this->latest ? $this->latest : $this->default;
@@ -271,13 +274,55 @@ class RegisterLanguage {
 	}
 }
 
-class BozPHPLanguage {
+/**
+ * When using the 'latest_language()' you will get a 'SucklessPHPLanguage' object.
+ *
+ * Rappresent a language
+ */
+class SucklessPHPLanguage {
+
+	/**
+	 * Language code (e.g. 'it_IT')
+	 *
+	 * @var string
+	 */
 	private $code;
+
+	/**
+	 * Language encoding (e.g. 'UTF-8')
+	 *
+	 * @var string
+	 */
 	private $encode;
+
+	/**
+	 * Language ISO code (e.g. 'it')
+	 *
+	 * @var string
+	 */
 	private $iso;
+
+	/**
+	 * Language name (untranslated)
+	 *
+	 * @var string
+	 */
 	private $human;
+
+	/**
+	 * Language name (translated)
+	 */
 	private $humanL10n;
 
+	/**
+	 * Constructor
+	 *
+	 * @param string $code      Language code e.g. 'it_IT'
+	 * @param string $encode    Language encoding e.g. 'UTF-8' (or NULL for the default)
+	 * @param string $iso       Language iso code e.g. 'en' (or NULL to guess)
+	 * @param string $human     Language human name untranslated (e.g. 'Italian')
+	 * @param string $humanL10n Language human name translated (e.g. 'Italiano')
+	 */
 	public function __construct( $code, $encode, $iso, $human, $humanL10n ) {
 		$this->code   = $code;
 		$this->encode = $encode;
@@ -286,14 +331,29 @@ class BozPHPLanguage {
 		$this->humanL10n = $humanL10n;
 	}
 
+	/**
+	 * Get the language code (e.g. 'it_IT')
+	 *
+	 * @return string
+	 */
 	public function getCode() {
 		return $this->code;
 	}
 
+	/**
+	 * Get the language encoding (e.g. 'UTF-8')
+	 *
+	 * @return string
+	 */
 	public function getEncode() {
 		return $this->encode;
 	}
 
+	/**
+	 * Get the language ISO code (e.g. 'it')
+	 *
+	 * @return string
+	 */
 	public function getISO() {
 		if($this->iso === null) {
 			$this->iso = self::guessISO($this->iso);
@@ -301,20 +361,36 @@ class BozPHPLanguage {
 		return $this->iso;
 	}
 
+	/**
+	 * Get the language human name untranslated (if provided)
+	 *
+	 * @return string
+	 */
 	public function getHuman() {
 		return $this->human;
 	}
 
+	/**
+	 * Get the language human name translated (if provided)
+	 *
+	 * @return string
+	 */
 	public function getHumanL10n() {
 		return $this->humanL10n;
 	}
 
 	/**
-	 * Gets 'it' from 'it_IT', 'it_IT.utf8' etc.
+	 * Guess the language ISO code from a code
 	 *
-	 * Can be called statically
+	 * E.g. get 'it' from 'it_IT' or from 'it_IT.utf8' etc.
+	 *
+	 * Can be called statically if you provide $code.
+	 *
+	 * @param  string $code     Language code
+	 * @param  string $fallback Language ISO code used as fallback
+	 * @return string
 	 */
-	public function guessISO( $code = null, $fallback = 'en' ) {
+	private function guessISO( $code = null, $fallback = 'en' ) {
 		if( $code === null ) {
 			$code = $this->code;
 		}
