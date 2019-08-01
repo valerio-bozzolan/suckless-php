@@ -156,7 +156,7 @@ class Post extends Queried {
 
 
 // retrieve a Post object or null
-$post = Post::factory()
+$post = ( new Post() )
 	->whereInt( 'post_ID', 1 )
 	->queryRow();
 

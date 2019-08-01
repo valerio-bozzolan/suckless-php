@@ -479,8 +479,7 @@ class Query {
 	/**
 	 * Get the specified class name or the default one
 	 *
-	 * @TODO: rename to getClassName()
-	 * @param $class_name string
+	 * @param  string $class_name
 	 * @return string
 	 */
 	public function getDefaultClass( $class_name = null ) {

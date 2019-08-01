@@ -82,47 +82,45 @@ Definibles (as  (`type`) `default`):
 * `URL` (`string`): Default is `PROTOCOL . DOMAIN . ROOT`.
 * `REQUIRE_LOAD_POST` (`string|false`) `string`: As default it's `ABSPATH . '/load-post.php` and it's a file that describes your CMS.
 
-## What you have then
-Well. I hope to auto-document it with inline comments. For now you can just see `functions.php` in the framework folder.
+## Website configuration
 
-## Own functions / stuff
 It's normal to have your own custom configuration of this framework. So the `load-post.php` file is made for you. Create it and write in it what you want:
+
 ```php
 <?php
-// This file is automagically called after load.php
+// this file is automagically called after load.php and describes my website
 
-// Custom JavaScript and CSS declaration
-register_js('jquery', URL . '/media/jquery-min.js');
-register_css('my-style', URL . '/media/style.css');
+// declaration of JavaScript and CSS resources
+register_js(  'jquery',   ROOT . '/media/jquery-min.js');
+register_css( 'my-style', ROOT . '/media/style.css');
 
-// Custom permissions declaration
+// a subscribed user can comment and vote
 register_permissions('subscribed', [
 	'add-comment',
 	'page-vote'
 ] );
 
-inherit_permissions('superadmin', 'subscribed');
-register_permissions('superadmin', 'do-wonderful-things');
+// the superuser inherit from the subscribed and has also other permissions
+inherit_permissions('superadmin', 'subscribed', [
+	'do-wonderful-things'
+] );
 
-// Custom mime types declaration
-register_mimetypes('pdf', [
+// add support for secure PDF upload
+register_mimetypes( 'pdf', [
 	'application/pdf' => 'pdf',
 	'application/x-pdf' => 'pdf',
 	'application/x-bzpdf' => 'pdf',
 	'application/x-gzpdf' => 'pdf'
 ] );
 
-// Custom menu tree declaration
+// my menu tree
 add_menu_entries( [
+	//             UID          URL                 NAME                       PARENT
 	new MenuEntry( 'index',     'home.php',         __("Home") ),
 	new MenuEntry( 'services',  'services.php',     __("Our services") ),
 	new MenuEntry( 'contact',   'meet.php',         __("Meet us"),             'services'),
 	new MenuEntry( 'fsf',       'https://fsf.org/', __("Meet us in Colorado"), 'contact'),
 ] );
-
-// Use of custom associative options
-// $visits = get_option('visits', 0);
-// set_option('visits', ++$visits);
 ```
 
 ## Hacking

@@ -877,7 +877,7 @@ function http_json_header( $charset = null ) {
 /**
  * Unset the empty values in an array or in an object recursively
  *
- * @param $data mixed
+ * @param  mixed $data
  * @return array
  */
 function array_unset_empty( $data ) {
@@ -899,7 +899,7 @@ function array_unset_empty( $data ) {
 			}
    		}
 	}
-    return $data;
+	return $data;
 }
 
 /**
