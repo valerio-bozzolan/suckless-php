@@ -7,21 +7,15 @@
 Here an example of `index.php`:
 
 ```php
-<?php
-require 'load.php';
+<?php require 'load.php' ?>
 
-// your own function that print the site header
-Header::spawn();
-?>
+...
 
 <div class="container">
-    <p><?php _e( "Welcome") ?></p>
+    <p><?= __( "Welcome" ) ?></p>
 </div>
 
-<?php
-// your own function that print the site footer
-Footer::spawn();
-?>
+...
 ```
 
 Long story short: just put a `require 'load.php'` in top of your template to access the framework.
