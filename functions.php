@@ -888,6 +888,12 @@ function array_unset_empty( $data ) {
 				if( $is_array ) {
 					$data  [ $k ] = array_unset_empty( $v );
 				} else {
+
+					// call JsonSerialize() prematurely (or it may break ->get() methods)
+					if( $v instanceof JsonSerializable ) {
+						$v = $v->jsonSerialize();
+					}
+
 					$data->{ $k } = array_unset_empty( $v );
 				}
 			} elseif( empty( $v ) && ! is_int( $v ) ) {
