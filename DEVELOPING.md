@@ -21,7 +21,8 @@ Here an example of `index.php`:
 Long story short: just put a `require 'load.php'` in top of your template to access the framework.
 
 ## Query
-Note that as default no database 
+
+Note that the database connection is established automagically only if you need it. Now some examples.
 
 ### Query (declarative)
 
