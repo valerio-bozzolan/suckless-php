@@ -20,6 +20,28 @@ Here an example of `index.php`:
 
 Long story short: just put a `require 'load.php'` in top of your template to access the framework.
 
+In the next examples the `require 'load.php'` part is implicit.
+
+## JSON
+
+An example of a JSON API page could be this:
+
+```php
+// do some pre-conditions
+if( !isset( $_GET['ping'] ) ) {
+
+	// die with an HTTP status code 400 (Bad Request) and show a message
+	json_error( 400, 'missing-ping', "Please specify the 'ping' GET argument" );
+}
+
+json( [
+	'success' => true,
+	'pong'    => $_GET['ping'],
+] );
+```
+
+Note that to optimize the data transfer, `false` and `null` values and empty objects will be automagically removed from the JSON.
+
 ## Query
 
 Note that the database connection is established automagically only if you need it. Now some examples.
@@ -27,7 +49,7 @@ Note that the database connection is established automagically only if you need 
 ### Query (declarative)
 
 ```php
-    query( "ALTER TABLE ADD COLUMN `hello` ..." );
+query( "ALTER TABLE ADD COLUMN `hello` ..." );
 ```
 
 ### Select rows (full list)
@@ -35,13 +57,13 @@ Note that the database connection is established automagically only if you need 
 ```php
 // results as a pure array
 $posts = query_results( "SELECT post_title FROM wp_post" );
-if( $posts ) {
-    json( $posts );
-}
+
+// as example, let's expose them in JSON
+json( $posts );
 ```
 
 Note that `query_results()` is better over `query_generator()` if:
-* You need the full list (e.g. to count, to convert as JSON, etc.)
+* You need the full list (e.g. to count them, etc.)
 * You want to read the list multiple times
 
 ### Select rows (generator)
