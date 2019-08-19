@@ -103,8 +103,8 @@ class Query {
 	/**
 	 * To be used for PRIMARY KEY joins
 	 *
-	 * @param string $one Result set field
-	 * @param string $two Result set field
+	 * @param string $one Something (NOT SANITIZED)
+	 * @param string $two Something (NOT SANITIZED)
 	 * @return self
 	 */
 	public function equals( $one, $two ) {
