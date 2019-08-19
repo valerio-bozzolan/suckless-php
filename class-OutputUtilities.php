@@ -103,6 +103,41 @@ class OutputUtilities {
 	}
 
 	/**
+	 * Compress some data
+	 *
+	 * To optimize data-transfer, falsy values are unset.
+	 *
+	 * @param string $data
+	 * @return mixed
+	 */
+	public static function compressData( $data ) {
+		$is_array = is_array( $data );
+		if( $is_array || is_object( $data ) ) {
+			foreach( $data as $k => $v ) {
+				if( is_array( $v ) || is_object( $v ) ) {
+					if( $is_array ) {
+						$data  [ $k ] = static::compressData( $v );
+					} else {
+						// call JsonSerialize() prematurely (or it may break ->get() methods)
+						if( $v instanceof JsonSerializable ) {
+							$v = $v->jsonSerialize();
+						}
+
+						$data->{ $k } = static::compressData( $v );
+					}
+				} elseif( empty( $v ) && ! is_int( $v ) ) {
+					if( $is_array ) {
+						unset( $data[ $k ] );
+					} else {
+						unset( $data->{ $k } );
+					}
+				}
+	   		}
+		}
+		return $data;
+	}
+
+	/**
 	 * Get the human filesize from bytes
 	 *
 	 * @param $filesize int bytes

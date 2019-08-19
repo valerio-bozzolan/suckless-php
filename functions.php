@@ -875,40 +875,6 @@ function http_json_header( $charset = null ) {
 }
 
 /**
- * Unset the empty values in an array or in an object recursively
- *
- * @param  mixed $data
- * @return array
- */
-function array_unset_empty( $data ) {
-	$is_array = is_array( $data );
-	if( $is_array || is_object( $data ) ) {
-		foreach( $data as $k => $v ) {
-			if( is_array( $v ) || is_object( $v ) ) {
-				if( $is_array ) {
-					$data  [ $k ] = array_unset_empty( $v );
-				} else {
-
-					// call JsonSerialize() prematurely (or it may break ->get() methods)
-					if( $v instanceof JsonSerializable ) {
-						$v = $v->jsonSerialize();
-					}
-
-					$data->{ $k } = array_unset_empty( $v );
-				}
-			} elseif( empty( $v ) && ! is_int( $v ) ) {
-				if( $is_array ) {
-					unset( $data  [ $k ] );
-				} else {
-					unset( $data->{ $k } );
-				}
-			}
-   		}
-	}
-	return $data;
-}
-
-/**
  * Send a JSON (stripping out unuseful values) and die
  *
  * For performance related to data transfer, falsy elements are stripped out.
@@ -917,7 +883,8 @@ function array_unset_empty( $data ) {
  */
 function json( $data, $flags = 0 ) {
 	http_json_header();
-	echo json_encode( array_unset_empty( $data ), $flags );
+	$data = OutputUtilities::compressData( $data );
+	echo json_encode( $data, $flags );
 	exit;
 }
 
