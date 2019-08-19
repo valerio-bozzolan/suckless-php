@@ -15,15 +15,11 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Static class useful to create some HTML tags
+ * Class useful to create some HTML tags
  *
  * Use: esc_attr()
  */
 class HTML {
-
-	public function __construct( $tagname ) {
-		$this->tagname = $tagname;
-	}
 
 	/**
 	 * Tagname
@@ -37,7 +33,7 @@ class HTML {
 	 *
 	 * @var array
 	 */
-	private $attrs = [];
+	private $attrs;
 
 	/**
 	 * Text inside the tag
@@ -45,6 +41,17 @@ class HTML {
 	 * @var string
 	 */
 	private $text;
+
+	/**
+	 * Constructor
+	 *
+	 * @param string $tagname    Tag name in lower case
+	 * @param array  $attributes Associative array of attributes
+	 */
+	public function __construct( $tagname, $attributes = [] ) {
+		$this->tagname = $tagname;
+		$this->attrs = $attributes;
+	}
 
 	/**
 	 * Set an attribute
