@@ -66,6 +66,19 @@ class HTML {
 	}
 
 	/**
+	 * Add a class
+	 *
+	 * @param string $name
+	 * @return self
+	 */
+	public function addClass( $value ) {
+		if( isset( $this->attrs['class'] ) ) {
+			$value = $this->attrs['class'] . " $value";
+		}
+		return $this->setAttr( 'class', $value );
+	}
+
+	/**
 	 * Set the tag text
 	 *
 	 * @param string $text Text
