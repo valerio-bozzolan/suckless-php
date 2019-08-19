@@ -88,11 +88,11 @@ class Query {
 	}
 
 	/**
-	 * Intendeed to compare two columnsbe used for PRIMARY KEY joins.
+	 * To compare two columns somehow
 	 *
-	 * @param string $one  Result set field
+	 * @param string $one  Something (NOT SANITIZED)
 	 * @param string $verb Comparison method
-	 * @param string $two  Result set field
+	 * @param string $two  Something (NOT SANITIZED)
 	 * @param string $glue Conditions glue
 	 * @return self
 	 */
@@ -101,10 +101,10 @@ class Query {
 	}
 
 	/**
-	 * Intendeed to be used for PRIMARY KEY joins.
+	 * To be used for PRIMARY KEY joins
 	 *
-	 * @param string $one  Result set field
-	 * @param string $two  Result set field
+	 * @param string $one Result set field
+	 * @param string $two Result set field
 	 * @return self
 	 */
 	public function equals( $one, $two ) {
