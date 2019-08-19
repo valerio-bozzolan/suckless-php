@@ -405,10 +405,13 @@ function register_js_inline( $uid, $data, $position = 'after' ) {
  *
  * @param string $uid      Dependent script name e.g. 'my-map'
  * @param string $variable Variable declaration e.g. 'var coordinates'
- * @param mixed  $value    Variable content (can be an array, an object, etc.)
+ * @param mixed  $value    Variable content (can be an array, an object, a callback, etc.)
  * @param string $position Choose between 'after' or 'before' related to $uid execution
  */
 function register_js_var( $uid, $variable, $value, $position = 'before' ) {
+	if( is_closure( $value ) ) {
+		$value = $value();
+	}
 	$data = json_encode( $value, DEBUG ? JSON_PRETTY_PRINT : 0 );
 	register_js_inline( $uid, "$variable = $data;", $position );
 }
