@@ -21,6 +21,71 @@
  */
 class HTML {
 
+	public function __construct( $tagname ) {
+		$this->tagname = $tagname;
+	}
+
+	/**
+	 * Tagname
+	 *
+	 * @var string
+	 */
+	private $tagname;
+
+	/**
+	 * Associative array of attributes and their values
+	 *
+	 * @var array
+	 */
+	private $attrs = [];
+
+	/**
+	 * Text inside the tag
+	 *
+	 * @var string
+	 */
+	private $text;
+
+	/**
+	 * Set an attribute
+	 *
+	 * @param string $attr  Attribute name
+	 * @param string $value Attribute value
+	 * @return self
+	 */
+	public function setAttr( $attr, $value ) {
+		$this->attrs[ $attr ] = $value;
+		return $this;
+	}
+
+	/**
+	 * Set the tag text
+	 *
+	 * @param string $text Text
+	 * @return self
+	 */
+	public function setText( $text ) {
+		$this->text = $text;
+		return $this;
+	}
+
+	/**
+	 * Get the tag to string
+	 *
+	 * @return
+	 */
+	public function render() {
+		$tagname = $this->tagname;
+		$intag = '';
+		foreach( $this->attrs as $attr => $value ) {
+			$intag .= self::property( $attr, $value );
+		}
+		if( $tagname === 'img' ) {
+			return self::tagc( $tagname, $intag );
+		}
+		return self::tag( $tagname, $this->text, $intag );
+	}
+
 	/**
 	 * If it contains a list of tag, it return all the tags with a space before
 	 *
