@@ -101,9 +101,9 @@ $posts = ( new Query() )
 ```php
 $posts = ( new Query() )
     ->from( 'post' )
-    ->whereStr( 'post_title', $title )
+    ->whereStr( 'post_title',     $title )
     ->whereInt( 'post_author_id', $author )
-    ->quereSomethingIn( 'post_status', [ 'private', 'stub', 'deleted' ] )
+    ->whereSomethingIn( 'post_status', [ 'private', 'stub', 'deleted' ] )
 
     // implicit join + condition
     ->from( 'comment' )
