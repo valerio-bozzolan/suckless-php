@@ -116,7 +116,7 @@ class OutputUtilities {
 			foreach( $data as $k => $v ) {
 				if( is_array( $v ) || is_object( $v ) ) {
 					if( $is_array ) {
-						$data  [ $k ] = static::compressData( $v );
+						$data[ $k ] = static::compressData( $v );
 					} else {
 						// call JsonSerialize() prematurely (or it may break ->get() methods)
 						if( $v instanceof JsonSerializable ) {
@@ -125,7 +125,7 @@ class OutputUtilities {
 
 						$data->{ $k } = static::compressData( $v );
 					}
-				} elseif( empty( $v ) && ! is_int( $v ) ) {
+				} elseif( $v === null || $v === false ) {
 					if( $is_array ) {
 						unset( $data[ $k ] );
 					} else {
