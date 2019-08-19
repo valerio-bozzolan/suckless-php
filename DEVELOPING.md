@@ -172,14 +172,15 @@ class Post extends Queried {
 }
 
 
-// retrieve a Post object or null
-$post = ( new Post() )
+// now you have a query builder
+$post = Post::factory()
 	->whereInt( 'post_ID', 1 )
 	->queryRow();
 
+// do stuff
 if( $post ) {
-	// do stuff
 
+	// this method exists
 	$title = $post->getTitle();
 }
 ```
