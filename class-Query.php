@@ -88,21 +88,34 @@ class Query {
 	}
 
 	/**
+	 * Intendeed to compare two columnsbe used for PRIMARY KEY joins.
+	 *
+	 * @param string $one  Result set field
+	 * @param string $verb Comparison method
+	 * @param string $two  Result set field
+	 * @param string $glue Conditions glue
+	 * @return self
+	 */
+	public function compare( $one, $verb, $two, $glue = 'AND' ) {
+		return $this->where( "$one $verb $two", $glue );
+	}
+
+	/**
 	 * Intendeed to be used for PRIMARY KEY joins.
 	 *
-	 * @param string $one Result set field
-	 * @param string $two Result set field
+	 * @param string $one  Result set field
+	 * @param string $two  Result set field
 	 * @return self
 	 */
 	public function equals( $one, $two ) {
-		return $this->where( "$one = $two" );
+		return $this->compare( $one, '=', $two );
 	}
 
 	/**
 	 * Append a query condition
 	 *
-	 * @param string $condition something as 'field = 1'
-	 * @param string $glue condition glue such as 'OR'
+	 * @param string $condition Something as 'field = 1'
+	 * @param string $glue      Conditions glue
 	 * @return self
 	 */
 	public function where( $condition, $glue = 'AND' ) {
@@ -114,24 +127,28 @@ class Query {
 	}
 
 	/**
-	 * Intended to compare a property with a number.
+	 * Intended to compare a column with a number
 	 *
-	 * @param string $one Column name
-	 * @param int $value Value
+	 * @param  string $one   Column name
+	 * @param  int    $value Value
+	 * @param  string $verb  Compare method
+	 * @return self
 	 */
-	public function whereInt( $column, $value ) {
-		return $this->equals( $column, (int)$value );
+	public function whereInt( $column, $value, $verb = '=' ) {
+		return $this->compare( $column, $verb, (int)$value );
 	}
 
 	/**
-	 * Intended to compare a property with a string.
+	 * Intended to compare a column with a string
 	 *
-	 * @param string $one Column name
-	 * @param string $value Value
+	 * @param  string $one   Column name
+	 * @param  string $value Value
+	 * @param  string $verb  Compare method
+	 * @return self
 	 */
-	public function whereStr( $column, $value ) {
+	public function whereStr( $column, $value, $verb = '=' ) {
 		$value = esc_sql( $value );
-		return $this->equals( $column, "'$value'" );
+		return $this->compare( $column, $verb, "'$value'" );
 	}
 
 	/**
@@ -145,11 +162,8 @@ class Query {
 	public function whereLike( $column, $value, $left = true, $right = true ) {
 		$left  = $left  ? '%' : '';
 		$right = $right ? '%' : '';
-		return $this->where( sprintf(
-			'`%s` LIKE \'%s%s%s\'',
-			$column,
-			$left, esc_sql_like( $value ), $right
-		) );
+		$value = $left . esc_sql_like( $value ) . $right;
+		return $this->whereStr( $column, $value, 'LIKE' );
 	}
 
 	/**
@@ -236,44 +250,45 @@ class Query {
 	/**
 	 * Handy shortcut for `something IN (values)` condition.
 	 *
-	 * @param string $heystack Field.
-	 * @param string|array $needles Values to compare.
+	 * Actually the type (int or string) is inherited from the first value.
+	 *
+	 * @param string       $heystack Column name
+	 * @param string|array $needles  Values to compare
 	 * @return self
 	 */
 	public function whereSomethingIn( $heystack, $needles, $glue = 'AND', $not_in = false ) {
-		force_array($needles);
+		force_array( $needles );
 
-		$n_needles = count($needles);
-		if( $n_needles === 1 ) {
-			$needle = array_pop( $needles );
-			$this->where(
-				sprintf("%s %s '%s'",
-					$heystack,
-					$not_in ? '!=' : '=',
-					esc_sql( $needle )
-				),
-				$glue
-			);
+		// no needles no filter
+		$n_needles = count( $needles );
+		if( !$n_needles ) {
 			return $this;
 		}
 
-		$escaped_needles = [];
+		// the type is inherited from the first value
 		$is_int = is_int( reset( $needles ) );
-		foreach( $needles as $needle ) {
-			$escaped_needles[] = $is_int
-				? (int) $needle
-				: "'" . esc_sql( $needle ) . "'";
+
+		// case with just one element
+		if( $n_needles === 1 ) {
+			$needle = array_pop( $needles );
+			$verb = $not_in ? '!=' : '=';
+			return $is_int
+				? $this->whereInt( $heystack, $needle, $verb )
+				: $this->whereStr( $heystack, $needle, $verb );
 		}
 
-		if( $escaped_needles ) {
-			$values = implode(', ', $escaped_needles);
-			if($not_in) {
-				$this->where("$heystack NOT IN ($values)", $glue);
-			} else {
-				$this->where("$heystack IN ($values)", $glue);
-			}
+		// collect the series
+		$escaped_needles = [];
+		$force_type = $is_int ? 'd' : 's';
+		foreach( $needles as $needle ) {
+			$escaped_needles[] = $this->db->forceType( $needle, $force_type );
 		}
-		return $this;
+
+		// build the condition
+		$values = implode( ', ', $escaped_needles );
+		$values = "($values)";
+		$verb = $not_in ? 'NOT IN' : 'IN';
+		return $this->compare( $heystack, $verb, $values, $glue );
 	}
 
 	/**
@@ -283,8 +298,7 @@ class Query {
 	 * @param string|array $needles Values to compare.
 	 */
 	public function whereSomethingNotIn( $heystack, $needles, $glue = 'AND' ) {
-		$this->appendConditionSomethingIn($heystack, $needles, $glue, true); // See true
-		return $this;
+		return $this->appendConditionSomethingIn( $heystack, $needles, $glue, true ); // See true
 	}
 
 	/**
