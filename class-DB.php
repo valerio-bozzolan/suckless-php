@@ -233,9 +233,15 @@ class DB {
 	 * @param $queries string
 	 */
 	public function multiQuery( $queries ) {
-		$this->mysqli->multi_query( $queries );
+		$i = 1;
+		if( !$this->mysqli->multi_query( $queries ) ) {
+				error_die( "error in MySQLi#multi_query() with statement n. $i (starting from zero)" );
+		}
 		while( $this->mysqli->more_results() ) {
-			$this->mysqli->next_result();
+			$i++;
+			if( !$this->mysqli->next_result() ) {
+				error_die( "error in MySQLi#multi_query() with statement n. $i (starting from zero)" );
+			}
 		}
 	}
 
