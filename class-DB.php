@@ -235,12 +235,12 @@ class DB {
 	public function multiQuery( $queries ) {
 		$i = 1;
 		if( !$this->mysqli->multi_query( $queries ) ) {
-				error_die( "error in MySQLi#multi_query() with statement n. $i (starting from zero)" );
+				error_die( "error in MySQLi#multi_query() with statement n. $i (starting from 1)" );
 		}
 		while( $this->mysqli->more_results() ) {
 			$i++;
 			if( !$this->mysqli->next_result() ) {
-				error_die( "error in MySQLi#multi_query() with statement n. $i (starting from zero)" );
+				error_die( "error in MySQLi#multi_query() with statement n. $i (starting from 1)" );
 			}
 		}
 	}
