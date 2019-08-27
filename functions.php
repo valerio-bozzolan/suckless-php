@@ -381,12 +381,13 @@ function inherit_permissions( $role_to, $role_from, $permissions = [] ) {
 /**
  * Register a JavaScript file to be enqueued later
  *
- * @param string $uid      Script name e.g. 'jquery'
- * @param string $url      Script URL e.g. '/javascript/jquery/jquery.min.js'
- * @param string $position Choose between 'header' or 'footer'
+ * @param string $uid          Script name e.g. 'jquery'
+ * @param string $url          Script URL e.g. '/javascript/jquery/jquery.min.js'
+ * @param string $position     Choose between 'header' or 'footer'
+ * @param array  $dependencies Array of script names used as dependencies
  */
-function register_js( $uid, $url, $position = null ) {
-	RegisterJS::instance()->register( $uid, $url, $position );
+function register_js( $uid, $url, $position = null, $dependencies = [] ) {
+	RegisterJS::instance()->register( $uid, $url, $position, $dependencies );
 }
 
 /**

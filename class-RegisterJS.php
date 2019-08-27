@@ -45,15 +45,16 @@ class RegisterJS {
 	/**
 	 * Register a new script name
 	 *
-	 * @param string $name JS name, like: "jquery"
-	 * @param mixed $url Script url, like "http://example.org/lib/jquery.js"
-	 * @param string $position header|footer
+	 * @param string $name         Script name, like: "jquery"
+	 * @param mixed  $url          Script url, like "http://example.org/lib/jquery.js"
+	 * @param string $position     header|footer
+	 * @param array  $dependencies Dependent script names
 	 */
-	public function register( $uid, $url, $position = null ) {
+	public function register( $uid, $url, $position = null, $dependencies = [] ) {
 		if( ! $position ) {
 			$position = self::$DEFAULT;
 		}
-		$this->js[ $uid ] = new JS( $uid, $url, $position );
+		$this->js[ $uid ] = new JS( $uid, $url, $position, $dependencies );
 	}
 
 	/**
@@ -75,9 +76,18 @@ class RegisterJS {
 	 */
 	public function enqueue( $uid, $position = null ) {
 		$js = $this->js[ $uid ];
-		$js->enqueue = true;
+
+		// eventually override script position
 		if( $position ) {
 			$js->position = $position;
+		}
+
+		// eventually mark to be enqueued with also its dependencies
+		if( !$js->enqueue ) {
+			$js->enqueue = true;
+			foreach( $js->dependencies as $dependency_uid ) {
+				$this->enqueue( $dependency_uid );
+			}
 		}
 	}
 
@@ -110,6 +120,8 @@ class JS {
 
 	public $inline;
 
+	public $dependencies;
+
 	/**
 	 * Construct
 	 *
@@ -117,10 +129,11 @@ class JS {
 	 * @param $url string
 	 * @param $position string header|footer
 	 */
-	public function __construct( $uid, $url, $position ) {
+	public function __construct( $uid, $url, $position, $dependencies ) {
 		$this->uid = $uid;
 		$this->url = $url;
 		$this->position = $position;
+		$this->dependencies = $dependencies;
 		$this->inline = [
 			'after'  => [],
 			'before' => [],
