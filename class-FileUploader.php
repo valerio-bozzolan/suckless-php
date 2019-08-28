@@ -36,11 +36,35 @@ define_default( 'CHMOD_WRITABLE_DIRECTORY', 0755 );
  */
 class FileUploader {
 
+	/**
+	 * File entry
+	 *
+	 * E.g. 'image' (the name of the input type upload)
+	 *
+	 * @var string
+	 */
 	private $fileEntry;
 
+	/**
+	 * Upload arguments to change the upload behaviour
+	 *
+	 * @var array
+	 */
 	private $args;
 
+	/**
+	 * Available mimetypes
+	 *
+	 * @var MimeTypes
+	 */
 	private $mimeTypes;
+
+	/**
+	 * Last upload status
+	 *
+	 * @var null|int
+	 */
+	private $lastStatus;
 
 	/**
 	 * Create a FileUploader object.
@@ -51,16 +75,12 @@ class FileUploader {
 	 */
 	function __construct( $fileEntry, $args = [], $mimeTypes = null ) {
 		$this->fileEntry = $fileEntry;
-		$this->setArgs($args);
-		if( null === $mimeTypes ) {
-			$this->mimeTypes = MimeTypes::instance();
-		} else {
-			$this->mimeTypes = $mimeTypes;
-		}
+		$this->setArgs( $args );
+		$this->mimeTypes = $mimeTypes ? $mimeTypes : MimeTypes::instance();
 	}
 
 	/**
-	 * Set options.
+	 * Set upload options
 	 *
 	 * @param array $args Arguments.
 	 *	'i' => int
@@ -155,6 +175,10 @@ class FileUploader {
 	 * @param string $mime MIME type
 	 */
 	public function uploadTo( $pathname, & $status, & $filename = null, & $ext = null, & $mime = null ) {
+
+		// remember the last upload status
+		$this->lastStatus = &$status;
+
 		if( ! $this->uploadRequestOK() ) {
 			$status = UPLOAD_EXTRA_ERR_INVALID_REQUEST;
 			return false;
@@ -270,10 +294,16 @@ class FileUploader {
 	/**
 	 * Prefilled error messages.
 	 *
-	 * @param int $status The $status var from FileUploader::uploadTo()
+	 * @param int $status A $status var from FileUploader::uploadTo()
 	 * @return string The proper error message.
 	 */
-	public function getErrorMessage( $status ) {
+	public function getErrorMessage( $status = null ) {
+
+		// if the status is not specified, use the last one
+		if( $status === null ) {
+			$status = $this->lastStatus;
+		}
+
 		switch( $status ) {
 			case UPLOAD_ERR_OK:
 				// You should avoid this. Is not an error!
