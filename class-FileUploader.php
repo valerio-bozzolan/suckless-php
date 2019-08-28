@@ -184,7 +184,7 @@ class FileUploader {
 			return false;
 		}
 
-		$status = $this->getFileInfo( 'error ' );
+		$status = $this->getFileInfo( 'error' );
 		switch( $status ) {
 			case UPLOAD_ERR_NO_FILE:
 			case UPLOAD_ERR_INI_SIZE:
