@@ -1,5 +1,5 @@
 <?php
-# Copyright (C) 2015, 2018 Valerio Bozzolan
+# Copyright (C) 2015, 2018, 2019 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,15 +15,15 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 // error defaults
-define('UPLOAD_EXTRA_ERR_INVALID_REQUEST', 101);
-define('UPLOAD_EXTRA_ERR_GENERIC_ERROR', 102);
+define('UPLOAD_EXTRA_ERR_INVALID_REQUEST',    101);
+define('UPLOAD_EXTRA_ERR_GENERIC_ERROR',      102);
 define('UPLOAD_EXTRA_ERR_CANT_READ_MIMETYPE', 103);
 define('UPLOAD_EXTRA_ERR_UNALLOWED_MIMETYPE', 104);
-define('UPLOAD_EXTRA_ERR_UNALLOWED_FILE', 105);
-define('UPLOAD_EXTRA_ERR_OVERSIZE', 106);
+define('UPLOAD_EXTRA_ERR_UNALLOWED_FILE',     105);
+define('UPLOAD_EXTRA_ERR_OVERSIZE',           106);
 define('UPLOAD_EXTRA_ERR_FILENAME_TOO_SHORT', 107);
-define('UPLOAD_EXTRA_ERR_FILENAME_TOO_LONG', 108);
-define('UPLOAD_EXTRA_ERR_CANT_SAVE_FILE', 109);
+define('UPLOAD_EXTRA_ERR_FILENAME_TOO_LONG',  108);
+define('UPLOAD_EXTRA_ERR_CANT_SAVE_FILE',     109);
 
 // fifo system default
 define_default( 'MAGIC_MIME_FILE', null );
@@ -60,7 +60,7 @@ class FileUploader {
 	private $mimeTypes;
 
 	/**
-	 * Last upload status
+	 * Last upload error status
 	 *
 	 * @var null|int
 	 */
@@ -292,10 +292,22 @@ class FileUploader {
 	}
 
 	/**
-	 * Prefilled error messages.
+	 * Check if the last FileUploader#uploadTo() was done successfully
 	 *
-	 * @param int $status A $status var from FileUploader::uploadTo()
-	 * @return string The proper error message.
+	 * @return boolean
+	 */
+	public function isLastUploadSuccess() {
+		return $this->lastStatus === UPLOAD_ERR_OK;
+	}
+
+	/**
+	 * Get the upload error message
+	 *
+	 * This method should be called after FileUploader#uploadTo()
+	 * and after checking FileUploader#isLastUploadSuccess().
+	 *
+	 * @param  int    $status The $status variable from FileUploader::uploadTo() (or none for the last one)
+	 * @return string         The error message
 	 */
 	public function getErrorMessage( $status = null ) {
 
@@ -308,15 +320,22 @@ class FileUploader {
 			case UPLOAD_ERR_OK:
 				// You should avoid this. Is not an error!
 				return __("Upload completato con successo.");
+
 			case UPLOAD_ERR_NO_FILE:
 				return __("Non è stato selezionato alcun file.");
+
+			case UPLOAD_ERR_PARTIAL:
+				return __( "Per favore ricarica il file. È stato caricato solo parzialmente." );
+
 			case UPLOAD_ERR_INI_SIZE:
 				return sprintf(
-					__( "Il file eccede i limiti di sistema (%s)." ),
+					__( "Superati i limiti di upload (massimo %s)." ),
 					human_filesize( self::uploadMaxFilesize() )
 				);
+
 			case UPLOAD_ERR_FORM_SIZE:
 				return __("Il file eccede i limiti imposti.");
+
 			case UPLOAD_EXTRA_ERR_OVERSIZE:
 				$size = $this->getFileInfo( 'size' );
 				return sprintf(
@@ -324,17 +343,20 @@ class FileUploader {
 					$size ? human_filesize( $this->getFileInfo( 'size' ) ) : __( "troppo" ),
 					human_filesize( $this->args['max-filesize'] )
 				);
+
 			case UPLOAD_EXTRA_ERR_CANT_SAVE_FILE:
 				return __("Impossibile salvare il file.");
+
 			case UPLOAD_EXTRA_ERR_CANT_READ_MIMETYPE:
 				return __("Il MIME del file non è validabile.");
+
 			case UPLOAD_EXTRA_ERR_UNALLOWED_MIMETYPE:
 				$mime = self::fileMimetype( $this->getFileInfo( 'tmp_name' ) );
-
 				return sprintf(
-					__("Il file é di un <em>MIME type</em> non concesso: <em>%s</em>."),
+					__( "Il file é di un MIME type non concesso: \"%s\"." ),
 					esc_html( $mime )
 				);
+
 			case UPLOAD_EXTRA_ERR_UNALLOWED_FILE:
 				$mime = self::fileMimetype( $this->getFileInfo( 'tmp_name' ) );
 
@@ -356,11 +378,14 @@ class FileUploader {
 				);
 			case UPLOAD_EXTRA_ERR_FILENAME_TOO_SHORT:
 				return __("Il file ha un nome troppo breve.");
+
 			case UPLOAD_EXTRA_ERR_FILENAME_TOO_LONG:
 				return __("Il file ha un nome troppo lungo.");
+
 			case UPLOAD_EXTRA_ERR_GENERIC_ERROR:
 				return __("Errore di caricamento sconosciuto.");
 		}
+
 		error( "unexpected FileUploader error status: $status" );
 		return __("Errore di caricamento alquanto sconosciuto.");
 	}
@@ -505,7 +530,10 @@ class FileUploader {
 	}
 
 	/**
-	 * Check if the request is over the max_post_size
+	 * Check if the request is over the 'max_post_size' PHP.ini limit
+	 *
+	 * This is useful to be checked because, in this case,
+	 * is like *no* file was uploaded.
 	 *
 	 * @return bool
 	 */
@@ -515,7 +543,7 @@ class FileUploader {
 	}
 
 	/**
-	 * Check if the request is over the upload_max_filesize
+	 * Check if the request is over the 'upload_max_filesize' PHP.init limit
 	 *
 	 * @return bool
 	 */
@@ -523,6 +551,18 @@ class FileUploader {
 		return empty( $_FILES )
 			&& isset( $_SERVER[ 'CONTENT_LENGTH' ] )
 			&&        $_SERVER[ 'CONTENT_LENGTH' ] > self::uploadMaxFilesize();
+	}
+
+	/**
+	 * Message related to the POST Content-Length exceding its limit
+	 *
+	 * @return string
+	 */
+	public static function overMaxPOSTSizeMessage() {
+		return sprintf(
+			__( "La richiesta non è valida (inviati più di %s)." ),
+			human_filesize( self::maxPOSTSize() )
+		);
 	}
 
 	/*
