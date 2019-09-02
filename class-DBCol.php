@@ -61,7 +61,7 @@ class DBCol {
 	public function promoteNULL() {
 		$type  = $this->forceType;
 		$value = $this->value;
-		if( 'snull' === $type && '' === $value || 'dnull' === $type && 0 === $value ) {
+		if( 'snull' === $type && '' === $value || 'dnull' === $type && !$value ) {
 			$this->value = null;
 		}
 	}
