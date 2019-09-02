@@ -71,7 +71,10 @@ class RegisterJS {
 	/**
 	 * Enqueue a previous registered JS name
 	 *
-	 * @param $name string JS name
+	 * Note that if there is a stylesheet with the same UID, it will be
+	 * enqueued as well.
+	 *
+	 * @param $name     string JS name
 	 * @param $position string Place it in the head of the page or not
 	 */
 	public function enqueue( $uid, $position = null ) {
@@ -84,6 +87,10 @@ class RegisterJS {
 
 		// eventually mark to be enqueued with also its dependencies
 		if( !$js->enqueue ) {
+
+			// also enqueue the stylesheet with the same UID (if it exists)
+			RegisterCSS::instance()->enqueue( $uid, false );
+
 			$js->enqueue = true;
 			foreach( $js->dependencies as $dependency_uid ) {
 				$this->enqueue( $dependency_uid );

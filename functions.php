@@ -420,6 +420,8 @@ function register_js_var( $uid, $variable, $value, $position = 'before' ) {
 /**
  * Mark a registered script for usage
  *
+ * Note that if there is a related stylesheet, it will be enqueued as well.
+ *
  * @param string $uid      Dependent script name e.g. 'my-map'
  * @param string $position Choose between 'header' or 'footer'
  */

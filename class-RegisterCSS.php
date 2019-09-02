@@ -45,13 +45,16 @@ class RegisterCSS {
 	}
 
 	/**
-	 * Enqueue a previous registered CSS name
+	 * Enqueue a previously registered CSS name
 	 *
-	 * @param string $uid CSS name.
+	 * @param string  $uid           CSS name
+	 * @param boolean $report_errors In case of errors, report the error?
 	 */
-	public function enqueue( $uid ) {
+	public function enqueue( $uid, $report_errors = true ) {
 		if( empty( $this->css[ $uid ] ) ) {
-			error( "unknown stylesheet $uid" );
+			if( $report_errors ) {
+				error( "unknown stylesheet $uid" );
+			}
 		} else {
 			$this->css[ $uid ]->enqueue = true;
 		}
