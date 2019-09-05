@@ -345,6 +345,15 @@ class DB {
 	}
 
 	/**
+	 * Get the last number of rows retrieved
+	 *
+	 * @return int
+	 */
+	public function getLastNumRows() {
+		return $this->last->num_rows;
+	}
+
+	/**
 	 * Escape a string
 	 *
 	 * @param string $s String to be escaped
