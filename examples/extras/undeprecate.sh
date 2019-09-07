@@ -9,3 +9,4 @@ sed -i 's/ _e(/ echo __(/g'              $@
 sed -i 's/ and echo/ and print/g'        $@
 sed -i 's/<?php echo/<?=/g'              $@
 sed -i 's/<?= echo/ <?=/g'               $@
+sed -i 's/get_menu_entry(/menu_entry(/'  $@
