@@ -384,6 +384,10 @@ class FileUploader {
 
 			case UPLOAD_EXTRA_ERR_GENERIC_ERROR:
 				return __("Errore di caricamento sconosciuto.");
+
+			case UPLOAD_ERR_NO_TMP_DIR:
+				error( "FileUploader error: UPLOAD_ERR_NO_TMP_DIR (6)" );
+				return __( "Manca una cartella temporanea. Contattare l'amministratore." );
 		}
 
 		error( "unexpected FileUploader error status: $status" );
