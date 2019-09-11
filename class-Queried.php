@@ -1,5 +1,5 @@
 <?php
-# Copyright (C) 2017, 2018 Valerio Bozzolan
+# Copyright (C) 2017, 2018, 2019 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -41,7 +41,7 @@ class Queried {
 		if( property_exists( $this, $property ) ) {
 			return $this->$property;
 		}
-		error_die( sprintf(
+		throw new Exception( sprintf(
 			'cannot obtain %s->%s',
 			get_class( $this ),
 			$property
@@ -68,7 +68,7 @@ class Queried {
 		if( isset( $this->$property ) ) {
 			return $this->$property;
 		}
-		error_die( sprintf(
+		throw new Exception( sprintf(
 			'cannot obtain %s->%s',
 			get_class( $this ),
 			$property
