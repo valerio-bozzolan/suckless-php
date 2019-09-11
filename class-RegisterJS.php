@@ -60,12 +60,16 @@ class RegisterJS {
 	/**
 	 * Register an inline script
 	 *
-	 * @param $name string
-	 * @param $data string
-	 * @param $position before|after
+	 * @param string $uid      Script name, like: "jquery"
+	 * @param array  $data     Inline JavaScript content (without <script> tags)
+	 * @param string $position before|after
 	 */
 	public function registerInline( $uid, $data, $position ) {
-		$this->js[ $uid ]->inline[ $position ][] = $data;
+		if( isset( $this->js[ $uid ] ) ) {
+			$this->js[ $uid ]->inline[ $position ][] = $data;
+		} else {
+			throw new Exception( "missing script '$uid'" );
+		}
 	}
 
 	/**
