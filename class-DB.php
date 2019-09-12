@@ -123,10 +123,11 @@ class DB {
 			$this->last->free();
 		}
 		$this->last = $this->mysqli->query( $query );
+		if( DEBUG_QUERIES ) {
+			error( "query n. {$this->queries}: $query" );
+		}
 		if( !$this->last ) {
 			throw new SucklessException( $this->getQueryErrorMessage( $query ) );
-		} elseif( DEBUG_QUERIES ) {
-			error( "query n. {$this->queries}: $query" );
 		}
 		return $this->last;
 	}
