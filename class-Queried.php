@@ -41,7 +41,7 @@ class Queried {
 		if( property_exists( $this, $property ) ) {
 			return $this->$property;
 		}
-		throw new Exception( sprintf(
+		throw new SucklessException( sprintf(
 			'cannot obtain %s->%s',
 			get_class( $this ),
 			$property
@@ -68,7 +68,7 @@ class Queried {
 		if( isset( $this->$property ) ) {
 			return $this->$property;
 		}
-		throw new Exception( sprintf(
+		throw new SucklessException( sprintf(
 			'cannot obtain %s->%s',
 			get_class( $this ),
 			$property

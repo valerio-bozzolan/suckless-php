@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
- * Use: esc_html(), error_die(), DEBUG, force_array()
+ * Use: esc_html(), DEBUG, force_array()
  */
 
 /**
@@ -106,7 +106,7 @@ class DB {
 		@$this->mysqli = new mysqli( $location, $username, $password, $database );
 		if( $this->mysqli->connect_errno ) {
 			$length = strlen( $password );
-			error_die( "unable to connect to the database '$database' using user '$username' and password ($length characters) on MySQL/MariaDB host '$location'" );
+			throw new SucklessException( "unable to connect to the database '$database' using user '$username' and password ($length characters) on MySQL/MariaDB host '$location'" );
 		} else {
 			$this->mysqli->set_charset( $charset );
 		}
@@ -124,7 +124,7 @@ class DB {
 		}
 		$this->last = $this->mysqli->query( $query );
 		if( !$this->last ) {
-			error_die( $this->getQueryErrorMessage( $query ) );
+			throw new SucklessException( $this->getQueryErrorMessage( $query ) );
 		} elseif( DEBUG_QUERIES ) {
 			error( "query n. {$this->queries}: $query" );
 		}
@@ -235,12 +235,12 @@ class DB {
 	public function multiQuery( $queries ) {
 		$i = 1;
 		if( !$this->mysqli->multi_query( $queries ) ) {
-			error_die( "error in MySQLi#multi_query() with statement n. $i (starting from 1): {$this->mysqli->error}" );
+			throw new SucklessException( "error in MySQLi#multi_query() with statement n. $i (starting from 1): {$this->mysqli->error}" );
 		}
 		while( $this->mysqli->more_results() ) {
 			$i++;
 			if( !$this->mysqli->next_result() ) {
-				error_die( "error in MySQLi#multi_query() with statement n. $i (starting from 1): {$this->mysqli->error}" );
+				throw new SucklessException( "error in MySQLi#multi_query() with statement n. $i (starting from 1): {$this->mysqli->error}" );
 			}
 		}
 	}
@@ -282,7 +282,7 @@ class DB {
 			$query_values = [];
 
 			if( $n_columns !== count( $row ) ) {
-				error_die( sprintf(
+				throw new SucklessException( sprintf(
 					"error using insert() in table %s: %d columns but %d values in row %d",
 					$table,
 					$n_columns,
@@ -473,9 +473,9 @@ class DB {
 	}
 
 	/**
-	 * Used to show "friendly" error.
+	 * Show a friendly error about last MySQL query
 	 *
-	 * @param string $query SQL query executed during the error
+	 * @param  string $query SQL query executed during the error
 	 * @return string
 	 */
 	private function getQueryErrorMessage( $query ) {
@@ -483,7 +483,7 @@ class DB {
 			"error executing the query n. %d |%s| error: %s",
 			$this->queries,
 			$query,
-			esc_html( $this->mysqli->error )
+			$this->mysqli->error
 		);
 	}
 

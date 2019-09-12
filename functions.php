@@ -286,7 +286,7 @@ function insert_row( $table, $cols, $args = [] ) {
  */
 function last_inserted_ID() {
 	if( ! DB::instanced() ) {
-		error_die( 'cannot obtain last inserted ID without database connection' );
+		throw new SucklessException( 'cannot obtain last inserted ID without database connection' );
 	}
 	return DB::instance()->getLastInsertedID();
 }

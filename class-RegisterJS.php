@@ -68,7 +68,7 @@ class RegisterJS {
 		if( isset( $this->js[ $uid ] ) ) {
 			$this->js[ $uid ]->inline[ $position ][] = $data;
 		} else {
-			throw new Exception( "missing script '$uid'" );
+			throw new SucklessException( "missing script '$uid'" );
 		}
 	}
 

@@ -474,7 +474,7 @@ class Query {
 	 */
 	public function insertRow( $data, $args = [] ) {
 		if( empty( $this->tables[0] ) ) {
-			error_die( "cannot insert without a table" );
+			throw new SucklessException( "cannot insert without a table" );
 		}
 		return $this->db->insertRow( $this->tables[0], $data, $args );
 	}
@@ -617,9 +617,9 @@ class Query {
 				error( $query );
 			}
 			if( $this->conditions ) {
-				error_die( "for security reasons you cannot build this kind of query involving multiple tables" );
+				throw new SucklessException( "for security reasons you cannot build this kind of query involving multiple tables" );
 			}
-			error_die( "for security reasons you cannot build this kind of query without a condition" );
+			throw new SucklessException( "for security reasons you cannot build this kind of query without a condition" );
 		}
 		return $this->db->query( $query );
 	}
