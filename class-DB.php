@@ -178,7 +178,7 @@ class DB {
 	 *
 	 * @param string $query Database SQL query.
 	 * @param string $class_name The name of the class to instantiate.
-	 * @param array $params Optional data for the $class_name constructor.
+	 * @param array  $params Optional data for the $class_name constructor.
 	 * @See http://php.net/manual/en/mysqli-result.fetch-object.php
 	 */
 	public function getGenerator( $query, $class_name = null, $params = [] ) {
@@ -196,11 +196,14 @@ class DB {
 	/**
 	 * Run an INSERT query for a single row
 	 *
-	 * @param string $table
+	 * @param string  $table
 	 * @param DBCol[] $cols
-	 * @param $args arguments like 'replace-into
+	 * @param array   $args arguments like 'replace-into
 	 */
 	public function insertRow( $table, $cols, $args = [] ) {
+
+		$cols = DBCol::normalizeArray( $cols );
+
 		// build column names
 		$columns = [];
 		foreach( $cols as $col ) {
@@ -261,6 +264,9 @@ class DB {
 			'replace-into' => false,
 		], $args );
 
+		// allow columns to be specified as an associative array
+		$columns = DBCol::normalizeArray( $columns );
+
 		// backticked column names
 		$column_names = [];
 		foreach( $columns as $column => $type ) {
@@ -313,27 +319,43 @@ class DB {
 	/**
 	 * Run an UPDATE query
 	 *
-	 * @param string $table Table name without prefix and backticks
-	 * @param array  $columns array of DBCol(s)
-	 * @param string $conditions part after WHERE
+	 * @param string $table      Table name without prefix and backticks
+	 * @param array  $columns    Array of DBCol(s)
+	 * @param string $conditions Part after WHERE
 	 * @param string $after
 	 */
 	public function update( $table, $columns, $conditions, $after = '' ) {
+		$table = $this->getTable( $table, true );
+		return $this->query( $this->buildUpdateQuery( $table, $columns, $conditions, $after ) );
+	}
 
-		// backward compatibility
+	/**
+	 * Build an UPDATE query
+	 *
+	 * @param  string $table_raw  Table name with prefix and backticks
+	 * @param  array  $columns    Array of DBCol[], or an associative array of column and its value
+	 * @param  string $conditions part after WHERE
+	 * @param  string $after
+	 * @return string
+	 */
+	public function buildUpdateQuery( $table_raw, $columns, $conditions, $after = '' ) {
+
+		// for backward compatibility allow a single column
 		force_array( $columns );
 
-		$table = $this->getTable( $table, false );
+		// allow columns to be specified as an associative array
+		$columns = DBCol::normalizeArray( $columns );
 
+		// build the value assignation for each column
 		$sets = [];
 		foreach( $columns as $column ) {
 			$name  = $column->column;
 			$value = $this->forceType( $column->value, $column->forceType );
 			$sets[] = "`$name` = $value";
 		}
-
 		$sets_comma = implode( ', ', $sets );
-		return $this->query( "UPDATE $table SET $sets_comma WHERE $conditions $after" );
+
+		return "UPDATE $table_raw SET $sets_comma WHERE $conditions $after";
 	}
 
 	/**

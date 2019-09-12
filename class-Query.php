@@ -18,18 +18,27 @@
  * Class useful to build a database query
  */
 class Query {
+
 	private $db;
 
 	private $class_name;
 
 	private $selectFields = [];
+
 	private $tables = [];
+
 	private $from = [];
+
 	private $groups = [];
+
 	private $having;
+
 	private $conditions;
+
 	private $offset;
+
 	private $rowCount;
+
 	private $orders;
 
 	/**
@@ -446,22 +455,11 @@ class Query {
 	 *
 	 * Note that you MUST specify a condition.
 	 *
-	 * @param array $columns
+	 * @param  array $columns Array of DBCol[]
 	 * @return array
 	 */
 	public function update( $columns ) {
-		force_array( $columns );
-
-		$sets = [];
-		foreach( $columns as $column ) {
-			$name  = $column->column;
-			$value = $this->db->forceType( $column->value, $column->forceType );
-			$sets[] = "`$name` = $value";
-		}
-
-		$sets_comma = implode( ', ', $sets );
-		$query = "UPDATE {$this->getFrom()} SET $sets_comma WHERE {$this->conditions}";
-		$query .= $this->getLimitClause();
+		$query = $this->db->buildUpdateQuery( $this->getFrom(), $columns, $this->conditions, $this->getLimitClause() );
 		return $this->runDangerousQuery( $query );
 	}
 

@@ -15,17 +15,21 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * A database column
+ * A database column sanification descriptor
  *
  * This class is useful to sanitize values before inserting them into the database
  */
 class DBCol {
 
 	public $column;
+
 	public $forceType;
+
 	public $value;
 
 	/**
+	 * Constructor
+	 *
 	 * @param $column string Name of the column e.g. 'user_ID'
 	 * @param $value string Related value e.g. '1'
 	 * @param $forceType string
@@ -38,8 +42,8 @@ class DBCol {
 	 *  '-'     no sanitization at ALL
 	 */
 	function __construct( $column, $value, $forceType ) {
-		$this->column = $column;
-		$this->value = $value;
+		$this->column    = $column;
+		$this->value     = $value;
 		$this->forceType = $forceType;
 	}
 
@@ -66,9 +70,50 @@ class DBCol {
 		}
 	}
 
+	/**
+	 * Check if the value will be a string
+	 *
+	 * @return boolean
+	 */
 	public function isString() {
 		return $this->forceType === 's' ||
 		     ( $this->forceType === 'snull' && $this->value !== null );
 	}
-}
 
+	/**
+	 * Normalize a mixed array of DBCol and string/int values
+	 *
+	 * It's useful to allow syntax like:
+	 *  	insertRow( [ 'name' => 'Mario' )
+	 * Instead of:
+	 *  	insertRow( [ new DBCol( 'name', 'mario', 's' ) ] );
+	 *
+	 * @return array An array of DBCol values
+	 */
+	public static function normalizeArray( $columns ) {
+
+		// values to be returned
+		$definitive = [];
+
+		// check every user column
+		foreach( $columns as $key => $value ) {
+
+			if( !is_object( $value ) ) {
+
+				// auto-guess type
+				$type = 's';
+				if( $value === null ) {
+					$type = null;
+				} elseif( is_int( $value ) ) {
+					$type = 'd';
+				}
+
+				$value = new self( $key, $value, $type );
+			}
+
+			$definitive[] = $value;
+		}
+		return $definitive;
+	}
+
+}
