@@ -476,7 +476,7 @@ class DB {
 	 * @return int
 	 */
 	public function affectedRows() {
-		$this->mysqli->affected_rows();
+		return $this->mysqli->affected_rows;
 	}
 
 	/**
