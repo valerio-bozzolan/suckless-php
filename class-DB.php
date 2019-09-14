@@ -154,14 +154,13 @@ class DB {
 	 * @param string $query Database SQL query.
 	 * @param string $class_name The name of the class to instantiate.
 	 * @param array $params Optional data for the $class_name constructor.
-	 * @See http://php.net/manual/en/mysqli-result.fetch-object.php
+	 * @see http://php.net/manual/en/mysqli-result.fetch-object.php
 	 */
-	public function getResults($query, $class_name = null, $params = [] ) {
-		// IS_ARRAY() IS SHIT FOR HISTORICAL REASONS
-		if( $class_name === null || is_array( $class_name ) ) {
+	public function getResults( $query, $class_name = null, $params = [] ) {
+
+		if( !$class_name ) {
 			$class_name = 'Queried';
 		}
-		// IS_ARRAY() IS SHIT FOR HISTORICAL REASONS
 
 		$this->query( $query );
 
@@ -182,14 +181,17 @@ class DB {
 	 * @See http://php.net/manual/en/mysqli-result.fetch-object.php
 	 */
 	public function getGenerator( $query, $class_name = null, $params = [] ) {
+
 		if( !$class_name ) {
 			$class_name = 'Queried';
 		}
+
 		$result = $this->query( $query );
 		$this->last = true; // to don't be killed from another query() call
 		while( $row = $result->fetch_object( $class_name, $params ) ) {
 			yield $row;
 		}
+
 		$result->free();
 	}
 
