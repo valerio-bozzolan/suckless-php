@@ -19,36 +19,94 @@
  */
 class Query {
 
+	/**
+	 * Connection to the database
+	 *
+	 * @var DB
+	 */
 	private $db;
 
-	private $class_name;
+	/**
+	 * Class used as default for the results
+	 *
+	 * @var string
+	 */
+	protected $resultClass;
 
+	/**
+	 * Fields for the SELECT
+	 *
+	 * @var array
+	 */
 	private $selectFields = [];
 
+	/**
+	 * Table names (without table prefix)
+	 *
+	 * @var array
+	 */
 	private $tables = [];
 
+	/**
+	 * Stuff to build the FROM (custom sub-queries, etc.)
+	 *
+	 * @var array
+	 */
 	private $from = [];
 
+	/**
+	 * "GROUP BY" statements
+	 *
+	 * @var array
+	 */
 	private $groups = [];
 
+	/**
+	 * "HAVING" statements
+	 *
+	 * @var array
+	 */
 	private $having;
 
+	/**
+	 * "WHERE" conditions
+	 *
+	 * @var array
+	 */
 	private $conditions;
 
+	/**
+	 * "ORDER BY" statements
+	 *
+	 * @var string
+	 */
+	private $orders;
+
+	/**
+	 * Offset for the LIMIT
+	 *
+	 * @var int
+	 */
 	private $offset;
 
+	/**
+	 * Row count for the LIMIT
+	 *
+	 * @var int
+	 */
 	private $rowCount;
-
-	private $orders;
 
 	/**
 	 * Constructor
 	 *
-	 * @param object $db         Database object (class DB)
+	 * @param object $db         Database object (class DB) or NULL for the default one
 	 * @param string $class_name Class to encapsulate the database result
 	 */
 	public function __construct( $db = null, $class_name = null ) {
-		$this->db = $db ? $db : DB::instance(); // Dependency injection
+
+		// assign the specified database or the default one
+		$this->db = $db ? $db : DB::instance();
+
 		if( $class_name ) {
 			$this->defaultClass( $class_name );
 		}
@@ -484,7 +542,7 @@ class Query {
 	 * @return self
 	 */
 	public function defaultClass( $class_name ) {
-		$this->class_name = $class_name;
+		$this->resultClass = $class_name;
 		return $this;
 	}
 
@@ -495,7 +553,7 @@ class Query {
 	 * @return string
 	 */
 	public function getDefaultClass( $class_name = null ) {
-		return $class_name ? $class_name : $this->class_name;
+		return $class_name ? $class_name : $this->resultClass;
 	}
 
 	/**
