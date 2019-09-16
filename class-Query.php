@@ -243,11 +243,11 @@ class Query {
 	 * @param $alias mixed  Table alias. As default is true, and the table prefix is removed.
 	 */
 	public function joinOn( $type, $table, $a, $b = null, $alias = true ) {
-		if( $this->tables ) {
+		if( $this->from ) {
+			$previous = array_pop( $this->from );
+		} elseif( $this->tables ) {
 			$previous = array_pop( $this->tables );
 			$previous = $this->db->getTable( $previous, true );
-		} elseif( $this->from ) {
-			$previous = array_pop( $this->from );
 		} else {
 			throw new InvalidArgumentException( 'not enough tables' );
 		}
