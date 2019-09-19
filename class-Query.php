@@ -18,28 +18,95 @@
  * Class useful to build a database query
  */
 class Query {
+
+	/**
+	 * Connection to the database
+	 *
+	 * @var DB
+	 */
 	private $db;
 
-	private $class_name;
+	/**
+	 * Class used as default for the results
+	 *
+	 * @var string
+	 */
+	protected $resultClass;
 
+	/**
+	 * Fields for the SELECT
+	 *
+	 * @var array
+	 */
 	private $selectFields = [];
+
+	/**
+	 * Table names (without table prefix)
+	 *
+	 * @var array
+	 */
 	private $tables = [];
+
+	/**
+	 * Stuff to build the FROM (custom sub-queries, etc.)
+	 *
+	 * @var array
+	 */
 	private $from = [];
+
+	/**
+	 * "GROUP BY" statements
+	 *
+	 * @var array
+	 */
 	private $groups = [];
+
+	/**
+	 * "HAVING" statements
+	 *
+	 * @var array
+	 */
 	private $having;
+
+	/**
+	 * "WHERE" conditions
+	 *
+	 * @var array
+	 */
 	private $conditions;
-	private $offset;
-	private $rowCount;
+
+	/**
+	 * "ORDER BY" statements
+	 *
+	 * @var string
+	 */
 	private $orders;
+
+	/**
+	 * Offset for the LIMIT
+	 *
+	 * @var int
+	 */
+	private $offset;
+
+	/**
+	 * Row count for the LIMIT
+	 *
+	 * @var int
+	 */
+	private $rowCount;
 
 	/**
 	 * Constructor
 	 *
-	 * @param object $db         Database object (class DB)
+	 * @param object $db         Database object (class DB) or NULL for the default one
 	 * @param string $class_name Class to encapsulate the database result
 	 */
 	public function __construct( $db = null, $class_name = null ) {
-		$this->db = $db ? $db : DB::instance(); // Dependency injection
+
+		// assign the specified database or the default one
+		$this->db = $db ? $db : DB::instance();
+
 		if( $class_name ) {
 			$this->defaultClass( $class_name );
 		}
@@ -176,11 +243,11 @@ class Query {
 	 * @param $alias mixed  Table alias. As default is true, and the table prefix is removed.
 	 */
 	public function joinOn( $type, $table, $a, $b = null, $alias = true ) {
-		if( $this->tables ) {
+		if( $this->from ) {
+			$previous = array_pop( $this->from );
+		} elseif( $this->tables ) {
 			$previous = array_pop( $this->tables );
 			$previous = $this->db->getTable( $previous, true );
-		} elseif( $this->from ) {
-			$previous = array_pop( $this->from );
 		} else {
 			throw new InvalidArgumentException( 'not enough tables' );
 		}
@@ -446,22 +513,11 @@ class Query {
 	 *
 	 * Note that you MUST specify a condition.
 	 *
-	 * @param array $columns
+	 * @param  array $columns Array of DBCol[]
 	 * @return array
 	 */
 	public function update( $columns ) {
-		force_array( $columns );
-
-		$sets = [];
-		foreach( $columns as $column ) {
-			$name  = $column->column;
-			$value = $this->db->forceType( $column->value, $column->forceType );
-			$sets[] = "`$name` = $value";
-		}
-
-		$sets_comma = implode( ', ', $sets );
-		$query = "UPDATE {$this->getFrom()} SET $sets_comma WHERE {$this->conditions}";
-		$query .= $this->getLimitClause();
+		$query = $this->db->buildUpdateQuery( $this->getFrom(), $columns, $this->conditions, $this->getLimitClause() );
 		return $this->runDangerousQuery( $query );
 	}
 
@@ -486,7 +542,7 @@ class Query {
 	 * @return self
 	 */
 	public function defaultClass( $class_name ) {
-		$this->class_name = $class_name;
+		$this->resultClass = $class_name;
 		return $this;
 	}
 
@@ -497,7 +553,7 @@ class Query {
 	 * @return string
 	 */
 	public function getDefaultClass( $class_name = null ) {
-		return $class_name ? $class_name : $this->class_name;
+		return $class_name ? $class_name : $this->resultClass;
 	}
 
 	/**

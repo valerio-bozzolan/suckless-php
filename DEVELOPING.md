@@ -120,8 +120,13 @@ Declarative way:
 
 ```php
 insert_row( 'post', [
-    new DBCol( 'post_ID',                $id, 'd' ),
-    new DBCol( 'post_title',          $title, 's' ),
+	// quick sanitize an integer 
+	'post_ID'    => 2,
+
+	// quick sanitize a string
+	'post_title' => 'Title unsafe',
+
+	// assign a MySQL function to a column
     new DBCol( 'post_creation_date', 'NOW()', '-' ),
 ] );
 ```
