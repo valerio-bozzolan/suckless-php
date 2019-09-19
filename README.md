@@ -38,6 +38,7 @@ Go to your website folder (e.g. `/var/www/blog`), and create your friendly confi
 $username = 'Your database username';
 $password = 'The password of your database user';
 $database = 'Your database name';
+$charset  = 'utf8mb4';
 $location = 'localhost';
 
 // Table prefix, if any!
