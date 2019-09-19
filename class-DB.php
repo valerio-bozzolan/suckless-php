@@ -98,6 +98,7 @@ class DB {
 			$password = $GLOBALS['password'];
 			$location = $GLOBALS['location'];
 			$database = $GLOBALS['database'];
+			$charset  = $GLOBALS['charset'];
 			$prefix   = $GLOBALS['prefix'];
 		}
 
@@ -107,9 +108,9 @@ class DB {
 		if( $this->mysqli->connect_errno ) {
 			$length = strlen( $password );
 			throw new SucklessException( "unable to connect to the database '$database' using user '$username' and password ($length characters) on MySQL/MariaDB host '$location'" );
-		} else {
-			$this->mysqli->set_charset( $charset );
 		}
+
+		$this->mysqli->set_charset( $charset );
 	}
 
 	/**
