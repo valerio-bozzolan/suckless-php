@@ -82,15 +82,16 @@ class DB {
 	}
 
 	/**
-	 * Prepare the DB object.
+	 * Constructor
 	 *
-	 * @param type $username Database username
-	 * @param type $password Database password
-	 * @param type $location Database location
-	 * @param type $database Database name
-	 * @param type $prefix Table Prefix
+	 * @param string $username Database username
+	 * @param string $password Database password
+	 * @param string $location Database location
+	 * @param string $database Database name
+	 * @param string $prefix   Table Prefix
+	 * @param string $charset  Connection charset
 	 */
-	function __construct( $username = null, $password = null, $location = null, $database = null, $prefix = '', $charset = 'utf8' ) {
+	function __construct( $username = null, $password = null, $location = null, $database = null, $prefix = '', $charset = null ) {
 
 		// default credentials usually defined from your load.php
 		if( ! func_num_args() ) {
@@ -98,19 +99,27 @@ class DB {
 			$password = $GLOBALS['password'];
 			$location = $GLOBALS['location'];
 			$database = $GLOBALS['database'];
-			$charset  = $GLOBALS['charset'];
 			$prefix   = $GLOBALS['prefix'];
 		}
 
 		$this->prefix = $prefix;
 
+		// create database connection
 		@$this->mysqli = new mysqli( $location, $username, $password, $database );
 		if( $this->mysqli->connect_errno ) {
 			$length = strlen( $password );
 			throw new SucklessException( "unable to connect to the database '$database' using user '$username' and password ($length characters) on MySQL/MariaDB host '$location'" );
 		}
 
-		$this->mysqli->set_charset( $charset );
+		// eventually inherit default charset
+		if( !$charset && isset( $GLOBALS['charset'] ) ) {
+			$charset  = $GLOBALS['charset'];
+		}
+
+		// eventually set connection charset
+		if( $charset ) {
+			$this->mysqli->set_charset( $charset );
+		}
 	}
 
 	/**
