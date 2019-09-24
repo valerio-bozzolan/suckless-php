@@ -365,7 +365,7 @@ class Query {
 	 * @param string|array $needles Values to compare.
 	 */
 	public function whereSomethingNotIn( $heystack, $needles, $glue = 'AND' ) {
-		return $this->appendConditionSomethingIn( $heystack, $needles, $glue, true ); // See true
+		return $this->whereSomethingIn( $heystack, $needles, $glue, true ); // See true
 	}
 
 	/**
