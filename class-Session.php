@@ -213,13 +213,46 @@ class Session {
 	/**
 	 * Get the CSRF token of the current user
 	 *
-	 * Note that it's valid only for logged-in users.
+	 * If the user is logged-in, the CSRF is a cookie.
+	 * If the user is not logged-in, the CSRF is generated from his environment fingerprint.
 	 *
 	 * @return string
 	 */
 	public function getCSRF() {
-		// TODO: remove that '@' put for backward compatibility with old sessions
-		return @$_COOKIE['csrf'];
+		if( $this->isLogged() ) {
+			if( isset( $_COOKIE['csrf'] ) ) {
+				return $_COOKIE['csrf'];
+			} else {
+				error( 'missing CSRF cookie from User ID ' . $this->getSessionuserID() );
+			}
+		}
+
+		// for non logged-in users the CSRF it's just the fingerprint
+		return $this->getUserFingerprint();
+	}
+
+	/**
+	 * Get the fingerprint of this User
+	 *
+	 * @return string
+	 */
+	public function getUserFingerprint() {
+		$fingerprint = '';
+
+		// Some browser fields that can identify the client.
+		// An attacker should know the exact version of the browser, it's language
+		// configuration setting and the IP of the client to generate its fingerprint.
+		$infos = [
+			'REMOTE_ADDR',
+			'HTTP_USER_AGENT',
+			'HTTP_ACCEPT_LANGUAGE'
+		];
+		foreach( $infos as $info ) {
+			if( isset( $_SERVER[ $info ] ) ) {
+				$fingerprint .= $_SERVER[ $info ];
+			}
+		}
+		return hash( COOKIE_HASH_ALGO, $fingerprint );
 	}
 
 	/**
