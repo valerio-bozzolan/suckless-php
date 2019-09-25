@@ -229,7 +229,7 @@ class Session {
 	 */
 	public function formActionWithCSRF( $action ) {
 		echo HTML::input( 'hidden', 'action', $action );
-		echo HTML::input( 'hidden', 'csrf', Session::instance()->getCSRF() );
+		echo HTML::input( 'hidden', 'csrf', $this->getCSRF() );
 	}
 
 	/**
