@@ -20,6 +20,15 @@ define_default( 'SESSION_DURATION',  604800 );
 // the default user logged-in class
 define_default( 'SESSIONUSER_CLASS', 'Sessionuser' );
 
+// the default algorithm for the User fingerprint
+define_default( 'SESSION_FINGERPRINT_ALGO', 'sha256' );
+
+// the default pepper for the User fingerprint
+define_default( 'SESSION_FINGERPRINT_PEPP', 'just-something' );
+
+// the default pepper for the User fingerprint
+define_default( 'SESSION_FINGERPRINT_SALT', 'just-something' );
+
 /**
  * Session handler
  *
@@ -228,7 +237,7 @@ class Session {
 		}
 
 		// for non logged-in users the CSRF it's just the fingerprint
-		return $this->getUserFingerprint();
+		return $this->getFingerprint();
 	}
 
 	/**
@@ -236,7 +245,7 @@ class Session {
 	 *
 	 * @return string
 	 */
-	public function getUserFingerprint() {
+	public function getFingerprint() {
 		$fingerprint = '';
 
 		// Some browser fields that can identify the client.
@@ -252,7 +261,8 @@ class Session {
 				$fingerprint .= $_SERVER[ $info ];
 			}
 		}
-		return hash( COOKIE_HASH_ALGO, $fingerprint );
+		$fingerprint_burger = SESSION_FINGERPRINT_PEPP . $fingerprint . SESSION_FINGERPRINT_SALT;
+		return hash( SESSION_FINGERPRINT_ALGO, $fingerprint_burger );
 	}
 
 	/**
