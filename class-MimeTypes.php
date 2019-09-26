@@ -1,5 +1,5 @@
 <?php
-# Copyright (C) 2015, 2016, 2017 Valerio Bozzolan
+# Copyright (C) 2015, 2016, 2017, 2018, 2019 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -13,6 +13,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+// fifo system default
+define_default( 'MAGIC_MIME_FILE', null );
 
 /**
  * Handle MIME and file types (extensions).
@@ -240,28 +243,27 @@ class MimeTypes {
 	}
 
 	/**
-	 * Get the MIME type from a file.
+	 * Guess the MIME type from a file
+	 *
+	 * It requires the existence of the MAGIC_MIME_FILE constant.
 	 *
 	 * @param string $filepath The file path.
-	 * @param bool $pure
-	 * 	true for 'image/png; something';
-	 * 	false for 'image/png'.
+	 * @param bool $pure true for 'image/png; something'; or false for 'image/png'.
 	 * @return string|false
 	 */
 	public static function fileMimetype( $filepath, $pure = false ) {
 		$finfo = finfo_open( FILEINFO_MIME, MAGIC_MIME_FILE );
 		if( ! $finfo ) {
-			return error( sprintf(
-				'error opening the fileinfo database expected in %s',
+			error( sprintf(
+				'error opening fileinfo database placed in %s',
 				MAGIC_MIME_FILE
 			) );
+			return false;
 		}
 		$mime = finfo_file( $finfo, $filepath );
 		if( ! $mime ) {
-			return error( sprintf(
-				"can't detect the mime of the file %s",
-				$filepath
-			) );
+			error( "can't detect MIME of file $filepath" );
+			return false;
 		}
 		if( ! $pure ) {
 			$mime = explode(';', $mime, 2); // Split "; charset"

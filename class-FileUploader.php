@@ -25,9 +25,6 @@ define('UPLOAD_EXTRA_ERR_FILENAME_TOO_SHORT', 107);
 define('UPLOAD_EXTRA_ERR_FILENAME_TOO_LONG',  108);
 define('UPLOAD_EXTRA_ERR_CANT_SAVE_FILE',     109);
 
-// fifo system default
-define_default( 'MAGIC_MIME_FILE', null );
-
 // default permissions for new directories
 define_default( 'CHMOD_WRITABLE_DIRECTORY', 0755 );
 
@@ -211,7 +208,7 @@ class FileUploader {
 		}
 
 		// Check original MIME type
-		$mime = self::fileMimetype( $this->getFileInfo( 'tmp_name' ) );
+		$mime = MimeTypes::fileMimetype( $this->getFileInfo( 'tmp_name' ) );
 		if( ! $mime ) {
 			$status = UPLOAD_EXTRA_ERR_CANT_READ_MIMETYPE;
 			return false;
@@ -351,14 +348,14 @@ class FileUploader {
 				return __("Il MIME del file non è validabile.");
 
 			case UPLOAD_EXTRA_ERR_UNALLOWED_MIMETYPE:
-				$mime = self::fileMimetype( $this->getFileInfo( 'tmp_name' ) );
+				$mime = MimeTypes::fileMimetype( $this->getFileInfo( 'tmp_name' ) );
 				return sprintf(
 					__( "Il file é di un MIME type non concesso: \"%s\"." ),
 					esc_html( $mime )
 				);
 
 			case UPLOAD_EXTRA_ERR_UNALLOWED_FILE:
-				$mime = self::fileMimetype( $this->getFileInfo( 'tmp_name' ) );
+				$mime = MimeTypes::fileMimetype( $this->getFileInfo( 'tmp_name' ) );
 
 				$allowed_filetypes = $this->mimeTypes->getFiletypes(
 					$this->args['category'],
