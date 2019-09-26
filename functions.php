@@ -928,17 +928,19 @@ function get_mimetype( $filepath, $pure = false ) {
  *
  * @param string $filepath Filesystem file path
  * @param string $category File category e.g. 'image'
- * @see MimeTypes::isMimetypeInCategory()
+ * @see MimeTypes#isMimetypeInCategory()
  */
 function is_file_in_category( $filepath, $category ) {
 	$mime = get_mimetype( $filepath );
-	return MimeTypes::instance()->isMimetypeInCategory( $mime , $category );
+	return MimeTypes::instance()->isMimetypeInCategory( $mime, $category );
 }
 
 /**
- * Get a file extension
+ * Extract the file extension from a filename (if it respects the file MIME type)
  *
- * @param string $filename Filesystem file path
+ * @param  string $filename Filesystem file path
+ * @param  string $category File category e.g. 'image'
+ * @return mixed File extension or false if it was not found
  */
 function get_file_extension_from_expectations( $filename, $category ) {
 	return MimeTypes::instance()->getFileExtensionFromExpectations( $filename, $category );
