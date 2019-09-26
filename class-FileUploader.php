@@ -356,22 +356,13 @@ class FileUploader {
 
 			case UPLOAD_EXTRA_ERR_UNALLOWED_FILE:
 				$mime = MimeTypes::fileMimetype( $this->getFileInfo( 'tmp_name' ) );
-
 				$allowed_filetypes = $this->mimeTypes->getFiletypes(
 					$this->args['category'],
 					$mime
 				);
-
-				return multi_text(
-					count( $allowed_filetypes ),
-					sprintf(
-						__("Il file ha un'estensione non valida. Estensioni attese: <em>%s</em>."),
-						esc_html( implode(', ', $allowed_filetypes ) )
-					),
-					sprintf(
-						__("Il file ha un'estensione non valida. Estensione attesa: <em>%s</em>."),
-						esc_html( $allowed_filetypes[0] )
-					)
+				return sprintf(
+					__( "Il file ha un'estensione non valida. Estensioni accettate: %s." ),
+					implode( ', ', $allowed_filetypes )
 				);
 			case UPLOAD_EXTRA_ERR_FILENAME_TOO_SHORT:
 				return __("Il file ha un nome troppo breve.");
