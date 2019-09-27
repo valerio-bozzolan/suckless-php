@@ -210,9 +210,12 @@ class Session {
 		$invalidate = time() - 8000;
 		$path = ROOT . _;
 
-		setcookie( 'user_uid', 'asd', $invalidate, $path );
-		setcookie( 'token',    'asd', $invalidate, $path );
-		setcookie( 'csrf',     'asd', $invalidate, $path );
+		// try to destroy the cookies
+		if( !headers_sent() ) {
+			setcookie( 'user_uid', 'asd', $invalidate, $path );
+			setcookie( 'token',    'asd', $invalidate, $path );
+			setcookie( 'csrf',     'asd', $invalidate, $path );
+		}
 
 		// logout
 		$this->user = null;
