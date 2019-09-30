@@ -97,6 +97,13 @@ class Query {
 	private $rowCount;
 
 	/**
+	 * Default glue for the conditions
+	 *
+	 * @var string
+	 */
+	private $glue = 'AND';
+
+	/**
 	 * Constructor
 	 *
 	 * @param object $db         Database object (class DB) or NULL for the default one
@@ -163,7 +170,7 @@ class Query {
 	 * @param string $glue Conditions glue
 	 * @return self
 	 */
-	public function compare( $one, $verb, $two, $glue = 'AND' ) {
+	public function compare( $one, $verb, $two, $glue = null ) {
 		return $this->where( "$one $verb $two", $glue );
 	}
 
@@ -175,7 +182,7 @@ class Query {
 	 * @param string $glue Conditions glue
 	 * @return self
 	 */
-	public function equals( $one, $two, $glue = 'AND' ) {
+	public function equals( $one, $two, $glue = null ) {
 		return $this->compare( $one, '=', $two, $glue );
 	}
 
@@ -186,8 +193,11 @@ class Query {
 	 * @param string $glue      Conditions glue
 	 * @return self
 	 */
-	public function where( $condition, $glue = 'AND' ) {
+	public function where( $condition, $glue = null ) {
 		if( null !== $this->conditions ) {
+			if( !$glue ) {
+				$glue = $this->glue;
+			}
 			$this->conditions .= " $glue ";
 		}
 		$this->conditions .= $condition;
@@ -203,7 +213,7 @@ class Query {
 	 * @param  string $glue  Condition glue
 	 * @return self
 	 */
-	public function whereInt( $column, $value, $verb = '=', $glue = 'AND' ) {
+	public function whereInt( $column, $value, $verb = '=', $glue = null ) {
 		return $this->compare( $column, $verb, (int)$value, $glue );
 	}
 
@@ -216,7 +226,7 @@ class Query {
 	 * @param  string $glue  Condition glue
 	 * @return self
 	 */
-	public function whereStr( $column, $value, $verb = '=', $glue = 'AND' ) {
+	public function whereStr( $column, $value, $verb = '=', $glue = null ) {
 		$value = esc_sql( $value );
 		return $this->compare( $column, $verb, "'$value'", $glue );
 	}
@@ -326,7 +336,7 @@ class Query {
 	 * @param string|array $needles  Values to compare
 	 * @return self
 	 */
-	public function whereSomethingIn( $heystack, $needles, $glue = 'AND', $not_in = false ) {
+	public function whereSomethingIn( $heystack, $needles, $glue = null, $not_in = false ) {
 		force_array( $needles );
 
 		// no needles no filter
@@ -367,8 +377,19 @@ class Query {
 	 * @param string $heystack Field.
 	 * @param string|array $needles Values to compare.
 	 */
-	public function whereSomethingNotIn( $heystack, $needles, $glue = 'AND' ) {
+	public function whereSomethingNotIn( $heystack, $needles, $glue = null ) {
 		return $this->whereSomethingIn( $heystack, $needles, $glue, true ); // See true
+	}
+
+	/**
+	 * Set the default glue
+	 *
+	 * @param string $glue
+	 * @return self
+	 */
+	public function setGlue( $glue ) {
+		$this->glue = $glue;
+		return $this;
 	}
 
 	/**
