@@ -51,6 +51,16 @@ class Session {
 	private $mustValidate = true;
 
 	/**
+	 * Last CSRF generated to the User
+	 *
+	 * Note that this is populated just in the login process.
+	 * Note that when sending cookies, the $_COOKIE['csrf'] variable is still empty.
+	 *
+	 * @var string
+	 */
+	private $csrf;
+
+	/**
 	 * Get the singleton instance
 	 *
 	 * @return self
@@ -159,13 +169,16 @@ class Session {
 		// pass login status
 		$status = self::OK;
 
+		// store the CSRF
+		$this->csrf = $this->generateCSRF();
+
 		// set cookies
 		$duration    = time() + SESSION_DURATION;
 		$path        = ROOT . _;
 		$force_https = PROTOCOL === 'https://';
 		setcookie( 'user_uid', $user->getSessionuserUID(),              $duration, $path, '', $force_https, false );
 		setcookie( 'token',    $user->generateSessionuserCookieToken(), $duration, $path, '', $force_https, true  );
-		setcookie( 'csrf',     $this->generateCSRF(),                   $duration, $path, '', $force_https, true  );
+		setcookie( 'csrf',     $this->csrf,                             $duration, $path, '', $force_https, true  );
 
 		return true;
 	}
@@ -217,6 +230,8 @@ class Session {
 			setcookie( 'csrf',     'asd', $invalidate, $path );
 		}
 
+		$this->csrf = null;
+
 		// logout
 		$this->user = null;
 		$this->mustValidate = false;
@@ -234,9 +249,11 @@ class Session {
 		if( $this->isLogged() ) {
 			if( isset( $_COOKIE['csrf'] ) ) {
 				return $_COOKIE['csrf'];
-			} else {
-				error( 'missing CSRF cookie from User ID ' . $this->getSessionuserID() );
 			}
+			if( isset( $this->csrf ) ) {
+				return $this->csrf;
+			}
+			error( 'missing CSRF cookie from User ID ' . $this->user->getSessionuserID() );
 		}
 
 		// for non logged-in users the CSRF it's just the fingerprint
