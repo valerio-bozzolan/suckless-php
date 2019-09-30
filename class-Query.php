@@ -71,9 +71,9 @@ class Query {
 	/**
 	 * "WHERE" conditions
 	 *
-	 * @var array
+	 * @var string
 	 */
-	private $conditions;
+	private $conditions = '';
 
 	/**
 	 * "ORDER BY" statements
@@ -102,6 +102,13 @@ class Query {
 	 * @var string
 	 */
 	private $glue = 'AND';
+
+	/**
+	 * Flag that indicates if the next condition statements needs a glue
+	 *
+	 * @var boolean
+	 */
+	private $needsGlue = false;
 
 	/**
 	 * Constructor
@@ -194,13 +201,14 @@ class Query {
 	 * @return self
 	 */
 	public function where( $condition, $glue = null ) {
-		if( null !== $this->conditions ) {
+		if( $this->needsGlue ) {
 			if( !$glue ) {
 				$glue = $this->glue;
 			}
 			$this->conditions .= " $glue ";
 		}
 		$this->conditions .= $condition;
+		$this->needsGlue = true;
 		return $this;
 	}
 
@@ -389,6 +397,29 @@ class Query {
 	 */
 	public function setGlue( $glue ) {
 		$this->glue = $glue;
+		return $this;
+	}
+
+	/**
+	 * Open a bracket
+	 *
+	 * @param  string $glue Condition glue
+	 * @return self
+	 */
+	public function openBracket( $glue = null ) {
+		$this->where( '(', $glue );
+		$this->needsGlue = false;
+		return $this;
+	}
+
+	/**
+	 * Close a bracket
+	 *
+	 * @return self
+	 */
+	public function closeBracket() {
+		$this->conditions .= ')';
+		$this->needsGlue = true;
 		return $this;
 	}
 
