@@ -170,12 +170,13 @@ class Query {
 	/**
 	 * To be used for PRIMARY KEY joins
 	 *
-	 * @param string $one Something (NOT SANITIZED)
-	 * @param string $two Something (NOT SANITIZED)
+	 * @param string $one  Something (NOT SANITIZED)
+	 * @param string $two  Something (NOT SANITIZED)
+	 * @param string $glue Conditions glue
 	 * @return self
 	 */
-	public function equals( $one, $two ) {
-		return $this->compare( $one, '=', $two );
+	public function equals( $one, $two, $glue = 'AND' ) {
+		return $this->compare( $one, '=', $two, $glue );
 	}
 
 	/**
@@ -199,10 +200,11 @@ class Query {
 	 * @param  string $one   Column name
 	 * @param  int    $value Value
 	 * @param  string $verb  Compare method
+	 * @param  string $glue  Condition glue
 	 * @return self
 	 */
-	public function whereInt( $column, $value, $verb = '=' ) {
-		return $this->compare( $column, $verb, (int)$value );
+	public function whereInt( $column, $value, $verb = '=', $glue = 'AND' ) {
+		return $this->compare( $column, $verb, (int)$value, $glue );
 	}
 
 	/**
@@ -211,11 +213,12 @@ class Query {
 	 * @param  string $one   Column name
 	 * @param  string $value Value
 	 * @param  string $verb  Compare method
+	 * @param  string $glue  Condition glue
 	 * @return self
 	 */
-	public function whereStr( $column, $value, $verb = '=' ) {
+	public function whereStr( $column, $value, $verb = '=', $glue = 'AND' ) {
 		$value = esc_sql( $value );
-		return $this->compare( $column, $verb, "'$value'" );
+		return $this->compare( $column, $verb, "'$value'", $glue );
 	}
 
 	/**
