@@ -611,6 +611,13 @@ function is_action( $action ) {
 }
 
 /**
+ * Require a CSRF token to use the actual page
+ */
+function require_csrf() {
+	Session::instance()->getCSRF();
+}
+
+/**
  * Register a language
  *
  * @param string $code    Language code e.g. 'en_US'

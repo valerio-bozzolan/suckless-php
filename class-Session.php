@@ -23,12 +23,6 @@ define_default( 'SESSIONUSER_CLASS', 'Sessionuser' );
 // the default algorithm for the User fingerprint
 define_default( 'SESSION_FINGERPRINT_ALGO', 'sha256' );
 
-// the default pepper for the User fingerprint
-define_default( 'SESSION_FINGERPRINT_PEPP', 'just-something' );
-
-// the default pepper for the User fingerprint
-define_default( 'SESSION_FINGERPRINT_SALT', 'just-something' );
-
 /**
  * Session handler
  *
@@ -51,14 +45,21 @@ class Session {
 	private $mustValidate = true;
 
 	/**
-	 * Last CSRF generated to the User
-	 *
-	 * Note that this is populated just in the login process.
-	 * Note that when sending cookies, the $_COOKIE['csrf'] variable is still empty.
+	 * Last CSRF generated
 	 *
 	 * @var string
 	 */
 	private $csrf;
+
+	/**
+	 * Constructor
+	 */
+	public function __construct() {
+		// remember the existing CSRF if available
+		if( isset( $_COOKIE['csrf'] ) ) {
+			$this->csrf = $_COOKIE['csrf'];
+		}
+	}
 
 	/**
 	 * Get the singleton instance
@@ -169,22 +170,32 @@ class Session {
 		// pass login status
 		$status = self::OK;
 
-		// store the CSRF
-		$this->csrf = $this->generateCSRF();
-
 		// set cookies
-		$duration    = time() + SESSION_DURATION;
-		$path        = ROOT . _;
-		$force_https = PROTOCOL === 'https://';
-		setcookie( 'user_uid', $user->getSessionuserUID(),              $duration, $path, '', $force_https, false );
-		setcookie( 'token',    $user->generateSessionuserCookieToken(), $duration, $path, '', $force_https, true  );
-		setcookie( 'csrf',     $this->csrf,                             $duration, $path, '', $force_https, true  );
+		$this->setCookie( 'user_uid', $user->getSessionuserUID(),              false );
+		$this->setCookie( 'token',    $user->generateSessionuserCookieToken(), true );
+
+		// it's a good moment to renew the anti-CSRF token
+		$this->renewCSRF();
 
 		return true;
 	}
 
 	/**
-	 * Validate the user session from cookies
+	 * Set a cookie
+	 *
+	 * @param string  $name     Cookie name
+	 * @param string  $value    Cookie value
+	 * @param boolean $httponly When true do not expose via JavaScript
+	 */
+	private function setCookie( $name, $value, $httponly ) {
+		$duration    = time() + SESSION_DURATION;
+		$path        = ROOT . _;
+		$force_https = PROTOCOL === 'https://';
+		setcookie( $name, $value, $duration, $path, '', $force_https, $httponly );
+	}
+
+	/**
+	 * Validate the session
 	 */
 	private function validate() {
 
@@ -230,73 +241,38 @@ class Session {
 			setcookie( 'csrf',     'asd', $invalidate, $path );
 		}
 
-		$this->csrf = null;
-
 		// logout
 		$this->user = null;
 		$this->mustValidate = false;
+
+		// unset accordingly to the cookie
+		$this->csrf = null;
 	}
 
 	/**
-	 * Get the CSRF token of the current user
-	 *
-	 * If the user is logged-in, the CSRF is a cookie.
-	 * If the user is not logged-in, the CSRF is generated from his environment fingerprint.
+	 * Get the CSRF token (or send a new one)
 	 *
 	 * @return string
 	 */
 	public function getCSRF() {
-		if( $this->isLogged() ) {
-			if( isset( $_COOKIE['csrf'] ) ) {
-				return $_COOKIE['csrf'];
-			}
-			if( isset( $this->csrf ) ) {
-				return $this->csrf;
-			}
-			error( 'missing CSRF cookie from User ID ' . $this->user->getSessionuserID() );
+		if( empty( $this->csrf ) ) {
+			$this->renewCSRF();
 		}
-
-		// for non logged-in users the CSRF it's just the fingerprint
-		return $this->getFingerprint();
+		return $this->csrf;
 	}
 
 	/**
-	 * Get the fingerprint of this User
+	 * Print a form action field with the anti-CSRF token
 	 *
-	 * @return string
-	 */
-	public function getFingerprint() {
-		$fingerprint = '';
-
-		// Some browser fields that can identify the client.
-		// An attacker should know the exact version of the browser, it's language
-		// configuration setting and the IP of the client to generate its fingerprint.
-		$infos = [
-			'REMOTE_ADDR',
-			'HTTP_USER_AGENT',
-			'HTTP_ACCEPT_LANGUAGE'
-		];
-		foreach( $infos as $info ) {
-			if( isset( $_SERVER[ $info ] ) ) {
-				$fingerprint .= $_SERVER[ $info ];
-			}
-		}
-		$fingerprint_burger = SESSION_FINGERPRINT_PEPP . $fingerprint . SESSION_FINGERPRINT_SALT;
-		return hash( SESSION_FINGERPRINT_ALGO, $fingerprint_burger );
-	}
-
-	/**
-	 * Print a form action field with the CSRF
-	 *
-	 * @param string $action
+	 * @param string $action Form action (e.g. 'save-user')
 	 */
 	public function formActionWithCSRF( $action ) {
-		echo HTML::input( 'hidden', 'action', $action );
-		echo HTML::input( 'hidden', 'csrf', $this->getCSRF() );
+		echo HTML::input( 'hidden', 'csrf',   $this->getCSRF() );
+		echo HTML::input( 'hidden', 'action', $action          );
 	}
 
 	/**
-	 * Check if a form action is valid (with the related CSRF)
+	 * Check if a form action is valid (with the related anti-CSRF token)
 	 *
 	 * @param string $action
 	 * @return boolean
@@ -310,13 +286,17 @@ class Session {
 	}
 
 	/**
-	 * Generate a new CSRF token
+	 * Generate a new anti-CSRF token
 	 *
-	 * @param int $bytes How much bytes to generate
+	 * This will also send a new COOKIE.
+	 *
+	 * @param  int    $bytes How much random bytes for the anti-CSRF token
 	 * @return string
 	 */
-	private function generateCSRF( $bytes = 8 ) {
-		return bin2hex( openssl_random_pseudo_bytes( $bytes ) );
+	public function renewCSRF( $bytes = 8 ) {
+		$this->csrf = bin2hex( openssl_random_pseudo_bytes( $bytes ) );
+		$this->setCookie( 'csrf', $this->csrf, true );
+		return $this->csrf;
 	}
 
 	/**
