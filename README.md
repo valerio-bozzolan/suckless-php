@@ -92,8 +92,8 @@ It's normal to have your own custom configuration of this framework. So the `loa
 // this file is automagically called after load.php and describes my website
 
 // declaration of JavaScript and CSS resources
-register_js(  'jquery',   ROOT . '/media/jquery-min.js');
-register_css( 'my-style', ROOT . '/media/style.css');
+register_js(  'jquery',   'media/jquery-min.js');
+register_css( 'my-style', 'media/style.css');
 
 // a subscribed user can comment and vote
 register_permissions('subscribed', [
