@@ -177,6 +177,7 @@ class JS {
 	 */
 	public function printNormal( $glue ) {
 		$url = $this->url;
+		$url = site_page( $url );
 		if( CACHE_BUSTER ) {
 			$url .= false === strpos( $url, '?' ) ? '?' : '&amp;';
 			$url .= CACHE_BUSTER;
