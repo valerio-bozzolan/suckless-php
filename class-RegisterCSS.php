@@ -76,6 +76,7 @@ class RegisterCSS {
 	 * Print the CSS link tag
 	 */
 	public static function link( $url, $uid ) {
+		$url = site_page( $url );
 		if( CACHE_BUSTER ) {
 			$url .= false === strpos( $url, '?' ) ? '?' : '&amp;';
 			$url .= CACHE_BUSTER;
