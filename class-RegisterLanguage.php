@@ -191,9 +191,22 @@ class RegisterLanguage {
 	}
 
 	/**
+	 * Get the language registered as the default one
+	 *
 	 * @return SucklessPHPLanguage|null
 	 */
-	function getLatestLanguageApplied() {
+	public function getDefault() {
+		return $this->default;
+	}
+
+	/**
+	 * Get the latest language applied
+	 *
+	 * If you declared a default language, this never returns null.
+	 *
+	 * @return SucklessPHPLanguage|null
+	 */
+	public function getLatestLanguageApplied() {
 		return $this->latest ? $this->latest : $this->default;
 	}
 
