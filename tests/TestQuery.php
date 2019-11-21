@@ -10,7 +10,7 @@ final class TestQuery extends TestCase {
 	/**
 	 * Test the bracket and glue
 	 */
-	public function testBrackets() {
+	public function testBracketsAndGlue() {
 
 		// create a dummy query builders
 		$query  = new Query( new DBDummy() );
@@ -49,7 +49,7 @@ final class TestQuery extends TestCase {
 	/**
 	 * Test the EXISTS
 	 */
-	public function testExists() {
+	public function testExistsCondition() {
 
 		// create a couple for dummy query builders
 		$query  = new Query( new DBDummy() );
