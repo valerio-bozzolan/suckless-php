@@ -234,19 +234,15 @@ class Session {
 		$invalidate = time() - 8000;
 		$path = ROOT . _;
 
-		// try to destroy the cookies
+		// try to destroy the cookies (leave the csrf that is useful anyway)
 		if( !headers_sent() ) {
 			setcookie( 'user_uid', 'asd', $invalidate, $path );
 			setcookie( 'token',    'asd', $invalidate, $path );
-			setcookie( 'csrf',     'asd', $invalidate, $path );
 		}
 
 		// logout
 		$this->user = null;
 		$this->mustValidate = false;
-
-		// unset accordingly to the cookie
-		$this->csrf = null;
 	}
 
 	/**
