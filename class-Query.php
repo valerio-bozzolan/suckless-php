@@ -539,6 +539,19 @@ class Query {
 	}
 
 	/**
+	 * Where a subquery exists
+	 *
+	 * @param $query object  Query
+	 * @param $not   boolean Set to FALSE to have a NOT EXISTS
+	 * @return self
+	 */
+	public function whereExists( $query, $exists = true ) {
+		$verb = $exists ? 'EXISTS' : 'NOT EXISTS';
+		$query_raw = $query->getQuery();
+		return $this->where( "$verb ($query_raw)" );
+	}
+
+	/**
 	 * Get a DELETE query
 	 *
 	 * Note that you MUST specify a condition.
