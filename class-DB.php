@@ -19,7 +19,7 @@
  */
 
 /**
- * A simple but effective database class
+ * A simple but effective database class!
  *
  * This class was forked from my defunct project called Open Student.
  */
