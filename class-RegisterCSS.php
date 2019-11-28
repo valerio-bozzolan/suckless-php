@@ -35,7 +35,7 @@ class RegisterCSS {
 	}
 
 	/**
-	 * Register a new style name
+	 * Register a new stylesheet
 	 *
 	 * @param string $name CSS name, like: "jquery-ui".
 	 * @param string $url CSS url, like "http://example.org/styles/jquery-ui.css".
@@ -45,7 +45,7 @@ class RegisterCSS {
 	}
 
 	/**
-	 * Enqueue a previously registered CSS name
+	 * Enqueue a previously registered stylesheet
 	 *
 	 * @param string  $uid           CSS name
 	 * @param boolean $report_errors In case of errors, report the error?

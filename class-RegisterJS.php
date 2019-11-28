@@ -65,11 +65,13 @@ class RegisterJS {
 	 * @param string $position before|after
 	 */
 	public function registerInline( $uid, $data, $position ) {
-		if( isset( $this->js[ $uid ] ) ) {
-			$this->js[ $uid ]->inline[ $position ][] = $data;
-		} else {
-			throw new SucklessException( "missing script '$uid'" );
+
+		// no script no party
+		if( !isset( $this->js[ $uid ] ) ) {
+			throw new SucklessException( "cannot register inline on missing JavaScript '$uid'" );
 		}
+
+		$this->js[ $uid ]->inline[ $position ][] = $data;
 	}
 
 	/**
@@ -82,6 +84,12 @@ class RegisterJS {
 	 * @param $position string Place it in the head of the page or not
 	 */
 	public function enqueue( $uid, $position = null ) {
+
+		// no script no party
+		if( !isset( $this->js[ $uid ] ) ) {
+			throw new SucklessException( "cannot enqueue missing JavaScript '$uid'" );
+		}
+
 		$js = $this->js[ $uid ];
 
 		// eventually override script position
