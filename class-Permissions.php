@@ -83,15 +83,18 @@ class Permissions {
 	 * @return boolean
 	 */
 	public function userHasPermission( $permission, $user ) {
-		if( ! $user ) {
+
+		$role = false;
+
+		if( !$user ) {
 			$user = Session::instance()->getUser();
 		}
 
-		$role = $user
-			? $user->get( 'user_role' )
-			: false;
+		if( $user ) {
+			$role = $user->get( 'user_role' );
+		}
 
-		if( ! $role ) {
+		if( !$role ) {
 			$role = DEFAULT_USER_ROLE;
 		}
 
