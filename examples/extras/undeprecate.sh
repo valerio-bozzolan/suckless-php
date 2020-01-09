@@ -13,3 +13,5 @@ sed -i 's/get_menu_entry(/menu_entry(/'   $@
 sed -i 's/\t_value(/\techo value(/'       $@
 sed -i 's/\t_esc_html(/\techo esc_html(/' $@
 sed -i 's/\t_selected(/\techo selected(/' $@
+sed -i 's/\t_esc_attr(/\t_esc_attr(/'     $@
+sed -i 's/\t_checked(/\techo checked(/'   $@
