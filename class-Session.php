@@ -171,8 +171,8 @@ class Session {
 		$status = self::OK;
 
 		// set cookies
-		$this->setCookie( 'user_uid', $user->getSessionuserUID(),              false, SESSION_DURATION );
-		$this->setCookie( 'token',    $user->generateSessionuserCookieToken(), true,  SESSION_DURATION );
+		$this->setCookie( 'user_uid', $user->getSessionuserUID(),              false );
+		$this->setCookie( 'token',    $user->generateSessionuserCookieToken(), true  );
 
 		// it's a good moment to renew the anti-CSRF token
 		$this->renewCSRF();
@@ -186,9 +186,12 @@ class Session {
 	 * @param string  $name     Cookie name
 	 * @param string  $value    Cookie value
 	 * @param boolean $httponly When true do not expose via JavaScript
-	 * @param int     $duration Duration in milliseconds since now (or zero for the end of the browser session)
+	 * @param int     $duration Duration in milliseconds since now (or zero for the end of the browser session) (as default, is SESSION_DURATION)
 	 */
-	public function setCookie( $name, $value, $httponly, $duration ) {
+	public function setCookie( $name, $value, $httponly = false, $duration = null ) {
+		if( $duration === null ) {
+			$duration = SESSION_DURATION;
+		}
 		if( $duration !== 0 ) {
 			$duration += time();
 		}
@@ -294,7 +297,7 @@ class Session {
 	 */
 	public function renewCSRF( $bytes = 8 ) {
 		$this->csrf = bin2hex( openssl_random_pseudo_bytes( $bytes ) );
-		$this->setCookie( 'csrf', $this->csrf, true, SESSION_DURATION );
+		$this->setCookie( 'csrf', $this->csrf, true );
 		return $this->csrf;
 	}
 
