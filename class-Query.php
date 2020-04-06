@@ -1,5 +1,5 @@
 <?php
-# Copyright (C) 2017, 2018, 2019 Valerio Bozzolan
+# Copyright (C) 2017, 2018, 2019, 2020 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -155,6 +155,18 @@ class Query {
 	 */
 	public function from() {
 		return $this->appendInArray( func_get_args(), $this->tables );
+	}
+
+	/**
+	 * Select a table with a custom alias
+	 *
+	 * @param  string $from  Table name to be used in the FROM (without table prefix)
+	 * @param  string $alias Your table alias (the "AS something" part)
+	 * @return self
+	 */
+	public function fromAlias( $from, $alias ) {
+		$this->from[] = $this->db->getTable( $from, $alias );
+		return $this;
 	}
 
 	/**

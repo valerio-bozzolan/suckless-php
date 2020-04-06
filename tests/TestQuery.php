@@ -69,4 +69,17 @@ final class TestQuery extends TestCase {
 		);
 	}
 
+	/**
+	 * Test the FROM with an alias
+	 */
+	public function testFromWithAlias() {
+		$query = new Query( new DBDummy() );
+
+		$query->fromAlias( 'one', 'asd' );
+
+		$this->assertEquals(
+			'SELECT * FROM `one` AS `asd`',
+			$query->getQuery()
+		);
+	}
 }
