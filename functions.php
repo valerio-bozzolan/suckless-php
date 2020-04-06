@@ -713,14 +713,19 @@ function has_permission( $permission, $user = null ) {
  * If the base URL it is not defined, a slash ('/') is appended to the URL.
  * The base URL could end with a slash ('/') or not.
  *
- * @param  string $base Base URL with/without any slash at start
- * @param  string $dir  Directory without any slash
- * @return string       URL / Pathname
+ * @param  string $base Base URL or pathname with/without any slash at start
+ * @param  string $dir  Directory or partial pathname with or without initial slashes
+ * @param  string $glue Directory separator (as default it's the '/' for URLs)
+ * @return string       The junction between $base and $glue
 */
-function append_dir( $base, $dir = '/' ) {
-	$base = rtrim( $base, '/' );
-	$dir  = ltrim( $dir, '/' );
-	return $base . _ . $dir;
+function append_dir( $base, $dir = '', $glue = null ) {
+	if( !$glue ) {
+		// pick default URL separator '/'
+		$glue = _;
+	}
+	$base = rtrim( $base, $glue );
+	$dir  = ltrim( $dir,  $glue );
+	return $base . $glue . $dir;
 }
 
 /**
