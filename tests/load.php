@@ -9,7 +9,7 @@ define( 'ROOT', '/test' );
 define( 'REQUIRE_LOAD_POST', false );
 
 // load the framework
-require '../load.php';
+require __DIR__ . '/../load.php';
 
 /**
  * Create a dummy database with no connection
