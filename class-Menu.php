@@ -1,5 +1,5 @@
 <?php
-# Copyright (C) 2015, 2019 Valerio Bozzolan
+# Copyright (C) 2015, 2019, 2020 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,11 +15,32 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Handle a menu tree
+ * Menu tree
+ *
+ * This class is useful to store some information
+ * about your menu tree.
  */
 class Menu {
+
+	/**
+	 * All the menu entries
+	 *
+	 * @var array
+	 */
 	private $entries = [];
+
+	/**
+	 * Associative array of 'key' => [ values ] with the tree structure
+	 *
+	 * @var array
+	 */
 	private $tree = [];
+
+	/**
+	 * The menu root UID
+	 *
+	 * @var string
+	 */
 	private $rootUid;
 
 	/**
@@ -38,7 +59,7 @@ class Menu {
 	 */
 	public static function instance() {
 		static $me = false;
-		if( ! $me ) {
+		if( !$me ) {
 			$me = new self();
 		}
 		return $me;
