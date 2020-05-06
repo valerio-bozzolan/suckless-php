@@ -1,5 +1,5 @@
 <?php
-# Copyright (C) 2015, 2018, 2019 Valerio Bozzolan
+# Copyright (C) 2015, 2018, 2019, 2020 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -29,6 +29,51 @@ define_default( 'SESSION_FINGERPRINT_ALGO', 'sha256' );
  * Note that actually we do NOT need server sessions <3
  */
 class Session {
+
+	/*
+	 * A login( & $status ) value.
+	 *
+	 * This is the value for a correct login (correct username/password and active account).
+	 */
+	const OK = 0;
+
+	/**
+	 * A login( & $status ) value.
+	 *
+	 * This is the value for a login failure (user/password match is wrong).
+	 */
+	const LOGIN_FAILED = 1;
+
+	/**
+	 * A login( & $status ) value.
+	 *
+	 * This happens when you are already logged-in. Don't know why you have retried the login.
+	 */
+	const ALREADY_LOGGED = 2;
+
+	/**
+	 * A login( & $status ) value.
+	 *
+	 * This happens when you forgot to send the User UID (your username).
+	 */
+	const EMPTY_USER_UID = 4;
+
+	/**
+	 * A login( & $status ) value.
+	 *
+	 * This happens when you forgot to send the password.
+	 */
+	const EMPTY_USER_PASSWORD = 8;
+
+	/**
+	 * A login( & $status ) $value.
+	 *
+	 * This happen when the User is not active and so cannot login.
+	 * You may want to send him a confirmation email before allowing him to login.
+	 *
+	 * This happen when the 'user_active' field is not 1.
+	 */
+	const USER_DISABLED = 64;
 
 	/**
 	 * User currently logged
@@ -94,16 +139,6 @@ class Session {
 		}
 		return $this->user;
 	}
-
-	/*
-	 * Login statuses
-	 */
-	const OK                  = 0;
-	const LOGIN_FAILED        = 1;
-	const ALREADY_LOGGED      = 2;
-	const EMPTY_USER_UID      = 4;
-	const EMPTY_USER_PASSWORD = 8;
-	const USER_DISABLED       = 64;
 
 	/**
 	 * Do a login
