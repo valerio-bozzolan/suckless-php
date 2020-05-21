@@ -82,4 +82,19 @@ final class TestQuery extends TestCase {
 			$query->getQuery()
 		);
 	}
+
+	/**
+	 * Allow to have a query without the FROM
+	 */
+	public function testEmptyFrom() {
+
+		$query = new Query( new DBDummy() );
+
+		$query->select( '1' );
+
+		$this->assertEquals(
+			'SELECT 1',
+			$query->getQuery()
+		);
+	}
 }

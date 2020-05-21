@@ -530,7 +530,13 @@ class Query {
 	 * @see https://dev.mysql.com/doc/refman/8.0/en/select.html
 	 */
 	public function getQuery() {
-		$sql = "SELECT {$this->getSelect()} FROM {$this->getFrom()}";
+		$sql = "SELECT {$this->getSelect()}";
+
+		$from = $this->getFrom();
+		if( $from ) {
+			$sql .= " FROM $from";
+		}
+
 		if( $this->conditions ) {
 			$sql .= " WHERE {$this->conditions}";
 		}
