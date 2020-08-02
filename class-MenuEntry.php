@@ -81,7 +81,7 @@ class MenuEntry {
 
 		// backward compatibility
 		if( is_array( $permission ) ) {
-			error( "deprecated use of MenuEntry: now the #5 argument is \$permission and not $extra" );
+			error( "deprecated use of MenuEntry: now the #5 argument is \$permission and not \$extra" );
 			$extra = $permission;
 			$permission = null;
 		}
