@@ -129,7 +129,7 @@ class DB {
 	 */
 	public function query( $query ) {
 		$this->queries++;
-		if( $this->last !== false && $this->last !== true) {
+		if( $this->last !== false && $this->last !== true ) {
 			$this->last->free();
 		}
 		$this->last = $this->mysqli->query( $query );
@@ -480,6 +480,18 @@ class DB {
 
 		error( "type $type unexpected in DB::forceType() and so it will be seen as 's'" );
 		return $this->forceType( $s, 's' );
+	}
+
+	/**
+	 * USE another database
+	 *
+	 * @param string $database
+	 */
+	public function selectDB( $database ) {
+		$ok = $this->mysqli->select_db( $database );
+		if( !$ok ) {
+			throw new SucklessException( $this->getQueryErrorMessage( "USE $database" ) );
+		}
 	}
 
 	/**
