@@ -97,4 +97,34 @@ final class TestQuery extends TestCase {
 			$query->getQuery()
 		);
 	}
+
+	/**
+	 * SELECT with a custom AS argument
+	 */
+	public function testSelectAs() {
+
+		$query = new Query( new DBDummy() );
+
+		$query->selectAs( '1', 'ciao' );
+
+		$this->assertEquals(
+			'SELECT (1) ciao',
+			$query->getQuery()
+		);
+	}
+
+	/**
+	 * Test the SELECT with the empty AS argument
+	 */
+	public function testSelectAsEmpty() {
+
+		$query = new Query( new DBDummy() );
+
+		$query->selectAs( '1', null );
+
+		$this->assertEquals(
+			'SELECT (1)',
+			$query->getQuery()
+		);
+	}
 }

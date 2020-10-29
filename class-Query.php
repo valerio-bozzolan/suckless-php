@@ -148,6 +148,20 @@ class Query {
 	}
 
 	/**
+	 * Selected fields eventually with an AS field
+	 *
+	 * @param string $select Select field
+	 * @param string $as     AS column name
+	 * @return self
+	 */
+	public function selectAs( $select, $as = null ) {
+		if( $as ) {
+			$as = " $as";
+		}
+		return $this->select( "( $select )$as" );
+	}
+
+	/**
 	 * Selected tables
 	 *
 	 * @param string|array $tables Table/tables without database prefix
