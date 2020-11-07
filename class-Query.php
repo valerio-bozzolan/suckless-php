@@ -584,6 +584,16 @@ class Query {
 	}
 
 	/**
+	 * Where a subquery not exists
+	 *
+	 * @param $query object Query
+	 * @return self
+	 */
+	public function whereNotExists( $query ) {
+		return $this->whereExists( $query, false );
+	}
+
+	/**
 	 * Get a DELETE query
 	 *
 	 * Note that you MUST specify a condition.
