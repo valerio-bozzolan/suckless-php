@@ -5,7 +5,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Test Query class
  */
-final class TestQuery extends TestCase {
+final class QueryTest extends TestCase {
 
 	/**
 	 * Test the bracket and glue
@@ -108,7 +108,7 @@ final class TestQuery extends TestCase {
 		$query->selectAs( '1', 'ciao' );
 
 		$this->assertEquals(
-			'SELECT (1) ciao',
+			'SELECT ( 1 ) ciao',
 			$query->getQuery()
 		);
 	}
@@ -123,7 +123,25 @@ final class TestQuery extends TestCase {
 		$query->selectAs( '1', null );
 
 		$this->assertEquals(
-			'SELECT (1)',
+			'SELECT ( 1 )',
+			$query->getQuery()
+		);
+	}
+
+	/**
+	 * Test the SELECT with a NOT EXISTS constraint
+	 */
+	public function testSelectNotExists() {
+
+		$query = new Query( new DBDummy() );
+		$sub   = new Query( new DBDummy() );
+
+		$sub->select( 1 );
+
+		$query->whereNotExists( $sub );
+
+		$this->assertEquals(
+			'SELECT * WHERE NOT EXISTS (SELECT 1)',
 			$query->getQuery()
 		);
 	}

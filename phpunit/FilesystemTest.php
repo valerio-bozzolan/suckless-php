@@ -5,7 +5,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Test Query class
  */
-final class TestFilesystem extends TestCase {
+final class FilesystemTest extends TestCase {
 
 	/**
 	 * Test the append_dir() function
