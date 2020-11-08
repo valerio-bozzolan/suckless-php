@@ -131,7 +131,7 @@ final class QueryTest extends TestCase {
 	/**
 	 * Test the SELECT with a NOT EXISTS constraint
 	 */
-	public function testSelectNotExists() {
+	public function testSelectWhereNotExists() {
 
 		$query = new Query( new DBDummy() );
 		$sub   = new Query( new DBDummy() );
@@ -142,6 +142,25 @@ final class QueryTest extends TestCase {
 
 		$this->assertEquals(
 			'SELECT * WHERE NOT EXISTS (SELECT 1)',
+			$query->getQuery()
+		);
+	}
+
+	/**
+	 * Test the SELECT with a NOT EXISTS constraint
+	 */
+	public function testSelectExists() {
+
+		$query = new Query( new DBDummy() );
+		$sub   = new Query( new DBDummy() );
+
+		$sub->select( 1 );
+
+		$query->selectExists( $sub )
+		      ->selectNotExists( $sub, 'asd' );
+
+		$this->assertEquals(
+			'SELECT ( EXISTS( SELECT 1 ) ), ( NOT EXISTS( SELECT 1 ) ) asd',
 			$query->getQuery()
 		);
 	}

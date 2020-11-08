@@ -162,6 +162,34 @@ class Query {
 	}
 
 	/**
+	 * Select an EXISTS subquery
+	 *
+	 * @param Query   $query
+	 * @param string  $alias Result alias
+	 * @param boolean $positive Set to false to have a "NOT EXISTS"
+	 * @return self
+	 */
+	public function selectExists( $query, $alias = false, $positive = true ) {
+		$query_txt = $query->getQuery();
+		$query_txt = "EXISTS( $query_txt )";
+		if( !$positive ) {
+			$query_txt = "NOT $query_txt";
+		}
+		return $this->selectAs( $query_txt, $alias );
+	}
+
+	/**
+	 * Select an EXISTS subquery
+	 *
+	 * @param Query   $query
+	 * @param string  $alias Result alias
+	 * @return self
+	 */
+	public function selectNotExists( $query, $alias = false ) {
+		return $this->selectExists( $query, $alias, false );
+	}
+
+	/**
 	 * Selected tables
 	 *
 	 * @param string|array $tables Table/tables without database prefix
