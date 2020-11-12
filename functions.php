@@ -1036,15 +1036,28 @@ function search_free_filename( $filepath, $filename, $ext, $args, $build_filenam
 }
 
 /**
- * I use this to clean user input before DB#insert()
+ * I use this function to clean a stupid user input string before
+ * sanitizing and sending it to the database server.
  *
- * This does not mean that it sanitizes the string.
+ * This is useful to silently avoid some inappropriate uses:
+ *  do not send long LIKE queries to the database server
+ *  do not output long «Search results for: xxx»
+ *
+ * This may be useful for non-important information. For example when
+ * you have a search field that should be not longer than 200 chars
+ * and instead of throwing an exception you can just drop the surplus.
+ *
+ * It casts to string on order to avoid a warning when a malicious
+ * user try to send something else like an array (using 'foo[]=asd').
+ *
+ * Do not use this for important stuff. Do more checks.
  *
  * @param string $s Input string
  * @param int $max Max length
  * @return string
  */
 function luser_input( $s, $max ) {
+	$s = (string) $s;
 	return mb_strimwidth( trim( $s ), 0, $max, '' );
 }
 
