@@ -926,6 +926,24 @@ function json_error( $http_code, $code, $msg = null, $flags = 0 ) {
 }
 
 /**
+ * Validate a CSRF token or exit with a JSON error
+ *
+ * @param string $csrf
+ */
+function json_require_csrf( $csrf = null ) {
+
+	// eventually read the default value
+	if( !$csrf && isset( $_POST['csrf'] ) ) {
+		$csrf = $_POST['csrf'];
+	}
+
+	// no CSRF no party: die
+	if( $csrf !== Session::instance()->getCSRF() ) {
+		json_error( 403, 'forbidden-invalid-csrf', __( "This request was not executed for security reasons. Eventually try to reload the page and try again (invalid CSRF)." ) );
+	}
+}
+
+/**
  * Get the MIME type of a file
  *
  * @param string $filepath Filesystem file path
