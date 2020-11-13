@@ -45,16 +45,30 @@ class RegisterJS {
 	/**
 	 * Register a new script name
 	 *
-	 * @param string $name         Script name, like: "jquery"
+	 * This will not automatically enqueue it (normally).
+	 *
+	 * @param string $name         Script name, like: "jquery" (or just true for whatever, to enqueue it)
 	 * @param mixed  $url          Script url, like "http://example.org/lib/jquery.js"
 	 * @param string $position     header|footer
 	 * @param array  $dependencies Dependent script names
 	 */
 	public function register( $uid, $url, $position = null, $dependencies = [] ) {
-		if( ! $position ) {
+
+		// assume the default position
+		if( !$position ) {
 			$position = self::$DEFAULT;
 		}
-		$this->js[ $uid ] = new JS( $uid, $url, $position, $dependencies );
+
+		// create the object
+		$js = new JS( $uid, $url, $position, $dependencies );
+
+		// if the UID is just true, automatically enqueue
+		if( $uid === true ) {
+			$js->enqueue = true;
+		}
+
+		// append
+		$this->js[ $uid ] = $js;
 	}
 
 	/**
