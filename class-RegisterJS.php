@@ -36,7 +36,7 @@ class RegisterJS {
 	 */
 	public static function instance() {
 		static $me = false;
-		if( ! $me ) {
+		if( !$me ) {
 			$me = new self();
 		}
 		return $me;
@@ -61,11 +61,6 @@ class RegisterJS {
 
 		// create the object
 		$js = new JS( $uid, $url, $position, $dependencies );
-
-		// if the UID is just true, automatically enqueue
-		if( $uid === true ) {
-			$js->enqueue = true;
-		}
 
 		// append
 		$this->js[ $uid ] = $js;
@@ -198,15 +193,16 @@ class JS {
 	 * @param $glue string
 	 */
 	public function printNormal( $glue ) {
-		$url = $this->url;
-		$url = site_page( $url );
-		if( CACHE_BUSTER ) {
-			$url .= false === strpos( $url, '?' ) ? '?' : '&amp;';
-			$url .= CACHE_BUSTER;
-		}
-		echo "$glue<script src=\"$url\"></script>";
-		if( DEBUG ) {
-			echo "<!-- {$this->uid} -->";
+		if( $this->url ) {
+			$url = site_page( $this->url );
+			if( CACHE_BUSTER ) {
+				$url .= false === strpos( $url, '?' ) ? '?' : '&amp;';
+				$url .= CACHE_BUSTER;
+			}
+			echo "$glue<script src=\"$url\"></script>";
+			if( DEBUG ) {
+				echo "<!-- {$this->uid} -->";
+			}
 		}
 	}
 }
