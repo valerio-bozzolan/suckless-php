@@ -66,6 +66,16 @@ class HTML {
 	}
 
 	/**
+	 * Set the tag value
+	 *
+	 * @param string $value Attribute value
+	 * @return self
+	 */
+	public function setValue( $value ) {
+		return $this->setAttr( 'value', $value );
+	}
+
+	/**
 	 * Add a class
 	 *
 	 * @param string $name
