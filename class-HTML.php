@@ -36,11 +36,11 @@ class HTML {
 	private $attrs;
 
 	/**
-	 * Text inside the tag
+	 * HTML inside the tag
 	 *
 	 * @var string
 	 */
-	private $text;
+	private $html;
 
 	/**
 	 * Constructor
@@ -79,13 +79,23 @@ class HTML {
 	}
 
 	/**
-	 * Set the tag text
+	 * Set the in-tag text
 	 *
 	 * @param string $text Text
 	 * @return self
 	 */
 	public function setText( $text ) {
-		$this->text = $text;
+		return $this->setHTML( esc_html( $text ) );
+	}
+
+	/**
+	 * Set the in-tag HTMç
+	 *
+	 * @param string $html HTML
+	 * @return self
+	 */
+	public function setHTML( $html ) {
+		$this->html = $html;
 		return $this;
 	}
 
@@ -103,7 +113,7 @@ class HTML {
 		if( $tagname === 'img' ) {
 			return self::tagc( $tagname, $intag );
 		}
-		return self::tag( $tagname, $this->text, $intag );
+		return self::tag( $tagname, $this->html, $intag );
 	}
 
 	/**
@@ -137,18 +147,18 @@ class HTML {
 	 * Generate an <a> tag
 	 *
 	 * @param string $href  The href="" attribute
-	 * @param string $text  Displayed text
+	 * @param string $html  Displayed html
 	 * @param string $title The title="" attribute
 	 * @param string $class The class="" attribute
 	 * @param string $intag Something else into the tag
 	 * @return string
 	 */
-	public static function a( $href, $text = null, $title = null, $class= null, $intag = null ) {
+	public static function a( $href, $html = null, $title = null, $class= null, $intag = null ) {
 		$s  =  self::property( 'href',  $href  );
 		$s .=  self::property( 'title', $title );
 		$s .=  self::property( 'class', $class );
 		$s .=  self::spaced( $intag );
-		return self::tag( 'a', $text, $s );
+		return self::tag( 'a', $html, $s );
 	}
 
 	/**
@@ -205,12 +215,12 @@ class HTML {
 	/**
 	 * Return a <label>
 	 *
-	 * @param string $text
+	 * @param string $html
 	 * @param string $for
 	 * @return string
 	 */
-	public static function label( $text, $for = null, $intag = '' ) {
+	public static function label( $html, $for = null, $intag = '' ) {
 		$s = self::property( 'for', $for );
-		return self::tag( 'label', $text, $s );
+		return self::tag( 'label', $html, $s );
 	}
 }
