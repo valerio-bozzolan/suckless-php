@@ -1,5 +1,5 @@
 <?php
-# Copyright (C) 2015, 2016, 2017, 2019 Valerio Bozzolan
+# Copyright (C) 2015, 2016, 2017, 2019, 2020, 2021 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -140,22 +140,24 @@ class OutputUtilities {
 	/**
 	 * Get the human filesize from bytes
 	 *
-	 * @param $filesize int bytes
+	 * @param $filesize int Size in bytes
 	 * @param $glue string
+	 * @param $round int Round
 	 * @return string
 	 */
-	public static function humanFilesize( $filesize, $glue = ' ' ){
-		if( ! is_numeric( $filesize ) ) {
+	public static function humanFilesize( $filesize, $glue = ' ', $round = 2 ){
+		if( !is_numeric( $filesize ) ) {
 			return __( "NaN" );
 		}
 		$decr = 1024;
 		$step = 0;
-		$prefix = [ 'B', 'KB', 'MB', 'GB', 'TB', 'PB' ];
-		while( $filesize / $decr > 0.9 ) {
+		$prefixes = [ 'B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB' ];
+		$n = count( $prefixes ) - 1;
+		while( $filesize / $decr > 0.9 && $step < $n ) {
 			$filesize /= $decr;
 			$step++;
 		}
-		return round( $filesize, 2 ) . $glue . $prefix[ $step ];
+		return round( $filesize, $round ) . $glue . $prefixes[ $step ];
 	}
 
 	/**
@@ -181,7 +183,7 @@ class OutputUtilities {
 		<!DOCTYPE html>
 		<html>
 		<head>
-			<title><?php _e("Errore") ?></title>
+			<title><?= __("Errore") ?></title>
 			<meta http-equiv="Content-Type" content="text/html; charset=<?php echo CHARSET ?>" />
 			<meta name="robots" content="noindex, nofollow" />
 		</head>
@@ -191,7 +193,7 @@ class OutputUtilities {
 				DEBUG ? __("sì") : __("no")
 			) ?></h1>
 			<?php self::error( $msg ) ?>
-			<p><?php _e("Potrebbe essere utile comunicarci questo problema affinchè non si ripresenti in futuro. Grazie per la collaborazione.") ?></p>
+			<p><?= __("Potrebbe essere utile comunicarci questo problema affinchè non si ripresenti in futuro. Grazie per la collaborazione.") ?></p>
 		</body>
 		</html>
 		<?php

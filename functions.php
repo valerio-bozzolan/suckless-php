@@ -1,5 +1,5 @@
 <?php
-# Copyright (C) 2015, 2016, 2017, 2018, 2019 Valerio Bozzolan
+# Copyright (C) 2015, 2016, 2017, 2018, 2019, 2020, 2021 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -1028,12 +1028,13 @@ function is_closure( $t ) {
 /**
  * Get the human filesize from bytes
  *
- * @param $filesize int bytes
- * @param $glue string
+ * @param $filesize int Size in bytes
+ * @param $glue string Glue
+ * @param $round int Round
  * @return string
  */
-function human_filesize( $filesize, $glue = ' ' ) {
-	return OutputUtilities::humanFilesize( $filesize, $glue );
+function human_filesize( $filesize, $glue = ' ', $round = 2 ) {
+	return OutputUtilities::humanFilesize( $filesize, $glue, $round );
 }
 
 /*
