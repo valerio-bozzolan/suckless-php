@@ -1,5 +1,5 @@
 <?php
-# Copyright (C) 2017, 2018, 2019, 2020 Valerio Bozzolan
+# Copyright (C) 2017, 2018, 2019, 2020, 2021 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -264,6 +264,30 @@ class Query {
 		$this->conditions .= $condition;
 		$this->needsGlue = true;
 		return $this;
+	}
+
+	/**
+	 * Where a column IS NULL
+	 *
+	 * Note that, obviously, your column should be safe and trusted.
+	 *
+	 * @param string $column
+	 * @return self
+	 */
+	public function whereIsNull( $column ) {
+		return $this->compare( "`$column`", 'IS', 'NULL' );
+	}
+
+	/**
+	 * Where a column IS NOT NULL
+	 *
+	 * Note that, obviously, your column should be safe and trusted.
+	 *
+	 * @param string $column
+	 * @return self
+	 */
+	public function whereIsNotNull( $column ) {
+		return $this->compare( "`$column`", 'IS NOT', 'NULL' );
 	}
 
 	/**

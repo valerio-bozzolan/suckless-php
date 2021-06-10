@@ -164,4 +164,36 @@ final class QueryTest extends TestCase {
 			$query->getQuery()
 		);
 	}
+
+	/**
+	 * Test the SELECT IS NULL
+	 */
+	public function testIsNULL() {
+
+		$query = new Query( new DBDummy() );
+
+		$query->from( 'table' );
+		$query->whereIsNull( 'asd' );
+
+		$this->assertEquals(
+			'SELECT * FROM `table` AS `table` WHERE `asd` IS NULL',
+			$query->getQuery()
+		);
+	}
+
+	/**
+	 * Test the SELECT IS NOT NULL
+	 */
+	public function testIsNotNULL() {
+
+		$query = new Query( new DBDummy() );
+
+		$query->from( 'table' );
+		$query->whereIsNotNull( 'asd' );
+
+		$this->assertEquals(
+			'SELECT * FROM `table` AS `table` WHERE `asd` IS NOT NULL',
+			$query->getQuery()
+		);
+	}
 }
