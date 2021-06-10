@@ -342,16 +342,8 @@ class Query {
 	 * @param $alias mixed  Table alias. As default is true, and the table prefix is removed.
 	 */
 	public function joinOn( $type, $table, $a, $b = null, $alias = true ) {
-		if( $this->from ) {
-			$previous = array_pop( $this->from );
-		} elseif( $this->tables ) {
-			$previous = array_pop( $this->tables );
-			$previous = $this->db->getTable( $previous, true );
-		} else {
-			throw new InvalidArgumentException( 'not enough tables' );
-		}
-		$table = $this->db->getTable( $table, $alias );
 
+		// prepare the condition
 		$conditions = [];
 		if( $a ) {
 			$conditions[] = $a;
@@ -360,6 +352,28 @@ class Query {
 			$conditions[] = $b;
 		}
 		$on = implode( '=', $conditions );
+
+		if( $this->from ) {
+			$previous = array_pop( $this->from );
+		} elseif( $this->tables ) {
+			$previous = array_pop( $this->tables );
+			$previous = $this->db->getTable( $previous, true );
+		} else {
+
+			/**
+			 * This is a very special but useful case
+			 *
+			 * If you are joining "A with B" without A,
+			 * just do a "FROM A" with your condition
+			 * as a normal WHERE.
+			 *
+			 * This simplify subquery building.
+			 */
+			return $this->from( $table )
+			            ->where( $on );
+
+		}
+		$table = $this->db->getTable( $table, $alias );
 
 		$this->from[] = "$previous $type JOIN $table ON ($on)";
 		return $this;

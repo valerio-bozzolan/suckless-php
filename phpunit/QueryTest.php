@@ -196,4 +196,20 @@ final class QueryTest extends TestCase {
 			$query->getQuery()
 		);
 	}
+
+	/**
+	 * Test the SELECT IS NOT NULL
+	 */
+	public function testJoinLazy() {
+
+		$query = new Query( new DBDummy() );
+
+		$query->joinOn( 'INNER', 'asd', 'asd.id', 'other.id' );
+
+		$this->assertEquals(
+			'SELECT * FROM `asd` AS `asd` WHERE asd.id=other.id',
+			$query->getQuery()
+		);
+	}
+
 }
