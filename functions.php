@@ -315,6 +315,33 @@ function query_update( $table, $cols, $cond, $after = '' ) {
 }
 
 /**
+ * Start a transaction
+ *
+ * It's safe to be used for nested transactions.
+ */
+function start_transaction() {
+	DB::instance()->startTransaction();
+}
+
+/**
+ * Start a transaction
+ *
+ * It's safe to be used for nested transactions.
+ */
+function commit() {
+	DB::instance()->commit();
+}
+
+/**
+ * Rollback a transaction
+ *
+ * It's safe to be used for nested transactions.
+ */
+function rollback() {
+	DB::instance()->rollback();
+}
+
+/**
  * Shortcut for htmlspecialchars()
  *
  * Get a sanitized value for an HTML attribute value (in double quotes).

@@ -1,5 +1,5 @@
 <?php
-# Copyright (C) 2015, 2018, 2019 Valerio Bozzolan
+# Copyright (C) 2015, 2018, 2019, 2020, 2021 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -52,6 +52,20 @@ class DB {
 	 * @var query-result
 	 */
 	private $last = false;
+
+	/**
+	 * Transaction nest level
+	 *
+	 * @var int
+	 */
+	private $transactions = 0;
+
+	/**
+	 * Check if a rollback was fired
+	 *
+	 * @var bool
+	 */
+	private $rollback = false;
 
 	/**
 	 * Singleton instance
@@ -339,6 +353,62 @@ class DB {
 	public function update( $table, $columns, $conditions, $after = '' ) {
 		$table = $this->getTable( $table, true );
 		return $this->query( $this->buildUpdateQuery( $table, $columns, $conditions, $after ) );
+	}
+
+	/**
+	 * Eventually run a START TRANSACTION
+	 *
+	 * It's safe to be used in nested transactions.
+	 *
+	 * Remember to call self#commit() or self#rollback() at the end.
+	 *
+	 * @return self
+	 */
+	public function startTransaction() {
+
+		// do nothing in any nested transaction
+		if( $this->transactions++ === 0 ) {
+			$this->query( 'START TRANSACTION' );
+		}
+
+		return $this;
+	}
+
+	/**
+	 * Eventually run a COMMIT
+	 *
+	 * It's safe to be used in nested transactions.
+	 *
+	 * @return self
+	 */
+	public function commit() {
+
+		// do nothing in any nested transaction
+		if( $this->transactions-- === 1 ) {
+
+			// check if the commit was aborted
+			if( $this->rollback ) {
+				$this->query( 'ROLLBACK' );
+				$this->rollback = false;
+			} else {
+				$this->query( 'COMMIT' );
+			}
+
+		}
+
+		return $this;
+	}
+
+	/**
+	 * Eventually run a ROLLBACK
+	 *
+	 * It's safe to be used in nested transactions.
+	 *
+	 * @return self
+	 */
+	public function rollback() {
+		$this->rollback = true;
+		return $this->commit();
 	}
 
 	/**
