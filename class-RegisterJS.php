@@ -1,5 +1,5 @@
 <?php
-# Copyright (C) 2015, 2017, 2019 Valerio Bozzolan
+# Copyright (C) 2015, 2017, 2019, 2020, 2021, 2022 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -76,11 +76,22 @@ class RegisterJS {
 	public function registerInline( $uid, $data, $position ) {
 
 		// no script no party
-		if( !isset( $this->js[ $uid ] ) ) {
+		$js = $this->get( $uid );
+		if( !$js ) {
 			throw new SucklessException( "cannot register inline on missing JavaScript '$uid'" );
 		}
 
-		$this->js[ $uid ]->inline[ $position ][] = $data;
+		$js->inline[ $position ][] = $data;
+	}
+
+	/**
+	 * Get a JavaScript object
+	 *
+	 * @param string $uid
+	 * @return object|false
+	 */
+	public function get( $uid ) {
+		return $this->js[ $uid ] ?? false;
 	}
 
 	/**
@@ -95,11 +106,10 @@ class RegisterJS {
 	public function enqueue( $uid, $position = null ) {
 
 		// no script no party
-		if( !isset( $this->js[ $uid ] ) ) {
+		$js = $this->get( $uid );
+		if( !$js ) {
 			throw new SucklessException( "cannot enqueue missing JavaScript '$uid'" );
 		}
-
-		$js = $this->js[ $uid ];
 
 		// eventually override script position
 		if( $position ) {
@@ -151,6 +161,31 @@ class JS {
 	public $dependencies;
 
 	/**
+	 * Get the URL to this resource
+	 *
+	 * @param bool $absolute Set to true to have a full HTTP URL
+	 * @return string
+	 */
+	public function getURL( $absolute = false ) {
+		return site_page( $this->url, $absolute );
+	}
+
+	/**
+	 * Get the URL to this resource
+	 *
+	 * @param bool $absolute Set to true to have a full HTTP URL
+	 * @return string
+	 */
+	public function getURLCached( $absolute = false ) {
+		$url = $this->getURL();
+		if( CACHE_BUSTER ) {
+			$url .= false === strpos( $url, '?' ) ? '?' : '&amp;';
+			$url .= CACHE_BUSTER;
+		}
+		return $url;
+	}
+
+	/**
 	 * Construct
 	 *
 	 * @param $uid string
@@ -194,11 +229,7 @@ class JS {
 	 */
 	public function printNormal( $glue ) {
 		if( $this->url ) {
-			$url = site_page( $this->url );
-			if( CACHE_BUSTER ) {
-				$url .= false === strpos( $url, '?' ) ? '?' : '&amp;';
-				$url .= CACHE_BUSTER;
-			}
+			$url = $this->getURLCached();
 			echo "$glue<script src=\"$url\"></script>";
 			if( DEBUG ) {
 				echo "<!-- {$this->uid} -->";
