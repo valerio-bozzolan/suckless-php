@@ -207,7 +207,12 @@ class Query {
 	 * @return self
 	 */
 	public function fromAlias( $from, $alias ) {
-		$this->from[] = $this->db->getTable( $from, $alias );
+		if( $alias === true ) {
+			// this case was added to do not break inserts because of missing tables[]
+			$this->tables[] = $from;
+		} else {
+			$this->from[] = $this->db->getTable( $from, $alias );
+		}
 		return $this;
 	}
 
