@@ -31,11 +31,14 @@ class OutputUtilities {
 	public static function slug( $s, $max_length = 0, $glue = '-', & $truncated ) {
 		$truncated = false;
 
-		// normalize accents (frequent in Italian)
-		$s = strtolower( self::stripAccents($s) );
+		// lowercase
+		$s = strtolower( $s );
 
-		// normalize cyrillic (go Ukraina! go!)
+		// normalize cyrillic (go Ukraina! go!) - should be done before accents normalization
 		$s = self::cyrillic2latin( $s );
+
+		// normalize accents (frequent in Italian)
+		$s = self::stripAccents( $s );
 
 		if( $glue !== '_' ) {
 			$s = str_replace( '_',' ', $s );
