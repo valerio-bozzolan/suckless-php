@@ -213,7 +213,7 @@ class JS {
 		$parts = $this->inline[ $position ];
 		if( $parts ) {
 			echo "$glue<script>$glue" .
-			     implode( $parts, $glue ) .
+			     implode( $glue, $parts ) .
 			     "$glue</script>";
 
 			if( DEBUG ) {
