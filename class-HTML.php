@@ -196,8 +196,20 @@ class HTML {
 	 * @param  string $name  Property's name
 	 * @param  string $value Property's value
 	 * @return string
+	 * @deprecated
 	 */
 	public static function property( $name, $value ) {
+		return self::attribute( $name, $value );
+	}
+
+	/**
+	 * Return the property of a tag, only if the value isn't NULL
+	 *
+	 * @param  string $name  Property's name
+	 * @param  string $value Property's value
+	 * @return string
+	 */
+	public static function attribute( $name, $value ) {
 		$s = '';
 		if( $value !== null ) {
 			$value = esc_attr( $value );
