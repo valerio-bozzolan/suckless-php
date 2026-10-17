@@ -1,5 +1,5 @@
 <?php
-# Copyright (C) 2015, 2019 Valerio Bozzolan
+# Copyright (C) 2015-2026 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -118,7 +118,7 @@ class HTML {
 		$tagname = $this->tagname;
 		$intag = '';
 		foreach( $this->attrs as $attr => $value ) {
-			$intag .= self::property( $attr, $value );
+			$intag .= self::attribute( $attr, $value );
 		}
 		if( $tagname === 'img' ) {
 			return self::tagc( $tagname, $intag );
@@ -164,9 +164,9 @@ class HTML {
 	 * @return string
 	 */
 	public static function a( $href, $html = null, $title = null, $class= null, $intag = null ) {
-		$s  =  self::property( 'href',  $href  );
-		$s .=  self::property( 'title', $title );
-		$s .=  self::property( 'class', $class );
+		$s  =  self::attribute('href',  $href );
+		$s .=  self::attribute('title', $title);
+		$s .=  self::attribute('class', $class);
 		$s .=  self::spaced( $intag );
 		return self::tag( 'a', $html, $s );
 	}
@@ -182,10 +182,10 @@ class HTML {
 	 * @return string
 	 */
 	public static function img( $src, $alt = null, $title = null, $class = null, $intag = null ) {
-		$s  =  self::property( 'src',   $src   );
-		$s .=  self::property( 'alt',   $alt   );
-		$s .=  self::property( 'title', $title );
-		$s .=  self::property( 'class', $class );
+		$s  =  self::attribute('src',   $src  );
+		$s .=  self::attribute('alt',   $alt  );
+		$s .=  self::attribute('title', $title);
+		$s .=  self::attribute('class', $class);
 		$s .=  self::spaced( $intag );
 		return self::tagc( 'img', $s );
 	}
@@ -227,9 +227,9 @@ class HTML {
 	 * @param string $intag Other stuff into the tag
 	 */
 	public static function input( $type, $name, $value = '', $intag = '' ) {
-		$s  =  self::property( 'type',  $type  );
-		$s .=  self::property( 'name',  $name  );
-		$s .=  self::property( 'value', $value );
+		$s  =  self::attribute('type',  $type );
+		$s .=  self::attribute('name',  $name );
+		$s .=  self::attribute('value', $value);
 		$s .=  self::spaced( $intag );
 		return self::tagc( 'input', $s );
 	}
@@ -242,7 +242,7 @@ class HTML {
 	 * @return string
 	 */
 	public static function label( $html, $for = null, $intag = '' ) {
-		$s = self::property( 'for', $for );
+		$s = self::attribute('for', $for);
 		return self::tag( 'label', $html, $s );
 	}
 }
