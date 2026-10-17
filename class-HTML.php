@@ -166,7 +166,7 @@ class HTML {
 	public static function a( $href, $html = null, $title = null, $class= null, $intag = null ) {
 		$s  =  self::attribute('href',  $href );
 		$s .=  self::attribute('title', $title);
-		$s .=  self::attribute('class', $class);
+		$s .=  self::attributeArray('class', $class);
 		$s .=  self::spaced( $intag );
 		return self::tag( 'a', $html, $s );
 	}
@@ -185,9 +185,34 @@ class HTML {
 		$s  =  self::attribute('src',   $src  );
 		$s .=  self::attribute('alt',   $alt  );
 		$s .=  self::attribute('title', $title);
-		$s .=  self::attribute('class', $class);
+		$s .=  self::attributeArray('class', $class);
 		$s .=  self::spaced( $intag );
 		return self::tagc( 'img', $s );
+	}
+
+	/**
+	 * Return the property of a tag, only if the value isn't NULL
+	 *
+	 * @param  string       $name  Property's name
+	 * @param  string|array $value Property's value as string, or array of strings,
+	 *                             or an array with string-keys, and activation booleans as value.
+	 * @return string
+	 */
+	public static function attributeArray($name, $values) {
+		if (is_array($values)) {
+			$value_parts = [];
+			foreach ($values as $k => $v) {
+				if (is_bool($v)) {
+					if ($v) {
+						$value_parts[] = $k;
+					}
+				} else {
+					$value_parts[] = $v;
+				}
+			}
+			$values = $value_parts ? implode(' ', $value_parts) : null;
+		}
+		return self::property($name, $values);
 	}
 
 	/**
