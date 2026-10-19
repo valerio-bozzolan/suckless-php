@@ -1,5 +1,5 @@
 <?php
-# Copyright (C) 2015, 2018, 2019, 2020, 2021 Valerio Bozzolan
+# Copyright (C) 2015-2026 Valerio Bozzolan
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -49,7 +49,7 @@ class DB {
 	/**
 	 * Last query result
 	 *
-	 * @var query-result
+	 * @var mysqli_result|false|true
 	 */
 	private $last = false;
 
