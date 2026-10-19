@@ -123,6 +123,9 @@ class MimeTypes {
 			'application/vnd.ms-powerpoint' => 'ppt',
 			'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => ['docx', 'xlsx', 'pptx']
 		] );
+		$this->registerMimetypes('csv', [
+			'text/csv' => 'csv',
+		]);
 	}
 
 	/**
