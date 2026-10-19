@@ -146,7 +146,14 @@ class DB {
 		if( $this->last !== false && $this->last !== true ) {
 			$this->last->free();
 		}
+
+		// Clear the previous result before calling query()
+		// so that when query() crashes we do not toch the last
+		// unrelated results by mistake.
+		$this->last = false;
+
 		$this->last = $this->mysqli->query( $query );
+
 		if( DEBUG_QUERIES ) {
 			error( "query n. {$this->queries}: $query" );
 		}
